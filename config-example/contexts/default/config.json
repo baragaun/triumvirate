@@ -1,0 +1,6 @@
+{
+  "description": "This is the default context",
+  "llmId": "anthropic.claude-3-haiku-20240307-v1:0",
+  "llmTemperature": 0.5,
+  "llmMaxTokens": 1000
+}
