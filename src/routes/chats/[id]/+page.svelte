@@ -1,38 +1,100 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
-  import ChatInterface from '$lib/components/ChatInterface.svelte';
-  import type { GetChatResponse } from '$lib/types'
   import { goto } from '$app/navigation'
+  import ChatComponent from './components/ChatComponent.svelte'
+  import type { ChatUiData } from '$lib/types'
+  import type { Chat } from '$lib/server/db/schema'
 
-  // Props from the server
-  let { data } = $props<{ data: GetChatResponse }>();
+  let { data }: { data: ChatUiData } = $props<{ data: ChatUiData }>();
+  const chatConfigs = data.chatConfigs || [];
+  const user = data.user;
+  const llms = data.llms || [];
+  const chatConfig = data.chat?.configId && chatConfigs
+    ? chatConfigs.find(config => config.id === data.chat?.configId) || null
+    : null;
 
   // State
+  let chat = $state(data.chat);
+  let chatMessages = $state(data.chatMessages || []);
   let isLoading = $state(true);
 
   onMount(async () => {
-    console.log('Chat page mounted, chat ID:', page.params.id);
+    // console.log('Chat page mounted, chat ID:', page.params.id);
 
     if (!data.chat) {
       await goto('/');
       return;
     }
 
-    console.log('Chat data:', data.chat);
-    console.log(`Loaded ${data.chatMessages?.length || 0} messages`);
+    // console.log('Chat data:', data.chat);
+    // console.log(`Loaded ${data.chatMessages?.length || 0} messages`);
 
     // Set isLoading to false after a short delay to ensure the page has rendered
     setTimeout(() => {
       isLoading = false;
     }, 100);
   });
+
+  async function updateChat(changes: Partial<Chat>): Promise<string> {
+    try {
+      console.log('updateChat: changes:', changes);
+      if (!changes.id) {
+        changes.id = chat.id;
+      }
+
+      const response = await fetch(`/api/chats/${chat.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(changes)
+      });
+
+      const responseData = await response.json();
+
+      if (responseData.error) {
+        return responseData.error;
+      }
+      chat = responseData.chat;
+
+      console.log('updateChat: chat:', $state.snapshot(chat));
+
+      return 'ok';
+    } catch (error) {
+      error = error instanceof Error ? error.message : 'An error occurred while saving settings';
+      return error instanceof Error ? error.message : 'Unknown error';
+    }
+  }
+
+  async function deleteChat(): Promise<void> {
+    try {
+      console.log('deleteChat called.');
+
+      const response = await fetch(`/api/chats/${chat.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const responseData = await response.json();
+
+      if (responseData.error) {
+        return responseData.error;
+      }
+
+      await goto('/');
+    } catch (error) {
+      console.error('Error deleting chat:', error instanceof Error ? error.message : 'Unknown error');
+    }
+  }
 </script>
 
 <div class="container">
-  <header>
-    <h1>Micromentor Entrepreneur Assistant</h1>
-  </header>
+  {#if chat?.caption}
+    <header>
+      <h1>{chat?.caption}</h1>
+    </header>
+  {/if}
 
   <main>
     {#if isLoading}
@@ -41,11 +103,23 @@
         <p>Loading...</p>
       </div>
     {:else}
-      <ChatInterface
-        chat={data.chat}
-        llmContext={data.llmContext}
-        initialMessages={data.chatMessages || []}
-      />
+      <div class="chat-container">
+        {#if chat?.title}
+          <div class="chat-title">
+            <h2>{chat?.title}</h2>
+          </div>
+        {/if}
+        <ChatComponent
+          {user}
+          {chat}
+          bind:chatMessages
+          {chatConfig}
+          {chatConfigs}
+          {llms}
+          {updateChat}
+          {deleteChat}
+        />
+      </div>
     {/if}
   </main>
 
@@ -60,7 +134,7 @@
     flex-direction: column;
     min-height: 100vh;
     padding: 1rem;
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
   }
 
@@ -112,5 +186,29 @@
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+
+  /* Chat container styles */
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    height: 100%;
+    overflow: auto;
+  }
+
+  .chat-title {
+    padding: 0.5rem 1rem;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .chat-title h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 500;
   }
 </style>

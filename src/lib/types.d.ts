@@ -1,22 +1,34 @@
 import type { ChatMessage } from '$lib/server/db/schema'
 
-export interface CreateChatResponse {
-  error?: string;
-  chat?: Chat | null;
-  llmContext?: LlmContext | null;
-  chatMessages?: ChatMessage[];
-}
-
-export interface GetChatResponse {
+export interface ChatInfo {
   error?: string;
   chat?: Chat | null;
   chatMessages?: ChatMessage[];
-  llmContext?: LlmContext | null;
+  chatConfig?: ChatConfig | null;
 }
 
-export interface CreateChatMessageResponse {
+export interface ChatUiData {
   error?: string;
-  messages?: ChatMessage[];
+  user?: User | null;
+  chat?: Chat | null;
+  chatMessages?: ChatMessage[];
+  chatConfigs?: ChatConfig[];
+  llms?: Llm[];
+}
+
+export interface ChangeObjectResponse<T = any> {
+  error?: string;
+  object?: T | null;
+}
+
+export interface ChangeChatMessageResponse {
+  error?: string;
+  chatMessages?: ChatMessage[];
+}
+
+export interface GenerateChatMessageResponse {
+  error?: string;
+  chatMessage?: ChatMessage;
 }
 
 export interface EndChatRequest {

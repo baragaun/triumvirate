@@ -19,7 +19,7 @@ export const initDb = async (recreate = false) => {
       await db.execute(sql`
         drop table chat_messages;
         drop table chats;
-        drop table llm_contexts;
+        drop table chat_configs;
         drop table llms;
         drop table users;
       `);
@@ -29,6 +29,7 @@ export const initDb = async (recreate = false) => {
           id varchar(255) PRIMARY KEY NOT NULL,
           name varchar(255) NOT NULL UNIQUE,
           password_hash varchar(255) NOT NULL,
+          is_admin BOOLEAN NOT NULL DEFAULT FALSE,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL
         )
@@ -48,12 +49,13 @@ export const initDb = async (recreate = false) => {
       `);
 
       await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS llm_contexts (
+        CREATE TABLE IF NOT EXISTS chat_configs (
           id varchar(255) PRIMARY KEY NOT NULL,
+          caption varchar(255),
           description TEXT,
-          instructions TEXT,
           welcome_message TEXT,
           llm_id varchar(255) NOT NULL,
+          llm_instructions TEXT,
           llm_temperature REAL,
           llm_max_tokens INTEGER,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
@@ -65,20 +67,23 @@ export const initDb = async (recreate = false) => {
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS chats (
           id varchar(255) PRIMARY KEY NOT NULL,
+          caption varchar(255),
+          title varchar(255),
+          mode varchar(20),
           user_id varchar(255),
+          user_name varchar(255),
           llm_id varchar(255) NOT NULL,
-          llm_context_id varchar(255),
+          llm_instructions TEXT,
+          config_id varchar(255),
           llm_temperature REAL,
           llm_max_tokens INTEGER,
-          title varchar(255),
-          user_name varchar(255),
           feedback TEXT,
           rating INTEGER,
           ended_at TIMESTAMP,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
           FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE NO ACTION ON DELETE NO ACTION,
-          FOREIGN KEY (llm_context_id) REFERENCES llm_contexts(id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+          FOREIGN KEY (config_id) REFERENCES chat_configs(id) ON UPDATE NO ACTION ON DELETE NO ACTION,
           FOREIGN KEY (llm_id) REFERENCES llms(id) ON UPDATE NO ACTION ON DELETE NO ACTION
         )
       `);
@@ -91,9 +96,13 @@ export const initDb = async (recreate = false) => {
           send_to_llm BOOLEAN NOT NULL DEFAULT TRUE,
           send_to_user BOOLEAN NOT NULL DEFAULT TRUE,
           content TEXT NOT NULL,
-          status varchar(255),
+          send_status varchar(255),
+          iteration INTEGER,
           error varchar(255),
           feedback TEXT,
+          llm_id varchar(255),
+          llm_instructions TEXT,
+          llm_temperature REAL,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
           FOREIGN KEY (chat_id) REFERENCES chats(id) ON UPDATE NO ACTION ON DELETE NO ACTION

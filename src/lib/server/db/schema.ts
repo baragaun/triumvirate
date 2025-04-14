@@ -4,6 +4,7 @@ export const user = pgTable('users', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull().unique(),
 	passwordHash: text('password_hash').notNull(),
+	isAdmin: boolean('is_admin').notNull().default(false),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
@@ -18,13 +19,16 @@ export const session = pgTable('sessions', {
 
 export const chat = pgTable('chats', {
 	id: text('id').primaryKey(),
+	caption: text('caption'),
+	title: text('title'),
+	mode: text('mode'),
 	userId: text('user_id').references(() => user.id),
+	userName: text('user_name'), // Name of the test user
 	llmId: text('llm_id').notNull(), // The model used (e.g., amazon.nova-lite-v1:0)
-	llmContextId: text('llm_context_id'), // Reference to the LLM context used
+	configId: text('config_id'), // Reference to the CHAT config used
+	llmInstructions: text('llm_instructions'), // The instructions used at the start of the chat
 	llmTemperature: real('llm_temperature'), // The model temperature used
 	llmMaxTokens: integer('llm_max_tokens'), // The maximum number of tokens used
-	title: text('title'),
-	userName: text('user_name'), // Name of the test user
 	feedback: text('feedback'), // User feedback on the chat
 	rating: integer('rating'), // Numerical rating of the chat
 	endedAt: timestamp('ended_at'), // When the chat ended
@@ -36,14 +40,31 @@ export const chatMessage = pgTable('chat_messages', {
 	id: text('id').primaryKey(),
 	chatId: text('chat_id').notNull().references(() => chat.id),
 	role: text('role').notNull(), // 'user', 'assistant', or 'system'
+	content: text('content').notNull(),
+	iteration: integer('iteration'),
+	feedback: text('feedback'), // feedback that the user provided for a message from the assistant
 	sendToLlm: boolean('send_to_llm').notNull().default(true),
 	sendToUser: boolean('send_to_user').notNull().default(true),
-	content: text('content').notNull(),
-	status: text('status'), // status of sending/receiving
+	sendStatus: text('send_status'), // status of sending/receiving
 	error: text('error'), // any error message
-	feedback: text('feedback'), // feedback that the user provided for a message from the assistant
+	llmId: text('llm_id'), // The model used (e.g., amazon.nova-lite-v1:0)
+	llmInstructions: text('llm_instructions'), // The instructions used at the start of the chat
+	llmTemperature: real('llm_temperature'), // The model temperature used
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const chatConfig = pgTable('chat_configs', {
+	id: text('id').primaryKey(),
+	description: text('description'), // Description of the CHAT config
+	caption: text('caption'),
+	welcomeMessage: text('welcome_message'), // The first message to send to the user
+	llmId: text('llm_id').notNull(), // The model used (e.g., amazon.nova-lite-v1:0)
+	llmInstructions: text('llm_instructions').notNull(), // The instructions used at the start of the chat
+	llmTemperature: real('llm_temperature'), // The model temperature used
+	llmMaxTokens: integer('llm_max_tokens'), // The maximum number of tokens used
+	createdAt: timestamp('created_at').notNull().defaultNow(),
+	updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
 export const llm = pgTable('llms', {
@@ -57,21 +78,9 @@ export const llm = pgTable('llms', {
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
-export const llmContext = pgTable('llm_contexts', {
-	id: text('id').primaryKey(),
-	description: text('description'), // Description of the LLM context
-	instructions: text('instructions').notNull(), // The actual instructions
-	welcomeMessage: text('welcome_message'), // The first message to send to the user
-	llmId: text('llm_id').notNull(), // The model used (e.g., amazon.nova-lite-v1:0)
-	llmTemperature: real('llm_temperature'), // The model temperature used
-	llmMaxTokens: integer('llm_max_tokens'), // The maximum number of tokens used
-	createdAt: timestamp('created_at').notNull().defaultNow(),
-	updatedAt: timestamp('updated_at').notNull().defaultNow()
-});
-
 export type User = typeof user.$inferSelect;
 export type Chat = typeof chat.$inferSelect;
 export type ChatMessage = typeof chatMessage.$inferSelect;
+export type ChatConfig = typeof chatConfig.$inferSelect;
 export type Llm = typeof llm.$inferSelect;
-export type LlmContext = typeof llmContext.$inferSelect;
 export type Session = typeof session.$inferSelect;

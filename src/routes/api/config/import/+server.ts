@@ -3,7 +3,7 @@ import operations from '$lib/server/operations';
 
 export async function GET() {
   try {
-    await operations.llmContext.import();
+    await operations.chatConfig.import();
 
     return json({
     });

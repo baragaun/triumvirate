@@ -2,10 +2,11 @@ import { json } from '@sveltejs/kit';
 import operations from '$lib/server/operations';
 import type { Chat } from '$lib/server/db/schema';
 
+// Create a new chat
 export async function POST({ request }) {
   try {
     // console.log('Creating new chat');
-    const props = await request.json() as Partial<Chat>;
+    const props: Partial<Chat> = await request.json();
     // console.log('Chat props:', props);
 
     const response = await operations.chat.create(props);

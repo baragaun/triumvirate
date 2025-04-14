@@ -9,12 +9,16 @@ import { findChatMessages } from '$lib/server/chatMessage/findChatMessages'
 import { findChat } from '$lib/server/chat/findChat'
 import { createChatMessage } from '$lib/server/chatMessage/createChatMessage'
 import { MessageRole } from '$lib/enums'
-import { findLlmContext } from '$lib/server/llmContext/findLlmContext'
+import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
+import type { GenerateChatMessageResponse } from '$lib/types'
+import { updateChatMessage } from '$lib/server/chatMessage/updateChatMessage'
+
+const MOCK = true;
 
 export async function generateBedrockResponse(
   chatId: string,
   chat?: Chat | null,
-): Promise<{ chatMessage?: ChatMessage | null; error?: string }> {
+): Promise<GenerateChatMessageResponse> {
   console.log('generateBedrockResponse called.', { chatId });
 
   if (!chatId) {
@@ -36,36 +40,83 @@ export async function generateBedrockResponse(
       }
     }
 
-    let messages = await findChatMessages(chatId, MessageRole.assistant);
+    let messages = await findChatMessages(chatId);
     const sendingInstructions = messages.length < 1;
+    let iteration: number | null = null;
+    let llmInstructions = chat.llmInstructions;
 
     if (messages.length > 0) {
-      messages = messages.map((message) => {
-        if (message.role === MessageRole.system) {
-          return {
-            ...message,
-            role: MessageRole.user,
-          };
+      const previousMessage = messages[messages.length - 1];
+      if (previousMessage.role === MessageRole.assistant) {
+        // The user requested to re-generate the last message, likely with modified settings,
+        // such as model ID, temperature, or instructions.
+        // The last message will always have `sendToLlm: true`, so we will have to update it,
+        // even if it already had an iteration.
+        const changesToPreviousMessage: Partial<ChatMessage> = {
+          id: previousMessage.id,
+          sendToLlm: false,
         }
-        return message;
-      });
+        previousMessage.sendToLlm = false;
+
+        if (previousMessage.iteration === null) {
+          changesToPreviousMessage.iteration = 1;
+          iteration = 2;
+        } else {
+          iteration = previousMessage.iteration + 1;
+        }
+
+        await updateChatMessage(changesToPreviousMessage, false);
+      }
+
+      messages = messages
+        .filter((message) => message.sendToLlm)
+        .map((message) => {
+          if (message.role === MessageRole.system) {
+            return {
+              ...message,
+              role: MessageRole.user,
+            };
+          }
+          return message;
+        });
     }
 
-    const llmContext = chat.llmContextId
-      ? await findLlmContext(chat.llmContextId || 'default')
+    const chatConfig = chat.configId
+      ? await findChatConfig(chat.configId || 'default')
       : null;
 
-    if (llmContext?.instructions) {
+    if (!llmInstructions && chatConfig?.llmInstructions) {
+      llmInstructions = chatConfig.llmInstructions;
+    }
+
+    const llmId = chat.llmId || chatConfig?.llmId;
+    const llmTemperature = chat.llmTemperature || chatConfig?.llmTemperature || 0.7;
+    const llmMaxTokens = chat.llmMaxTokens || chatConfig?.llmMaxTokens || 1000;
+    // When the config has a welcome message, we don't show the first response of the LLM
+    // to the instructions to the user. That gives us better control over the first message
+    // shown to the user.
+    const sendToUser = !sendingInstructions || !chatConfig?.welcomeMessage;
+
+    if (!llmId) {
+      console.error('Error generating response from Bedrock: LLM ID is required');
+      return { error: 'LLM ID is required' };
+    }
+
+    if (llmInstructions) {
       messages.unshift({
         id: 'instructions',
         chatId: chat.id,
-        role: 'user',
-        content: llmContext.instructions,
-        status: null,
-        error: null,
+        role: MessageRole.user,
+        content: llmInstructions,
+        iteration: null,
         feedback: null,
         sendToLlm: true,
         sendToUser: false,
+        sendStatus: null,
+        error: null,
+        llmId,
+        llmTemperature,
+        llmInstructions: null,
         createdAt: chat.createdAt,
         updatedAt: chat.updatedAt,
       });
@@ -76,17 +127,8 @@ export async function generateBedrockResponse(
       return { error: 'No messages found' };
     }
 
-    const llmId = chat.llmId || llmContext?.llmId;
-    const temperature = chat.llmTemperature || llmContext?.llmTemperature || 0.7;
-    const maxTokens = chat.llmMaxTokens || llmContext?.llmMaxTokens || 1000;
-
-    if (!llmId) {
-      console.error('Error generating response from Bedrock: LLM ID is required');
-      return { error: 'LLM ID is required' };
-    }
-
     const prompt = formatPromptForModel(llmId, messages);
-    const requestBody = createRequestBody(llmId, prompt, temperature, maxTokens);
+    const requestBody = createRequestBody(llmId, prompt, llmTemperature, llmMaxTokens);
     console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
     const command = new InvokeModelCommand({
@@ -96,28 +138,41 @@ export async function generateBedrockResponse(
       accept: 'application/json',
     });
 
-    // Invoke the model
-    const response = await client.send(command);
+    let generatedText: string;
+    if (MOCK) {
+      generatedText = sendingInstructions
+        ? 'This is a mock response to the instructions.'
+        : `This is a mock generated from the assistant #${iteration || '1'}.`;
+    } else {
+      // Invoke the model
+      const response = await client.send(command);
 
-    // Parse the response
-    const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-    console.log('Response body:', JSON.stringify(responseBody, null, 2));
+      // Parse the response
+      const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+      console.log('Response body:', JSON.stringify(responseBody, null, 2));
 
-    // Extract the generated text based on the model
-    const generatedText = extractResponseText(chat.llmId, responseBody);
+      // Extract the generated text based on the model
+      generatedText = extractResponseText(chat.llmId, responseBody);
+    }
 
     // Save the assistant's response to the database:
-    const chatMessage = await createChatMessage({
+    const props: Partial<ChatMessage> = {
       chatId,
       role: 'assistant',
       content: generatedText,
-      // When the context has a welcome message, we don't show the first response of the LLM
-      // to the instructions to the user. That gives us better control over the first message
-      // shown to the user.
-      sendToUser: !sendingInstructions || !llmContext?.welcomeMessage,
-    });
+      iteration,
+      sendToUser,
+      llmId,
+      llmTemperature,
+    };
+    const createChatMessageResponse = await createChatMessage(props, false);
 
-    return { chatMessage };
+    if (!createChatMessageResponse.chatMessages || createChatMessageResponse.chatMessages.length !== 1) {
+      console.error('Error generating response from Bedrock: Failed to create chat message');
+      return { error: 'Failed to create chat message' };
+    }
+
+    return { chatMessage: createChatMessageResponse.chatMessages[0] };
   } catch (error) {
     console.error('Error generating response from Bedrock:', error);
 

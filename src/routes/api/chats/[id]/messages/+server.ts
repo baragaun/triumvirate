@@ -1,7 +1,6 @@
 import { json } from '@sveltejs/kit';
 import operations from '$lib/server/operations';
 import { type ChatMessage } from '$lib/server/db/schema'
-import { MessageRole } from '$lib/enums'
 
 export async function GET({ params }) {
   try {
@@ -34,22 +33,11 @@ export async function POST({ request, params }) {
     }
 
     console.log('Creating chat message with props:', props);
-    const chatMessage = await operations.chatMessage.create(props);
+    const response = props.id
+      ? await operations.chatMessage.update(props, true)
+      : await operations.chatMessage.create(props, true);
 
-    if (!chatMessage) {
-      return json({ error: 'Failed to create chat message' }, { status: 500 });
-    }
-
-    const messages = [chatMessage];
-
-    if (chatMessage?.role === MessageRole.user) {
-      const response = await operations.bedrock.generateResponse(props.chatId);
-      if (response.chatMessage) {
-        messages.push(response.chatMessage);
-      }
-    }
-
-    return json({ messages });
+    return json(response);
   } catch (error) {
     console.error('Error processing chat request:', error);
 

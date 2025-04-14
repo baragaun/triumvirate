@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import operations from '$lib/server/operations';
+import type { Llm } from '$lib/server/db/schema'
 
 // Get a specific model
 export async function GET({ params }) {
@@ -35,21 +36,16 @@ export async function GET({ params }) {
 // Update a model
 export async function PUT({ params, request }) {
   try {
-    const id = params.id;
-
-    if (!id) {
+    if (!params.id) {
       return json({
         error: 'Model ID is required'
       }, { status: 400 });
     }
 
-    const body = await request.json();
+    const changes: Partial<Llm> = await request.json();
+    changes.id = params.id;
 
-    await operations.llm.update({
-      id,
-      description: body.description,
-      isActive: body.isActive
-    });
+    await operations.llm.update(changes);
 
     return json({});
   } catch (error) {

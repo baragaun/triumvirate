@@ -1,40 +1,40 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import type { CreateChatResponse } from '$lib/types'
-  import type { Chat, LlmContext } from '$lib/server/db/schema'
+  import type { ChatInfo } from '$lib/types'
+  import type { Chat, ChatConfig } from '$lib/server/db/schema'
 
   // State
   let userName = $state('');
-  let selectedLlmContext = $state<LlmContext | null>(null);
-  let selectedLlmContextId = $state<string>('default');
-  let llmContexts = $state<LlmContext[]>([]);
+  let selectedChatConfig = $state<ChatConfig | null>(null);
+  let selectedChatConfigId = $state<string>('default');
+  let chatConfigs = $state<ChatConfig[]>([]);
   let isLoading = $state(true);
   let showConfigSection = $state(false);
   let error = $state<string | null>(null);
 
-  async function fetchLlmContexts() {
+  async function fetchChatConfigs() {
     try {
-      const response = await fetch('/api/llm-contexts');
+      const response = await fetch('/api/chat-configs');
       const responseData = await response.json();
 
-      if (!responseData.error && responseData.llmContexts && responseData.llmContexts.length > 0) {
-        llmContexts = responseData.llmContexts;
-        selectedLlmContextId = responseData.selectedLlmContextId;
-        if (responseData.selectedLlmContextId) {
-          selectedLlmContext = llmContexts.find(config => config.id === responseData.selectedLlmContextId) || null;
+      if (!responseData.error && responseData.chatConfigs && responseData.chatConfigs.length > 0) {
+        chatConfigs = responseData.chatConfigs;
+        selectedChatConfigId = responseData.selectedChatConfigId;
+        if (responseData.selectedChatConfigId) {
+          selectedChatConfig = chatConfigs.find(config => config.id === responseData.selectedChatConfigId) || null;
         }
-        showConfigSection = llmContexts.length > 1;
+        showConfigSection = chatConfigs.length > 1;
       }
     } catch (error) {
-      console.error('Error fetching llmContexts:', error);
+      console.error('Error fetching chatConfigs:', error);
     }
   }
 
   async function createChat(): Promise<void> {
     // Clear any previous error
     error = null;
-    if (!selectedLlmContext) {
+    if (!selectedChatConfig) {
       console.error('No chat config selected');
       error = 'No chat config selected';
       return;
@@ -44,10 +44,10 @@
     try {
       const chatProps: Partial<Chat> = {
         userName: userName,
-        llmId: selectedLlmContext.llmId || undefined,
-        llmContextId: selectedLlmContext.id || undefined,
-        llmTemperature: selectedLlmContext.llmTemperature || 0.7,
-        llmMaxTokens: selectedLlmContext.llmMaxTokens || 1000,
+        llmId: selectedChatConfig.llmId || undefined,
+        configId: selectedChatConfig.id || undefined,
+        llmTemperature: selectedChatConfig.llmTemperature || 0.7,
+        llmMaxTokens: selectedChatConfig.llmMaxTokens || 1000,
       };
 
       // Send the request to the API
@@ -59,7 +59,7 @@
         body: JSON.stringify(chatProps)
       });
 
-      const data: CreateChatResponse = await response.json();
+      const data: ChatInfo = await response.json();
 
       // Save the chat ID if it's returned
       if (!data.chat) {
@@ -79,14 +79,14 @@
   }
 
   onMount(async () => {
-    await fetchLlmContexts();
+    await fetchChatConfigs();
     isLoading = false;
   });
 </script>
 
 <div class="container">
   <header>
-    <h1>Micromentor Entrepreneur Assistant</h1>
+    <h1>Micromentor Assistant</h1>
     <p>Thank you for helping Micromentor to test our new Assistant</p>
   </header>
 
@@ -94,7 +94,7 @@
     {#if isLoading}
       <div class="loading-container">
         <div class="loading-spinner"></div>
-        <p>Loading models and model contexts...</p>
+        <p>Loading models and chat configs...</p>
       </div>
     {:else}
       <div class="config-container">
@@ -117,11 +117,11 @@
         {#if showConfigSection}
           <div class="form-group">
             <label for="llmselect">Select Config</label>
-            <select id="llmselect" bind:value={selectedLlmContextId}>
-              {#if llmContexts.length === 0}
+            <select id="llmselect" bind:value={selectedChatConfigId}>
+              {#if chatConfigs.length === 0}
                 <option value="">No configurations available</option>
               {:else}
-                {#each llmContexts as config (config.id)}
+                {#each chatConfigs as config (config.id)}
                   <option value={config.id}>{config.id})</option>
                 {/each}
               {/if}
@@ -138,7 +138,7 @@
         <button
           class="start-button"
           onclick={createChat}
-          disabled={!userName.trim() || !selectedLlmContext}
+          disabled={!userName.trim() || !selectedChatConfig}
         >
           Start Chat
         </button>
