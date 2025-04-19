@@ -1,15 +1,15 @@
 import * as table from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm'
-import { type LlmContext } from '$lib/server/db/schema'
+import { type ChatConfig } from '$lib/server/db/schema'
 import dataStore from '$lib/server/dataStore'
 
-export async function findLlmContext(id: string): Promise<LlmContext> {
+export async function findChatConfig(id: string): Promise<ChatConfig> {
   const db = dataStore.db.get();
 
   return db
     .select()
-    .from(table.llmContext)
-    .where(eq(table.llmContext.id, id))
+    .from(table.chatConfig)
+    .where(eq(table.chatConfig.id, id))
     .limit(1)
     .then(rows => rows[0] || null);
 }

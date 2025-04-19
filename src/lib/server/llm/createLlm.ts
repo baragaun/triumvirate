@@ -14,6 +14,7 @@ export async function createLlm(params: Partial<Llm>): Promise<Llm | null> {
       name: params.name || '',
       provider: params.provider || '',
       description: params.description || null,
+      isOnDemand: params.isOnDemand === undefined || params.isOnDemand === null ? true : params.isOnDemand,
       isActive: params.isActive === undefined || params.isActive === null ? true : params.isActive,
       createdAt: new Date(),
       updatedAt: new Date(),

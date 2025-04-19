@@ -5,17 +5,17 @@ import { generateId } from '$lib/server/helpers';
 import { findOrCreateUser } from '$lib/server/user/findOrCreateUser';
 import { findChat } from '$lib/server/chat/findChat';
 import dataStore from '$lib/server/dataStore';
-import { MessageRole } from '$lib/enums';
+import { ChatMode, MessageRole } from '$lib/enums'
 import { createChatMessage } from '$lib/server/chatMessage/createChatMessage';
-import type { CreateChatResponse } from '$lib/types';
-import { findLlmContext } from '$lib/server/llmContext/findLlmContext'
+import type { ChatInfo } from '$lib/types';
+import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
 import { generateBedrockResponse } from '$lib/server/bedrock/generateBedrockResponse'
 
-export async function createChat(props: Partial<Chat>): Promise<CreateChatResponse> {
+export async function createChat(props: Partial<Chat>): Promise<ChatInfo> {
   const db = dataStore.db.get();
   const user = await findOrCreateUser(props.userId, props.userName);
   const chatId = props.id || generateId();
-  const llmContext = await findLlmContext(props.llmContextId || 'default');
+  const chatConfig = await findChatConfig(props.configId || 'default');
 
   if (!user) {
     console.error('Error creating chat: User not found');
@@ -25,16 +25,19 @@ export async function createChat(props: Partial<Chat>): Promise<CreateChatRespon
   try {
     const values: Chat = {
       id: chatId,
+      caption: props.caption || chatConfig?.caption || null,
+      title: props.title || null,
+      mode: props.mode || ChatMode.user,
       userId: user.id,
       userName: props.userName || null,
-      title: props.title || null,
       llmId: props.llmId || 'unknown',
-      llmContextId: props.llmContextId || null,
-      llmTemperature: props.llmTemperature || llmContext?.llmTemperature || null,
-      llmMaxTokens: props.llmMaxTokens || llmContext?.llmMaxTokens || null,
-      endedAt: null,
+      configId: props.configId || null,
+      llmInstructions: props.llmInstructions || null,
+      llmTemperature: props.llmTemperature || chatConfig?.llmTemperature || null,
+      llmMaxTokens: props.llmMaxTokens || chatConfig?.llmMaxTokens || null,
       feedback: null,
       rating: null,
+      endedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -53,7 +56,7 @@ export async function createChat(props: Partial<Chat>): Promise<CreateChatRespon
     }
 
     // Adding welcome message:
-    let content = llmContext?.welcomeMessage ||
+    let content = chatConfig?.welcomeMessage ||
       'Hello! I\'m your assistant. How can I help you today?';
 
     const messageProps: Partial<ChatMessage> = {
@@ -63,16 +66,17 @@ export async function createChat(props: Partial<Chat>): Promise<CreateChatRespon
       sendToUser: true,
       content: content,
     };
-    const welcomeMessage = await createChatMessage(messageProps);
-    if (welcomeMessage) {
-      chatMessages.push(welcomeMessage);
+    const createChatMessageResponse = await createChatMessage(messageProps, false);
+    if (createChatMessageResponse.error) {
+      console.error('Error creating chat message:', createChatMessageResponse.error);
+      return { error: 'Failed to create chat message' };
     }
 
-    return {
-      chat,
-      llmContext,
-      chatMessages,
-    };
+    if (createChatMessageResponse.chatMessages?.length !== 1) {
+      chatMessages.push(createChatMessageResponse.chatMessages![0]);
+    }
+
+    return { chat, chatConfig, chatMessages };
   } catch (error) {
     console.error('Error creating chat:', error);
     return { error: 'system error' };

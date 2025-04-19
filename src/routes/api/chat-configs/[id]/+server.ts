@@ -1,28 +1,29 @@
 import { json } from '@sveltejs/kit';
 import operations from '$lib/server/operations';
+import type { ChatConfig } from '$lib/server/db/schema';
 
-// Get a specific LLM context
+// Get a specific CHAT config
 export async function GET({ params }) {
   try {
     const id = params.id;
 
     if (!id) {
       return json({
-        error: 'LLM context ID is required'
+        error: 'Chat config ID is required'
       }, { status: 400 });
     }
 
-    const llmContext = await operations.llmContext.findOne(id);
+    const chatConfig = await operations.chatConfig.findOne(id);
 
-    if (!llmContext) {
+    if (!chatConfig) {
       return json({
-        error: 'LLM context not found'
+        error: 'CHAT config not found'
       }, { status: 404 });
     }
 
-    return json({ llmContext });
+    return json({ chatConfig });
   } catch (error) {
-    console.error('Error retrieving LLM context:', error);
+    console.error('Error retrieving chat config:', error);
 
     return json({
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -30,28 +31,22 @@ export async function GET({ params }) {
   }
 }
 
-// Update an LLM context
+// Update an chat config
 export async function PUT({ params, request }) {
   try {
-    const id = params.id;
-
-    if (!id) {
+    if (!params.id) {
       return json({
-        error: 'LLM context ID is required'
+        error: 'Chat config ID is required'
       }, { status: 400 });
     }
 
-    const body = await request.json();
-
-    await operations.llmContext.update({
-      id,
-      instructions: body.instructions,
-      description: body.description
-    });
+    const changes: Partial<ChatConfig> = await request.json();
+    changes.id = params.id;
+    await operations.chatConfig.update(changes);
 
     return json({});
   } catch (error) {
-    console.error('Error updating LLM context:', error);
+    console.error('Error updating chat config:', error);
 
     return json({
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -59,22 +54,22 @@ export async function PUT({ params, request }) {
   }
 }
 
-// Delete an LLM context
+// Delete an chat config
 export async function DELETE({ params }) {
   try {
     const id = params.id;
 
     if (!id) {
       return json({
-        error: 'LLM context ID is required'
+        error: 'Chat config ID is required'
       }, { status: 400 });
     }
 
-    await operations.llmContext.delete(id);
+    await operations.chatConfig.delete(id);
 
     return json({});
   } catch (error) {
-    console.error('Error deleting LLM context:', error);
+    console.error('Error deleting chat config:', error);
 
     return json({
       error: error instanceof Error ? error.message : 'Unknown error'

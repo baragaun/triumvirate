@@ -21,6 +21,7 @@ export async function createUser(props: Partial<User>): Promise<User | null> {
     id,
     name: props.name || 'anonymous',
     passwordHash, // Random placeholder password hash
+    isAdmin: false,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
