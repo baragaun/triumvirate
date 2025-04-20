@@ -24,7 +24,7 @@ export const userMocks = {
   createUser: vi.fn().mockImplementation((userData: Partial<User>) => {
     const user = {
       id: userData.id || `test-id-${mockData.users.length + 1}`,
-      name: userData.name || 'testuser',
+      username: userData.username || 'testuser',
       passwordHash: userData.passwordHash || 'mock-hash',
       createdAt: userData.createdAt || new Date(),
       updatedAt: userData.updatedAt || new Date()
@@ -180,6 +180,7 @@ export const chatMessageMocks = {
       content: messageData.content || '',
       sendToLlm: messageData.sendToLlm !== undefined ? messageData.sendToLlm : true,
       sendToUser: messageData.sendToUser !== undefined ? messageData.sendToUser : true,
+      replaced: messageData.replaced !== undefined ? messageData.replaced : false,
       createdAt: messageData.createdAt || new Date(),
       updatedAt: messageData.updatedAt || new Date()
     } as ChatMessage;

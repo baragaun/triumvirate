@@ -18,6 +18,7 @@
     chatConfig,
     chatConfigs,
     llms,
+    guestUserName,
     updateChat,
     deleteChat,
   } = $props<{
@@ -27,6 +28,7 @@
     chatConfig: ChatConfig | null,
     chatConfigs: ChatConfig[],
     llms: Llm[],
+    guestUserName?: string | null,
     updateChat: (changes: Partial<Chat>) => Promise<string>,
     deleteChat: () => Promise<void>,
   }>();
@@ -44,10 +46,12 @@
   let error = $state<string | null | undefined>(null);
   let chatContainer: HTMLElement;
   let showFeedback = $state(false);
+  let collapseResponses = $state(true); // show/hide AI responses that were replaced later
   let feedbackText = $state('');
   let feedbackRating = $state<number | null>(null);
   let showSettingsModal = $state(false);
   let editingMessageId = $state<string | null>(null);
+  let listRevision = $state(0);
   let lastMessageId = $derived(chatMessages[chatMessages.length - 1]?.id);
   let userMessages = $derived(chatMessages.filter((m: ChatMessage) => m.role === MessageRole.user));
   let lastUserMessageId = $derived(userMessages[userMessages.length - 1]?.id);
@@ -169,6 +173,11 @@
     try {
       // console.log('ChatComponent.onGenerateChatMessage called.');
 
+      const latestMessage = chatMessages[chatMessages.length - 1];
+      if (latestMessage.role === MessageRole.assistant) {
+        latestMessage.replaced = true;
+      }
+
       const response = await fetch(`/api/chats/${chat.id}/messages/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -183,7 +192,6 @@
 
       chatMessages[chatMessages.length - 1].canRegenerate = false;
       chatMessages.push(responseData.chatMessage);
-      // console.log('>>>>>>>msgs', chatMessages);
     } catch (error) {
       console.error('ChatComponent.onGenerateChatMessage: error received',
         error instanceof Error ? error.message : 'An error occurred while saving settings');
@@ -223,6 +231,17 @@
       date = new Date(date);
     }
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Get the current user's name (either logged in user or guest)
+  const getUserName = (): string => {
+    if (user?.username) {
+      return user.username;
+    } else if (guestUserName) {
+      return guestUserName;
+    } else {
+      return 'Guest';
+    }
   }
 
   const endChat = async (feedback?: string, rating?: number): Promise<void> => {
@@ -317,22 +336,28 @@
       </div>
     {/if}
 
-    {#each chatMessages as message (message.id)}
-      <div
-        class="message {message.role} {message.error ? 'error' : ''} {message.sendStatus === 'retrying' ? 'retrying' : ''}"
-        role="listitem"
-        aria-label="{message.role === 'user' ? 'Your message' : message.role === 'system' ? 'System message' : 'AI Assistant message'}"
-      >
-        <MessageBubble
-          {message}
-          {llms}
-          canEdit={message.role === MessageRole.user && message.id === lastUserMessageId}
-          canRegenerate={message.role === MessageRole.assistant && message.id === lastMessageId}
-          {onGenerateChatMessage}
-          {onEditMessage}
-        />
-      </div>
-    {/each}
+    {#key listRevision}
+      {#each chatMessages as message (message.id)}
+        {#if !((collapseResponses || chat.mode === ChatMode.user) && message.replaced)}
+          <div
+            class="message {message.role} {message.error ? 'error' : ''} {message.sendStatus === 'retrying' ? 'retrying' : ''}"
+            role="listitem"
+            aria-label="{message.role === 'user' ? 'Your message' : message.role === 'system' ? 'System message' : 'AI Assistant message'}"
+          >
+            <MessageBubble
+              {chat}
+              {message}
+              replaced={message.replaced}
+              {llms}
+              canEdit={message.role === MessageRole.user && message.id === lastUserMessageId}
+              canRegenerate={message.role === MessageRole.assistant && message.id === lastMessageId}
+              {onGenerateChatMessage}
+              {onEditMessage}
+            />
+          </div>
+        {/if}
+      {/each}
+    {/key}
 
     {#if isLoading}
       <div
@@ -494,6 +519,19 @@
           {/if}
       </span>
     </div>
+    {#if chat.mode === ChatMode.edit}
+      <div class="toggle-container">
+        <label class="toggle-switch">
+          <input
+            type="checkbox"
+            checked={collapseResponses}
+            onclick={() => collapseResponses = !collapseResponses}
+          />
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">Collapse responses</span>
+      </div>
+    {/if}
   {/if}
 </div>
 
@@ -719,6 +757,9 @@
     background-color: #f9f9f9;
     font-size: .7rem;
     padding: 0 0.5rem;
+    height: auto;
+    display: flex;
+    align-items: center;
   }
 
   .feedback-button:hover {
@@ -743,6 +784,11 @@
     font-size: 0.7rem;
     color: #666;
     background-color: #f9f9f9;
+  }
+
+  .chat-llm-info span {
+    display: flex;
+    align-items: center;
   }
 
   .edit-settings-button {
@@ -831,5 +877,67 @@
 
   .submit-button:hover:not(:disabled) {
     background-color: #388e3c;
+  }
+
+  .toggle-container {
+    display: flex;
+    align-items: center;
+    margin: 0.5rem 0;
+    padding: 0 1rem;
+  }
+
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    margin-right: 8px;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+  }
+
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+
+  input:checked + .toggle-slider {
+    background-color: #2196F3;
+  }
+
+  input:focus + .toggle-slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
+
+  input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+  }
+
+  .toggle-label {
+    font-size: 0.9rem;
+    color: #555;
   }
 </style>

@@ -348,28 +348,7 @@
     color: #333;
   }
 
-  .loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-  }
-
-  .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #2196f3;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+  /* Loading styles removed as they're not used */
 
   .form-group {
     margin-bottom: 1.5rem;
@@ -383,7 +362,6 @@
   }
 
   input[type="text"],
-  input[type="number"],
   select,
   textarea {
     width: 100%;

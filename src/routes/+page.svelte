@@ -1,153 +1,115 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import type { ChatInfo } from '$lib/types'
-  import type { Chat, ChatConfig } from '$lib/server/db/schema'
+  import type { PageData } from './$types';
+
+  // Get data from props
+  let { data } = $props<{ data: PageData }>();
 
   // State
   let userName = $state('');
-  let selectedChatConfig = $state<ChatConfig | null>(null);
-  let selectedChatConfigId = $state<string>('default');
-  let chatConfigs = $state<ChatConfig[]>([]);
-  let isLoading = $state(true);
-  let showConfigSection = $state(false);
+  let isLoading = $state(false);
   let error = $state<string | null>(null);
 
-  async function fetchChatConfigs() {
-    try {
-      const response = await fetch('/api/chat-configs');
-      const responseData = await response.json();
+  // Computed property to check if form is valid
+  let isFormValid = $derived(userName.trim() !== '');
 
-      if (!responseData.error && responseData.chatConfigs && responseData.chatConfigs.length > 0) {
-        chatConfigs = responseData.chatConfigs;
-        selectedChatConfigId = responseData.selectedChatConfigId;
-        if (responseData.selectedChatConfigId) {
-          selectedChatConfig = chatConfigs.find(config => config.id === responseData.selectedChatConfigId) || null;
-        }
-        showConfigSection = chatConfigs.length > 1;
-      }
-    } catch (error) {
-      console.error('Error fetching chatConfigs:', error);
-    }
-  }
-
-  async function createChat(): Promise<void> {
+  const startAssistant = async (): Promise<void> => {
     // Clear any previous error
     error = null;
-    if (!selectedChatConfig) {
-      console.error('No chat config selected');
-      error = 'No chat config selected';
+
+    if (!isFormValid) {
+      error = 'Please enter your name to continue.';
       return;
     }
 
     isLoading = true;
     try {
-      const chatProps: Partial<Chat> = {
-        userName: userName,
-        llmId: selectedChatConfig.llmId || undefined,
-        configId: selectedChatConfig.id || undefined,
-        llmTemperature: selectedChatConfig.llmTemperature || 0.7,
-        llmMaxTokens: selectedChatConfig.llmMaxTokens || 1000,
-      };
-
-      // Send the request to the API
+      // Create a simple chat with just the username
       const response = await fetch('/api/chats', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(chatProps)
+        body: JSON.stringify({
+          userName: userName.trim()
+        })
       });
 
-      const data: ChatInfo = await response.json();
+      const data = await response.json();
 
-      // Save the chat ID if it's returned
+      if (data.error) {
+        error = data.error;
+        return;
+      }
+
       if (!data.chat) {
         error = data.error || 'Failed to create chat';
         return;
       }
 
-      // Navigate to the chat page
-      console.log('Navigating to chat page:', `/chats/${data.chat.id}`);
-      await goto(`/chats/${data.chat.id}`);
+      // Navigate to the chat with the username as a parameter
+      await goto(`/chats/${data.chat.id}?userName=${encodeURIComponent(userName)}`);
     } catch (err) {
+      console.error('Error creating chat:', err);
       error = err instanceof Error ? err.message : 'An unknown error occurred';
-      console.error('Error sending message:', err);
     } finally {
       isLoading = false;
     }
-  }
-
-  onMount(async () => {
-    await fetchChatConfigs();
-    isLoading = false;
-  });
+  };
 </script>
 
 <div class="container">
   <header>
-    <h1>Micromentor Assistant</h1>
-    <p>Thank you for helping Micromentor to test our new Assistant</p>
+    <h1>AI Assistant</h1>
+    <p>Get started with our AI assistant to help with your mentoring journey</p>
   </header>
 
   <main>
     {#if isLoading}
       <div class="loading-container">
         <div class="loading-spinner"></div>
-        <p>Loading models and chat configs...</p>
+        <p>Loading assistant...</p>
       </div>
     {:else}
-      <div class="config-container">
-        <div class="instructions">
-          In this session, we are trying to understand your situation and
-          get prepared to get connected to a mentor
-        </div>
+      <div class="welcome-container">
+        <div class="welcome-content">
 
-        <div class="form-group">
-          <label for="userName">What is your name?</label>
-          <input
-            type="text"
-            id="userName"
-            bind:value={userName}
-            placeholder="Enter your name"
-            required
-          />
-        </div>
-
-        {#if showConfigSection}
           <div class="form-group">
-            <label for="llmselect">Select Config</label>
-            <select id="llmselect" bind:value={selectedChatConfigId}>
-              {#if chatConfigs.length === 0}
-                <option value="">No configurations available</option>
-              {:else}
-                {#each chatConfigs as config (config.id)}
-                  <option value={config.id}>{config.id})</option>
-                {/each}
-              {/if}
-            </select>
+            <label for="userName">What should we call you?</label>
+            <input
+              type="text"
+              id="userName"
+              bind:value={userName}
+              placeholder="Enter your name"
+              required
+              oninput={() => error = null}
+            />
           </div>
-        {/if}
 
-        {#if error}
-          <div class="error-message">
-            <p>{error}</p>
+          {#if error}
+            <div class="error-message">
+              <p>{error}</p>
+            </div>
+          {/if}
+
+          <button
+            class="start-button"
+            onclick={startAssistant}
+            disabled={!isFormValid || isLoading}
+          >
+            {isLoading ? 'Starting...' : 'Start Assistant'}
+          </button>
+
+          <div class="login-prompt">
+            <p>Already have an account? <a href="/login">Log in</a> or <a href="/register">Register</a></p>
           </div>
-        {/if}
-
-        <button
-          class="start-button"
-          onclick={createChat}
-          disabled={!userName.trim() || !selectedChatConfig}
-        >
-          Start Chat
-        </button>
+        </div>
       </div>
     {/if}
   </main>
 
   <footer>
-    <p>Built with Svelte 5</p>
+    <p>© 2023 Triumvirate</p>
   </footer>
 </div>
 
@@ -163,20 +125,22 @@
 
   header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
+    padding-top: 2rem;
   }
 
   h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
     margin-bottom: 0.5rem;
     color: #2196f3;
   }
+
+  /* h2 styles removed */
 
   main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 70vh;
   }
 
   footer {
@@ -185,10 +149,6 @@
     padding: 1rem 0;
     color: #666;
     font-size: 0.875rem;
-  }
-
-  .instructions {
-    margin-bottom: 2rem;
   }
 
   .loading-container {
@@ -215,55 +175,82 @@
     100% { transform: rotate(360deg); }
   }
 
-  .config-container {
+  .welcome-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+
+  .welcome-content {
     background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
-    max-width: 500px;
-    margin: 0 auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 3rem;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .welcome-content p {
+    color: #555;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
   }
 
   .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: left;
   }
 
   label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     font-weight: 500;
     color: #333;
+    font-size: 1.1rem;
   }
 
-  input, select {
+  input {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
+    padding: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1.1rem;
     font-family: inherit;
+    transition: border-color 0.2s;
   }
 
-  input:focus, select:focus {
+  input:focus {
     border-color: #2196f3;
     outline: none;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
   }
 
   .start-button {
     width: 100%;
-    padding: 0.75rem;
+    padding: 1rem;
     background-color: #2196f3;
     color: white;
     border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: 500;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
+    margin-bottom: 1.5rem;
   }
 
   .start-button:hover:not(:disabled) {
     background-color: #1976d2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  }
+
+  .start-button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(33, 150, 243, 0.3);
   }
 
   .start-button:disabled {
@@ -273,15 +260,32 @@
 
   .error-message {
     background-color: #ffebee;
-    border-radius: 4px;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
     border-left: 4px solid #f44336;
+    text-align: left;
   }
 
   .error-message p {
     color: #d32f2f;
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .login-prompt {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: #666;
+  }
+
+  .login-prompt a {
+    color: #2196f3;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .login-prompt a:hover {
+    text-decoration: underline;
   }
 </style>

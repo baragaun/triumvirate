@@ -17,17 +17,18 @@ export const initDb = async (recreate = false) => {
       console.log('Initializing database...');
 
       await db.execute(sql`
-        drop table chat_messages;
-        drop table chats;
-        drop table chat_configs;
-        drop table llms;
-        drop table users;
+        drop table if exists chat_messages;
+        drop table if exists chats;
+        drop table if exists chat_configs;
+        drop table if exists llms;
+        drop table if exists sessions;
+        drop table if exists users;
       `);
 
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS users (
           id varchar(255) PRIMARY KEY NOT NULL,
-          name varchar(255) NOT NULL UNIQUE,
+          username varchar(255) NOT NULL UNIQUE,
           password_hash varchar(255) NOT NULL,
           is_admin BOOLEAN NOT NULL DEFAULT FALSE,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
@@ -72,6 +73,7 @@ export const initDb = async (recreate = false) => {
           mode varchar(20),
           user_id varchar(255),
           user_name varchar(255),
+          welcome_message TEXT,
           llm_id varchar(255) NOT NULL,
           llm_instructions TEXT,
           config_id varchar(255),
@@ -95,6 +97,7 @@ export const initDb = async (recreate = false) => {
           role varchar(10) NOT NULL,
           send_to_llm BOOLEAN NOT NULL DEFAULT TRUE,
           send_to_user BOOLEAN NOT NULL DEFAULT TRUE,
+          replaced BOOLEAN NOT NULL DEFAULT FALSE,
           content TEXT NOT NULL,
           send_status varchar(255),
           iteration INTEGER,
@@ -106,6 +109,17 @@ export const initDb = async (recreate = false) => {
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
           FOREIGN KEY (chat_id) REFERENCES chats(id) ON UPDATE NO ACTION ON DELETE NO ACTION
+        )
+      `);
+
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS sessions (
+          id varchar(255) PRIMARY KEY NOT NULL,
+          user_id varchar(255) NOT NULL,
+          expires_at TIMESTAMP NOT NULL,
+          created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+          updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE NO ACTION ON DELETE NO ACTION
         )
       `);
     }

@@ -1,16 +1,20 @@
 <script lang="ts">
-  import type { ChatMessage, Llm } from '$lib/server/db/schema'
-  import { MessageRole } from '$lib/enums';
+  import type { Chat, ChatMessage, Llm } from '$lib/server/db/schema'
+  import { ChatMode, MessageRole } from '$lib/enums'
 
   const {
+    chat,
     message,
+    replaced,
     llms,
     canEdit,
     canRegenerate,
     onEditMessage,
     onGenerateChatMessage
   } = $props<{
+    chat: Chat,
     message: ChatMessage;
+    replaced?: boolean;
     llms: Llm[],
     canEdit?: boolean;
     canRegenerate?: boolean;
@@ -57,7 +61,7 @@
 <div class="message-content {isUserMessage ? 'user-message' : 'assistant-message'}">
   <div class="message-text">
     {message.content}
-    {#if (!isUserMessage && infoLine) || (isUserMessage && canEdit) || canRegenerate}
+    {#if chat.mode === ChatMode.edit && ((!isUserMessage && infoLine) || (isUserMessage && canEdit) || canRegenerate)}
       <div class="message-info {isUserMessage ? 'user-message-info' : ''}">
         {#if !isUserMessage && infoLine}
           <span>{infoLine}</span>
@@ -95,7 +99,6 @@
     {/if}
   </div>
 </div>
-
 <style>
   .message-content {
     max-width: 80%;

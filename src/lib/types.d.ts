@@ -10,6 +10,7 @@ export interface ChatInfo {
 export interface ChatUiData {
   error?: string;
   user?: User | null;
+  guestUserName?: string | null;
   chat?: Chat | null;
   chatMessages?: ChatMessage[];
   chatConfigs?: ChatConfig[];
