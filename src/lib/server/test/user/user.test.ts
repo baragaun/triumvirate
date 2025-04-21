@@ -12,15 +12,15 @@ describe('User CRUD Operations', () => {
   describe('createUser', () => {
     it('should create a new user', async () => {
       // Create a new user
-      const result = await createUser({ name: 'testuser' });
+      const result = await createUser({ username: 'testuser' });
 
       // Verify the user was created
       expect(result).not.toBeNull();
-      expect(result?.name).toBe('testuser');
+      expect(result?.username).toBe('testuser');
 
       // Verify the user was added to the mock database
       expect(mockData.users.length).toBe(1);
-      expect(mockData.users[0].name).toBe('testuser');
+      expect(mockData.users[0].username).toBe('testuser');
     });
   });
 
@@ -29,7 +29,7 @@ describe('User CRUD Operations', () => {
       // Add a mock user to the database
       mockData.users.push({
         id: 'test-id-123',
-        name: 'testuser',
+        username: 'testuser',
         passwordHash: 'mock-hash',
         isAdmin: false,
         createdAt: new Date(),
@@ -57,7 +57,7 @@ describe('User CRUD Operations', () => {
       mockData.users.push(
         {
           id: 'user-1',
-          name: 'user1',
+          username: 'user1',
           passwordHash: 'hash1',
           isAdmin: false,
           createdAt: new Date(),
@@ -65,7 +65,7 @@ describe('User CRUD Operations', () => {
         } as User,
         {
           id: 'user-2',
-          name: 'user2',
+          username: 'user2',
           passwordHash: 'hash2',
           isAdmin: false,
           createdAt: new Date(),
@@ -87,7 +87,7 @@ describe('User CRUD Operations', () => {
       // Add a mock user to the database
       mockData.users.push({
         id: 'test-id-123',
-        name: 'testuser',
+        username: 'testuser',
         passwordHash: 'mock-hash',
         isAdmin: false,
         createdAt: new Date(),
@@ -97,15 +97,15 @@ describe('User CRUD Operations', () => {
       // Update the user
       await updateUser({
         id: 'test-id-123',
-        name: 'updated-user'
+        username: 'updated-user'
       });
 
       // Verify the user was updated in the mock database
-      expect(mockData.users[0].name).toBe('updated-user');
+      expect(mockData.users[0].username).toBe('updated-user');
     });
 
     it('should throw an error if ID is not provided', async () => {
-      await expect(updateUser({ name: 'updated-user' })).rejects.toThrow('User ID is required');
+      await expect(updateUser({ username: 'updated-user' })).rejects.toThrow('User ID is required');
     });
   });
 
@@ -114,7 +114,7 @@ describe('User CRUD Operations', () => {
       // Add a mock user to the database
       mockData.users.push({
         id: 'test-id-123',
-        name: 'testuser',
+        username: 'testuser',
         passwordHash: 'mock-hash',
         isAdmin: false,
         createdAt: new Date(),
@@ -123,27 +123,27 @@ describe('User CRUD Operations', () => {
 
       await upsertUser({
         id: 'test-id-123',
-        name: 'updated-user'
+        username: 'updated-user'
       });
 
       // Verify the user was updated in the mock database
-      expect(mockData.users[0].name).toBe('updated-user');
+      expect(mockData.users[0].username).toBe('updated-user');
     });
 
     it('should create a new user if it does not exist', async () => {
       await upsertUser({
         id: 'new-id-123',
-        name: 'new-user'
+        username: 'new-user'
       });
 
       // Verify the user was created in the mock database
       expect(mockData.users.length).toBe(1);
       expect(mockData.users[0].id).toBe('new-id-123');
-      expect(mockData.users[0].name).toBe('new-user');
+      expect(mockData.users[0].username).toBe('new-user');
     });
 
     it('should throw an error if ID is not provided', async () => {
-      await expect(upsertUser({ name: 'new-user' })).rejects.toThrow('upsertUser: ID is required');
+      await expect(upsertUser({ username: 'new-user' })).rejects.toThrow('upsertUser: ID is required');
     });
   });
 });

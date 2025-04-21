@@ -32,7 +32,7 @@ export const actions: Actions = {
 		const results = await db
 			.select()
 			.from(table.user)
-			.where(eq(table.user.name, username));
+			.where(eq(table.user.username, username));
 
 		const existingUser = results.at(0);
 		if (!existingUser) {
@@ -80,7 +80,7 @@ export const actions: Actions = {
 		try {
 			await db.insert(table.user).values({
 				id: userId,
-				name: username,
+				username,
 				passwordHash,
 				createdAt: new Date(),
 				updatedAt: new Date(),

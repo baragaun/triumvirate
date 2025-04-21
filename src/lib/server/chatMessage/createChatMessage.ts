@@ -47,6 +47,7 @@ export async function createChatMessage(
       feedback: props.feedback || null,
       sendToLlm: props.sendToLlm ?? true,
       sendToUser: props.sendToUser ?? true,
+      replaced: props.replaced ?? false,
       sendStatus: props.sendStatus || null,
       error: props.error || null,
       llmId: props.llmId || chat.llmId || chatConfig.llmId || null,

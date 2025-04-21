@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { page } from '$app/state';
   import { goto } from '$app/navigation'
   import ChatComponent from './components/ChatComponent.svelte'
   import type { ChatUiData } from '$lib/types'
@@ -9,6 +8,7 @@
   let { data }: { data: ChatUiData } = $props<{ data: ChatUiData }>();
   const chatConfigs = data.chatConfigs || [];
   const user = data.user;
+  const guestUserName = data.guestUserName;
   const llms = data.llms || [];
   const chatConfig = data.chat?.configId && chatConfigs
     ? chatConfigs.find(config => config.id === data.chat?.configId) || null
@@ -116,6 +116,7 @@
           {chatConfig}
           {chatConfigs}
           {llms}
+          {guestUserName}
           {updateChat}
           {deleteChat}
         />

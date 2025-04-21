@@ -1,0 +1,15 @@
+**/.DS_Store
+.env
+.env.*
+.git
+.gitignore
+.idea
+.next
+.svelte-kit
+bin
+build
+data
+docs
+node_modules
+README.md
+_hs_local

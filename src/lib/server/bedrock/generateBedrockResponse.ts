@@ -55,6 +55,7 @@ export async function generateBedrockResponse(
         const changesToPreviousMessage: Partial<ChatMessage> = {
           id: previousMessage.id,
           sendToLlm: false,
+          replaced: true,
         }
         previousMessage.sendToLlm = false;
 
@@ -112,6 +113,7 @@ export async function generateBedrockResponse(
         feedback: null,
         sendToLlm: true,
         sendToUser: false,
+        replaced: false,
         sendStatus: null,
         error: null,
         llmId,
