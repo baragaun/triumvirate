@@ -3,7 +3,7 @@ import { pgTable, text, timestamp, boolean, real, integer } from 'drizzle-orm/pg
 export const user = pgTable('users', {
 	id: text('id').primaryKey(),
 	username: text('username').notNull().unique(),
-	passwordHash: text('password_hash').notNull(),
+	passwordHash: text('password_hash'),
 	isAdmin: boolean('is_admin').notNull().default(false),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -60,6 +60,7 @@ export const chatConfig = pgTable('chat_configs', {
 	id: text('id').primaryKey(),
 	description: text('description'), // Description of the CHAT config
 	caption: text('caption'),
+	isDefault: boolean('is_default').notNull().default(false),
 	welcomeMessage: text('welcome_message'), // The first message to send to the user
 	llmId: text('llm_id').notNull(), // The model used (e.g., amazon.nova-lite-v1:0)
 	llmInstructions: text('llm_instructions').notNull(), // The instructions used at the start of the chat

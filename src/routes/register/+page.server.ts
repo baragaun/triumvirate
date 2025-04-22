@@ -6,7 +6,6 @@ import * as table from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 import dataStore from '$lib/server/dataStore';
 import { createUser } from '$lib/server/user/createUser';
-import { hashPassword } from '$lib/server/auth/password';
 
 export const load: PageServerLoad = async (event) => {
   // If user is already logged in, redirect to home page
@@ -46,17 +45,11 @@ export const actions: Actions = {
     }
 
     try {
-      // Hash the password using Argon2
-      const passwordHash = await hashPassword(password);
-
-      // Create user using the helper function
       console.log('Creating user with username:', username);
 
       const user = await createUser({
         username,
-        passwordHash,
-        isAdmin: true, // todo: for now, all users are admins
-      });
+      }, password);
 
       if (!user) {
         console.error('Failed to create user');
@@ -80,9 +73,6 @@ export const actions: Actions = {
         return redirect(302, '/login?message=Registration successful. Please log in.');
       }
 
-      // If we get here, everything was successful
-      console.log('Registration successful, redirecting to chats page');
-      // Redirect to chats page after successful registration
       return redirect(302, '/chats');
     } catch (error) {
       // Check if the error is a redirect by looking at its properties
