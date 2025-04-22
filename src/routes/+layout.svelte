@@ -5,22 +5,8 @@
 
 	let { children, data } = $props<{ children: any, data: LayoutData }>();
 
-	// Get user and guestUserName directly from data
-	// This avoids the need for a reactive state that could cause infinite loops
-
-	// Check if we're in a chat page by looking at the URL path
 	let isInChatPage = $derived(page.url.pathname.startsWith('/chats/'));
-
-	// Determine if the user is a guest (no user but has guestUserName)
-	let isGuestUser = $derived(!data.user && !!data.guestUserName);
-
-	// Determine if we should show the Chats menu item
-	let showChatsMenu = $derived(
-		// Show for logged-in users
-		(!!data.user) ||
-		// Show for guest users only when not in a chat page
-		(isGuestUser && !isInChatPage)
-	);
+	let isSignedIn = $derived(!!data.user?.id);
 </script>
 
 <div class="app-container">
@@ -30,20 +16,13 @@
 
 			<nav class="main-nav">
 				<ul>
-					<li><a href="/">Home</a></li>
-					{#if showChatsMenu}
+					{#if isSignedIn}
 						<li><a href="/chats">Chats</a></li>
-					{/if}
-					{#if data.user}
-						<li><a href="/profile">Profile</a></li>
 						<li>
 							<form method="POST" action="/logout">
 								<button type="submit" class="logout-button">Logout</button>
 							</form>
 						</li>
-					{:else if !data.guestUserName}
-						<li><a href="/login">Login</a></li>
-						<li><a href="/register">Register</a></li>
 					{/if}
 				</ul>
 			</nav>
@@ -57,9 +36,15 @@
 	<footer class="app-footer">
 		<div class="footer-content">
 			&copy; 2025 Micromentor |
-			<a href="https://resources.micromentor.org/privacy-policy/">Privacy Policy</a> |
-			<a href="https://resources.micromentor.org/terms-of-use/">Terms Of Use</a> |
-			<a href="https://micromentor.org/contact">Contact</a>
+			<a href="https://resources.micromentor.org/privacy-policy/">Privacy Policy</a>
+			| <a href="https://resources.micromentor.org/terms-of-use/">Terms Of Use</a>
+			| <a href="https://micromentor.org/contact">Contact</a>
+			{#if !isSignedIn}
+				| <a href="/login">Login</a>
+				| <a href="/register">Register</a>
+				{:else}
+				| Signed in as {data.user.username}
+			{/if}
 		</div>
 	</footer>
 </div>
@@ -72,9 +57,9 @@
 	}
 
 	.app-header {
-		background-color: #2196f3;
+		background-color: #275c87;
 		color: white;
-		padding: 1rem 0;
+		padding: .1rem 0;
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
 
@@ -88,8 +73,8 @@
 	}
 
 	.logo {
-		font-size: 1.5rem;
-		font-weight: bold;
+		/*font-size: .8rem;*/
+		letter-spacing: 8px;
 		color: white;
 		text-decoration: none;
 	}
@@ -105,7 +90,7 @@
 	.main-nav a {
 		color: white;
 		text-decoration: none;
-		font-weight: 500;
+		/*font-weight: 500;*/
 		transition: opacity 0.2s;
 	}
 

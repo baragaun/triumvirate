@@ -248,6 +248,7 @@ export const llmMocks = {
       description: llmData.description || 'Test Description',
       isOnDemand: llmData.isOnDemand !== undefined ? llmData.isOnDemand : true,
       isActive: llmData.isActive !== undefined ? llmData.isActive : true,
+      isAvailable: llmData.isAvailable !== undefined ? llmData.isAvailable : true,
       createdAt: llmData.createdAt || new Date(),
       updatedAt: llmData.updatedAt || new Date()
     } as Llm;

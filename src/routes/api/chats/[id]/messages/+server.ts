@@ -1,8 +1,8 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 import { type ChatMessage } from '$lib/server/db/schema'
 
-export async function GET({ params }) {
+export async function GET({ params }: RequestEvent) {
   try {
     const chatId = params.id;
 
@@ -24,7 +24,7 @@ export async function GET({ params }) {
   }
 }
 
-export async function POST({ request, params }) {
+export async function POST({ request, params }: RequestEvent) {
   try {
     const props: Partial<ChatMessage> = await request.json();
 

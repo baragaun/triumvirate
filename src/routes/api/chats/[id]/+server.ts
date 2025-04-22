@@ -1,8 +1,8 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 import type { Chat } from '$lib/server/db/schema';
 
-export async function GET({ params }) {
+export async function GET({ params }: RequestEvent) {
   try {
     const id = params.id;
 
@@ -26,7 +26,7 @@ export async function GET({ params }) {
   }
 }
 
-export async function PUT({ params, request }) {
+export async function PUT({ params, request }: RequestEvent) {
   try {
     if (!params.id) {
       return json({ error: 'Chat ID is required' }, { status: 400 });
@@ -54,7 +54,7 @@ export async function PUT({ params, request }) {
 }
 
 // Delete a chat
-export async function DELETE({ params }) {
+export async function DELETE({ params }: RequestEvent) {
   try {
     const id = params.id;
 

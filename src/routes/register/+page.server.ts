@@ -1,11 +1,10 @@
-import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { fail, redirect } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
 import * as auth from '$lib/server/auth';
-import * as table from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
-import dataStore from '$lib/server/dataStore';
 import { createUser } from '$lib/server/user/createUser';
+import { validateUsername } from '$lib/helpers/validateUsername'
+import { validatePassword } from '$lib/helpers/validatePassword'
+import operations from '$lib/server/operations'
 
 export const load: PageServerLoad = async (event) => {
   // If user is already logged in, redirect to home page
@@ -17,17 +16,21 @@ export const load: PageServerLoad = async (event) => {
 
 export const actions: Actions = {
   register: async (event) => {
-    const db = dataStore.db.get();
     const formData = await event.request.formData();
-    const username = formData.get('username');
-    const password = formData.get('password');
+    const username = formData.get('username') as string | null;
+    const password = formData.get('password') as string | null;
     const confirmPassword = formData.get('confirmPassword');
+    const secret = formData.get('secret') as string | null;
+
+    if (!secret || secret?.toLocaleLowerCase() !== 'mexico') {
+      return fail(400, { message: 'Invalid secret' });
+    }
 
     // Validate input
-    if (!validateUsername(username)) {
+    if (!username || !validateUsername(username)) {
       return fail(400, { message: 'Invalid username (min 3, max 31 characters, alphanumeric only)' });
     }
-    if (!validatePassword(password)) {
+    if (!password || !validatePassword(password)) {
       return fail(400, { message: 'Invalid password (min 6, max 255 characters)' });
     }
     if (password !== confirmPassword) {
@@ -35,12 +38,9 @@ export const actions: Actions = {
     }
 
     // Check if username already exists
-    const existingUsers = await db
-      .select()
-      .from(table.user)
-      .where(eq(table.user.username, username));
+    const existingUser = await operations.user.findByUsername(username);
 
-    if (existingUsers.length > 0) {
+    if (existingUser) {
       return fail(400, { message: 'Username already taken' });
     }
 
@@ -48,8 +48,8 @@ export const actions: Actions = {
       console.log('Creating user with username:', username);
 
       const user = await createUser({
-        username,
-      }, password);
+        username: username as string,
+      }, password as string);
 
       if (!user) {
         console.error('Failed to create user');
@@ -68,7 +68,7 @@ export const actions: Actions = {
         console.log('Session created successfully');
       } catch (sessionError) {
         console.error('Error creating session:', sessionError);
-        // User was created but session failed - we can still redirect to login
+        // User was created but session failed - we can still redirect to log in
         console.log('Redirecting to login page with success message');
         return redirect(302, '/login?message=Registration successful. Please log in.');
       }
@@ -90,27 +90,3 @@ export const actions: Actions = {
     }
   },
 };
-
-function generateUserId() {
-  // ID with 120 bits of entropy, or about the same as UUID v4.
-  const bytes = new Uint8Array(15);
-  crypto.getRandomValues(bytes);
-  return encodeBase32LowerCase(bytes);
-}
-
-function validateUsername(username: unknown): username is string {
-  return (
-    typeof username === 'string' &&
-    username.length >= 3 &&
-    username.length <= 31 &&
-    /^[a-z0-9_-]+$/.test(username)
-  );
-}
-
-function validatePassword(password: unknown): password is string {
-  return (
-    typeof password === 'string' &&
-    password.length >= 6 &&
-    password.length <= 255
-  );
-}

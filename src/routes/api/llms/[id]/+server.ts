@@ -1,9 +1,9 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 import type { Llm } from '$lib/server/db/schema'
 
 // Get a specific model
-export async function GET({ params }) {
+export async function GET({ params }: RequestEvent) {
   try {
     const id = params.id;
 
@@ -34,7 +34,7 @@ export async function GET({ params }) {
 }
 
 // Update a model
-export async function PUT({ params, request }) {
+export async function PUT({ params, request }: RequestEvent) {
   try {
     if (!params.id) {
       return json({
@@ -58,7 +58,7 @@ export async function PUT({ params, request }) {
 }
 
 // Delete a model
-export async function DELETE({ params }) {
+export async function DELETE({ params }: RequestEvent) {
   try {
     const id = params.id;
 

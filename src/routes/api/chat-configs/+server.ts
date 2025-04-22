@@ -1,4 +1,4 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 import type { ChatConfig } from '$lib/server/db/schema'
 
@@ -24,7 +24,7 @@ export async function GET() {
 }
 
 // Create a new chat config
-export async function POST({ request }) {
+export async function POST({ request }: RequestEvent) {
   try {
     const props: ChatConfig = await request.json();
 

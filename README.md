@@ -1,6 +1,6 @@
 # Triumvirate
 
-An application that explores the use of an AI assistant in a new domain
+An application that explores the use of an assistant in a new domain
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 

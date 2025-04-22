@@ -1,8 +1,8 @@
-import { error } from '@sveltejs/kit';
+import { error, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 import type { ChatUiData } from '$lib/types'
 
-export async function load({ params, url }): Promise<ChatUiData> {
+export async function load({ params, url }: RequestEvent): Promise<ChatUiData> {
   try {
     if (!operations.isStarted()) {
       await operations.startServer();
