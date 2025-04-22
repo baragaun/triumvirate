@@ -6,12 +6,12 @@
   let { data } = $props<{ data: PageData }>();
 
   // State
-  let userName = $state('');
+  let username = $state('');
   let isLoading = $state(false);
   let error = $state<string | null>(null);
 
   // Computed property to check if form is valid
-  let isFormValid = $derived(userName.trim() !== '');
+  let isFormValid = $derived(username.trim() !== '');
 
   const startAssistant = async (): Promise<void> => {
     // Clear any previous error
@@ -24,14 +24,11 @@
 
     isLoading = true;
     try {
-      // Create a simple chat with just the username
       const response = await fetch('/api/chats', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userName: userName.trim()
+          username: username.trim(),
         })
       });
 
@@ -48,7 +45,7 @@
       }
 
       // Navigate to the chat with the username as a parameter
-      await goto(`/chats/${data.chat.id}?userName=${encodeURIComponent(userName)}`);
+      await goto(`/chats/${data.chat.id}?username=${encodeURIComponent(username)}`);
     } catch (err) {
       console.error('Error creating chat:', err);
       error = err instanceof Error ? err.message : 'An unknown error occurred';
@@ -60,8 +57,8 @@
 
 <div class="container">
   <header>
-    <h1>AI Assistant</h1>
-    <p>Get started with our AI assistant to help with your mentoring journey</p>
+    <h1>Welcome!</h1>
+    <p>Thank you for helping us to optimize the new mentoring assistant experience!</p>
   </header>
 
   <main>
@@ -75,11 +72,11 @@
         <div class="welcome-content">
 
           <div class="form-group">
-            <label for="userName">What should we call you?</label>
+            <label for="username">What is your name?</label>
             <input
               type="text"
-              id="userName"
-              bind:value={userName}
+              id="username"
+              bind:value={username}
               placeholder="Enter your name"
               required
               oninput={() => error = null}
@@ -107,10 +104,6 @@
       </div>
     {/if}
   </main>
-
-  <footer>
-    <p>© 2023 Triumvirate</p>
-  </footer>
 </div>
 
 <style>

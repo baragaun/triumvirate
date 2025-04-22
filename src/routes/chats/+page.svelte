@@ -89,7 +89,7 @@
     isLoading = true;
     try {
       const chatProps: Partial<Chat> = {
-        userName: user?.username || getUserName(),
+        username: user?.username || getUserName(),
         caption: selectedChatConfig.caption || undefined,
         welcomeMessage: selectedChatConfig.welcomeMessage || undefined,
         configId: selectedChatConfig.id || undefined,

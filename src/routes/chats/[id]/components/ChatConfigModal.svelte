@@ -28,7 +28,7 @@
 
   // Form values
   let title = $state(chat.title || '');
-  let mode = $state<ChatMode>(chat.mode as ChatMode || ChatMode.user);
+  let mode = $state<ChatMode>(chat.mode as ChatMode || ChatMode.experiment);
   let configId = $state(chat.configId || '');
   let llmId = $state(chat.llmId || chatConfig?.llmId || '');
   let llmTemperature = $state(chat.llmTemperature ?? chatConfig?.llmTemperature ?? 0.7);
@@ -171,8 +171,8 @@
         <div class="form-group">
           <label for="mode">Chat Mode</label>
           <select id="mode" bind:value={mode}>
-            <option value={ChatMode.user}>User</option>
-            <option value={ChatMode.edit}>Edit</option>
+            <option value={ChatMode.experiment}>User</option>
+            <option value={ChatMode.tuning}>Edit</option>
           </select>
         </div>
 

@@ -61,7 +61,7 @@
 <div class="message-content {isUserMessage ? 'user-message' : 'assistant-message'}">
   <div class="message-text">
     {message.content}
-    {#if chat.mode === ChatMode.edit && ((!isUserMessage && infoLine) || (isUserMessage && canEdit) || canRegenerate)}
+    {#if chat.mode === ChatMode.tuning && ((!isUserMessage && infoLine) || (isUserMessage && canEdit) || canRegenerate)}
       <div class="message-info {isUserMessage ? 'user-message-info' : ''}">
         {#if !isUserMessage && infoLine}
           <span>{infoLine}</span>

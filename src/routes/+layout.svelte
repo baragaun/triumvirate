@@ -26,7 +26,7 @@
 <div class="app-container">
 	<header class="app-header">
 		<div class="header-content">
-			<a href="/" class="logo">Triumvirate</a>
+			<a href="/" class="logo">Micromentor Assistant (Alpha)</a>
 
 			<nav class="main-nav">
 				<ul>
@@ -56,7 +56,10 @@
 
 	<footer class="app-footer">
 		<div class="footer-content">
-			<p>© 2023 Triumvirate. All rights reserved.</p>
+			&copy; 2025 Micromentor |
+			<a href="https://resources.micromentor.org/privacy-policy/">Privacy Policy</a> |
+			<a href="https://resources.micromentor.org/terms-of-use/">Terms Of Use</a> |
+			<a href="https://micromentor.org/contact">Contact</a>
 		</div>
 	</footer>
 </div>

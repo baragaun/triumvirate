@@ -23,30 +23,18 @@ export async function GET({ locals }) {
 
 // Create a new chat
 export async function POST({ request, locals }) {
-  console.log('Session info:', locals.session ? `Session ID: ${locals.session.id}` : 'No session');
-  console.log('User info:', locals.user ? `User ID: ${locals.user.id}, Name: ${locals.user.username}` : 'No user');
   try {
-    console.log('Creating new chat');
     const props: Partial<Chat> = await request.json();
 
-    // If user is logged in, use their ID
-    if (locals.user) {
-      console.log('Using logged-in user ID:', locals.user.id, 'User name:', locals.user.username);
+    console.log('api/chats POST request received', { locals, props });
 
-      // Set both userId and userName for the chat
-      props.userId = locals.user.id;
-
-      // Make sure userName is set for logged-in users too
-      if (!props.userName) {
-        props.userName = locals.user.username;
-      }
-
-      console.log('Set props.userId to:', props.userId);
-    } else {
-      console.log('No logged-in user, using provided userName:', props.userName);
+    if (!props.username && locals.user?.username) {
+      props.username = locals.user.username;
     }
 
-    console.log('Chat props:', JSON.stringify(props, null, 2));
+    if (!props.userId && locals.user?.id) {
+      props.userId = locals.user.id;
+    }
 
     const response = await operations.chat.create(props);
 
