@@ -80,7 +80,7 @@ export const chatMocks = {
       id: chatData.id || `chat-id-${mockData.chats.length + 1}`,
       title: chatData.title || 'Test Chat',
       userId: chatData.userId || 'user-id-1',
-      userName: chatData.userName || 'testuser',
+      username: chatData.username || 'testuser',
       llmId: chatData.llmId || 'llm-id-1',
       configId: chatData.configId || 'config-id-1',
       createdAt: chatData.createdAt || new Date(),

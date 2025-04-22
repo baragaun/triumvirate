@@ -64,8 +64,8 @@ export const actions: Actions = {
     const session = await auth.createSession(sessionToken, existingUser.id);
     auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-    // Redirect to home page after successful login
-    const redirectTo = event.url.searchParams.get('redirectTo') || '/';
+    // Redirect to chats page after successful login, unless a specific redirect is requested
+    const redirectTo = event.url.searchParams.get('redirectTo') || '/chats';
     return redirect(302, redirectTo);
   },
 };

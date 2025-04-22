@@ -15,7 +15,7 @@ export async function load({ params, url }): Promise<ChatUiData> {
     const chatUiData = await operations.chat.findChatUiData(params.id);
 
     // Add guestUserName from URL if present
-    const guestUserName = url.searchParams.get('userName');
+    const guestUserName = url.searchParams.get('username');
     if (guestUserName) {
       chatUiData.guestUserName = guestUserName;
     }

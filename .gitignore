@@ -155,3 +155,4 @@ dist
 .yarn/install-state.gz
 .pnp.*
 /config/config.json
+/.idea/AugmentWebviewStateStore.xml

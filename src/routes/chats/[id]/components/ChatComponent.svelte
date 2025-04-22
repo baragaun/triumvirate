@@ -338,7 +338,7 @@
 
     {#key listRevision}
       {#each chatMessages as message (message.id)}
-        {#if !((collapseResponses || chat.mode === ChatMode.user) && message.replaced)}
+        {#if !((collapseResponses || chat.mode === ChatMode.experiment) && message.replaced)}
           <div
             class="message {message.role} {message.error ? 'error' : ''} {message.sendStatus === 'retrying' ? 'retrying' : ''}"
             role="listitem"
@@ -490,7 +490,7 @@
         {chat.llmId || 'Unknown model'} | temperature: {chat.llmTemperature !== null ? chat.llmTemperature : '???'}
       </span>
       <span>
-        {#if chat.mode === ChatMode.edit || user?.isAdmin}
+        {#if chat.mode === ChatMode.tuning || user?.isAdmin}
           <button class="edit-settings-button" onclick={() => openLlmSettings()} title="Edit settings" aria-label="Edit settings">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
@@ -498,7 +498,7 @@
             </svg>
           </button>
         {/if}
-        {#if chat.mode === ChatMode.edit}
+        {#if chat.mode === ChatMode.tuning}
           <button class="delete-settings-button" onclick={() => onDeleteChat()} title="Delete chat" aria-label="Delete chat">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 6h18"></path>
@@ -519,7 +519,7 @@
           {/if}
       </span>
     </div>
-    {#if chat.mode === ChatMode.edit}
+    {#if chat.mode === ChatMode.tuning}
       <div class="toggle-container">
         <label class="toggle-switch">
           <input

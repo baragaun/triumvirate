@@ -23,7 +23,7 @@ export const chat = pgTable('chats', {
 	title: text('title'),
 	mode: text('mode'),
 	userId: text('user_id').references(() => user.id),
-	userName: text('user_name'), // Name of the test user
+	username: text('user_name'), // Name of the test user
 	llmId: text('llm_id').notNull(), // The model used (e.g., amazon.nova-lite-v1:0)
 	configId: text('config_id'), // Reference to the CHAT config used
 	welcomeMessage: text('welcome_message'), // The first message to send to the user

@@ -10,58 +10,27 @@ import { createChatMessage } from '$lib/server/chatMessage/createChatMessage';
 import type { ChatInfo } from '$lib/types';
 import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
 import { generateBedrockResponse } from '$lib/server/bedrock/generateBedrockResponse'
-import { findLlms } from '$lib/server/llm/findLlms'
-
-// Helper function to get a default LLM ID
-async function getDefaultLlmId(): Promise<string> {
-  try {
-    // Try to find any active LLM
-    const llms = await findLlms(true);
-    if (llms.length > 0) {
-      console.log('Using default LLM:', llms[0].id);
-      return llms[0].id;
-    }
-
-    // If no active LLMs, try any LLM
-    const allLlms = await findLlms(false);
-    if (allLlms.length > 0) {
-      console.log('Using inactive LLM:', allLlms[0].id);
-      return allLlms[0].id;
-    }
-
-    // Last resort - use a placeholder
-    console.error('No LLMs found, using placeholder');
-    return 'anthropic.claude-3-haiku-20240307-v1:0';
-  } catch (error) {
-    console.error('Error finding default LLM:', error);
-    return 'anthropic.claude-3-haiku-20240307-v1:0';
-  }
-}
 
 export async function createChat(props: Partial<Chat>): Promise<ChatInfo> {
-  const db = dataStore.db.get();
-  console.log('Creating chat with userId:', props.userId, 'userName:', props.userName);
-  const user = await findOrCreateUser(props.userId, props.userName);
-  console.log('User for chat:', user ? `${user.id} (${user.username})` : 'null');
-  const chatId = props.id || generateId();
-  // Try to find the specified chat config or use 'default'
-  let chatConfig = await findChatConfig(props.configId || 'default');
+  console.log('operations.chat.createChat called.', { props });
 
-  // If no chat config is found, try to find any available chat config
+  const db = dataStore.db.get();
+  const chatId = props.id || generateId();
+  const chatConfig = await findChatConfig(props.configId || 'default');
+  const user = await findOrCreateUser(props.userId, props.username);
+
   if (!chatConfig) {
-    console.log('Chat config not found, searching for any available config...');
-    const db = dataStore.db.get();
-    const configs = await db.select().from(table.chatConfig).limit(1);
-    if (configs.length > 0) {
-      console.log('Found alternative chat config:', configs[0].id);
-      chatConfig = configs[0];
-    } else {
-      console.error('No chat configs found in the database');
-    }
+    console.error('Error creating chat: Chat config not found', { props });
+    return { error: 'Chat config not found' };
+  }
+
+  if (!chatConfig.llmId) {
+    console.error('Error creating chat: Chat config has no model ID', { props, chatConfig });
+    return { error: 'Chat config not found' };
   }
 
   if (!user) {
-    console.error('Error creating chat: User not found');
+    console.error('Error creating chat: User not found or failed to create', { props});
     return { error: 'User not found' };
   }
 
@@ -70,12 +39,12 @@ export async function createChat(props: Partial<Chat>): Promise<ChatInfo> {
       id: chatId,
       caption: props.caption || chatConfig?.caption || null,
       title: props.title || null,
-      mode: props.mode || ChatMode.user,
+      mode: props.mode || ChatMode.experiment,
       userId: user.id, // Using the user ID we found or created
-      userName: props.userName || null,
-      llmId: props.llmId || chatConfig?.llmId || await getDefaultLlmId(),
+      username: user.username || null,
       configId: props.configId || null,
       welcomeMessage: props.welcomeMessage || chatConfig?.welcomeMessage || null,
+      llmId: props.llmId || chatConfig?.llmId,
       llmInstructions: props.llmInstructions || null,
       llmTemperature: props.llmTemperature || chatConfig?.llmTemperature || null,
       llmMaxTokens: props.llmMaxTokens || chatConfig?.llmMaxTokens || null,

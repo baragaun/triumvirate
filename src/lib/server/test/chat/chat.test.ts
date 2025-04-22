@@ -18,7 +18,7 @@ describe('Chat CRUD Operations', () => {
       const result = await createChat({
         title: 'Test Chat',
         userId: 'user-id-123',
-        userName: 'testuser',
+        username: 'testuser',
         llmId: 'llm-id-123'
       });
 
@@ -39,7 +39,7 @@ describe('Chat CRUD Operations', () => {
         id: 'chat-id-123',
         title: 'Test Chat',
         userId: 'user-id-123',
-        userName: 'testuser',
+        username: 'testuser',
         llmId: 'llm-id-123',
         configId: 'config-id-123',
         createdAt: new Date(),
@@ -69,7 +69,7 @@ describe('Chat CRUD Operations', () => {
           id: 'chat-1',
           title: 'Chat 1',
           userId: 'user-id-123',
-          userName: 'testuser',
+          username: 'testuser',
           llmId: 'llm-id-123',
           createdAt: new Date(),
           updatedAt: new Date()
@@ -78,7 +78,7 @@ describe('Chat CRUD Operations', () => {
           id: 'chat-2',
           title: 'Chat 2',
           userId: 'user-id-123',
-          userName: 'testuser',
+          username: 'testuser',
           llmId: 'llm-id-123',
           createdAt: new Date(),
           updatedAt: new Date()
@@ -101,7 +101,7 @@ describe('Chat CRUD Operations', () => {
         id: 'chat-id-123',
         title: 'Test Chat',
         userId: 'user-id-123',
-        userName: 'testuser',
+        username: 'testuser',
         llmId: 'llm-id-123',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -135,7 +135,7 @@ describe('Chat CRUD Operations', () => {
         id: 'chat-id-123',
         title: 'Test Chat',
         userId: 'user-id-123',
-        userName: 'testuser',
+        username: 'testuser',
         llmId: 'llm-id-123',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -155,7 +155,7 @@ describe('Chat CRUD Operations', () => {
         id: 'chat-id-123',
         title: 'Test Chat',
         userId: 'user-id-123',
-        userName: 'testuser',
+        username: 'testuser',
         llmId: 'llm-id-123',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -177,7 +177,7 @@ describe('Chat CRUD Operations', () => {
         id: 'chat-id-123',
         title: 'Test Chat',
         userId: 'user-id-123',
-        userName: 'testuser',
+        username: 'testuser',
         llmId: 'llm-id-123',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -197,7 +197,7 @@ describe('Chat CRUD Operations', () => {
         id: 'new-chat-123',
         title: 'New Chat',
         userId: 'user-id-123',
-        userName: 'testuser',
+        username: 'testuser',
         llmId: 'llm-id-123'
       });
 
@@ -219,7 +219,7 @@ describe('Chat CRUD Operations', () => {
         id: 'chat-id-123',
         title: 'Test Chat',
         userId: 'user-id-123',
-        userName: 'testuser',
+        username: 'testuser',
         llmId: 'llm-id-123',
         configId: 'config-id-123',
         createdAt: new Date(),

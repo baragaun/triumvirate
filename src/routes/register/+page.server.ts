@@ -55,7 +55,7 @@ export const actions: Actions = {
       const user = await createUser({
         username,
         passwordHash,
-        isAdmin: false
+        isAdmin: true, // todo: for now, all users are admins
       });
 
       if (!user) {
@@ -81,9 +81,9 @@ export const actions: Actions = {
       }
 
       // If we get here, everything was successful
-      console.log('Registration successful, redirecting to home page');
-      // Redirect to home page after successful registration
-      return redirect(302, '/');
+      console.log('Registration successful, redirecting to chats page');
+      // Redirect to chats page after successful registration
+      return redirect(302, '/chats');
     } catch (error) {
       // Check if the error is a redirect by looking at its properties
       if (error && typeof error === 'object' && 'location' in error && 'status' in error) {

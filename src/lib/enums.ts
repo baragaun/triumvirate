@@ -8,9 +8,9 @@ export enum ChatMode {
   /**
    * The chat is used to fine tune the settings.
    */
-  edit = 'edit',
+  tuning = 'tuning',
   /**
    * The chat is used by a test user to gather experimental test data.
    */
-  user = 'user',
+  experiment = 'experiment',
 }
