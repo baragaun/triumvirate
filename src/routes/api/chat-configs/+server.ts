@@ -10,7 +10,8 @@ export async function GET() {
     }
 
     const chatConfigs = await operations.chatConfig.find();
-    const selectedChatConfigId = chatConfigs[0]?.id || 'default';
+    const defaultConfig = chatConfigs.find(config => config.isDefault);
+    const selectedChatConfigId = defaultConfig?.id || chatConfigs[0]?.id;
 
     return json({ chatConfigs, selectedChatConfigId });
   } catch (error) {

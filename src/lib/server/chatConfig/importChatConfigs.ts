@@ -54,6 +54,7 @@ export const importChatConfigs = async (): Promise<ChatConfig[]> => {
         id: configDir,
         caption: configJson.caption || null,
         description,
+        isDefault: configJson.isDefault ?? configDir === 'default',
         llmId: configJson.llmId || null,
         llmTemperature: configJson.llmTemperature || null,
         llmMaxTokens: configJson.llmMaxTokens || null,

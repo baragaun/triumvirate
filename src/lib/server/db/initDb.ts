@@ -29,7 +29,7 @@ export const initDb = async (recreate = false) => {
         CREATE TABLE IF NOT EXISTS users (
           id varchar(255) PRIMARY KEY NOT NULL,
           username varchar(255) NOT NULL UNIQUE,
-          password_hash varchar(255) NOT NULL,
+          password_hash varchar(255),
           is_admin BOOLEAN NOT NULL DEFAULT FALSE,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL
@@ -54,6 +54,7 @@ export const initDb = async (recreate = false) => {
           id varchar(255) PRIMARY KEY NOT NULL,
           caption varchar(255),
           description TEXT,
+          is_default BOOLEAN NOT NULL DEFAULT FALSE,
           welcome_message TEXT,
           llm_id varchar(255) NOT NULL,
           llm_instructions TEXT,
