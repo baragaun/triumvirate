@@ -171,8 +171,8 @@
         <div class="form-group">
           <label for="mode">Chat Mode</label>
           <select id="mode" bind:value={mode}>
-            <option value={ChatMode.experiment}>User</option>
-            <option value={ChatMode.tuning}>Edit</option>
+            <option value={ChatMode.experiment}>Experiment</option>
+            <option value={ChatMode.tuning}>Tuning</option>
           </select>
         </div>
 

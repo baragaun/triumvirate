@@ -12,8 +12,9 @@ import { MessageRole } from '$lib/enums'
 import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
 import type { GenerateChatMessageResponse } from '$lib/types'
 import { updateChatMessage } from '$lib/server/chatMessage/updateChatMessage'
+import { env } from '$env/dynamic/private';
 
-const MOCK = true;
+const MOCK = env.MOCK_AI_RESPONSES === 'true';
 
 export async function generateBedrockResponse(
   chatId: string,
