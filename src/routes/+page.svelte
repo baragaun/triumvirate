@@ -94,12 +94,8 @@
             onclick={startAssistant}
             disabled={!isFormValid || isLoading}
           >
-            {isLoading ? 'Starting...' : 'Start Assistant'}
+            {isLoading ? 'Starting...' : 'Let\'s Start!'}
           </button>
-
-          <div class="login-prompt">
-            <p>Already have an account? <a href="/login">Log in</a> or <a href="/register">Register</a></p>
-          </div>
         </div>
       </div>
     {/if}

@@ -17,6 +17,7 @@ export async function saveMultipleLlms(llms: Llm[]): Promise<void> {
         description: llm.description || null,
         isActive: llm.isActive,
         isOnDemand: llm.isOnDemand,
+        isAvailable: llm.isAvailable,
         createdAt: new Date(),
         updatedAt: new Date(),
       });

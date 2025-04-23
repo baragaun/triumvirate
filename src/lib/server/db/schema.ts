@@ -77,6 +77,7 @@ export const llm = pgTable('llms', {
 	description: text('description'), // Description of the model
 	isOnDemand: boolean('is_on_demand').notNull().default(false),
 	isActive: boolean('is_active').notNull().default(false),
+	isAvailable: boolean('is_available').notNull().default(false),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });

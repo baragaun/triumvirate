@@ -1,8 +1,8 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 import type { Chat } from '$lib/server/db/schema';
 
-export async function GET({ locals }) {
+export async function GET({ locals }: RequestEvent) {
   try {
     // Get the user ID from the session if available
     const userId = locals.user?.id;
@@ -22,7 +22,7 @@ export async function GET({ locals }) {
 }
 
 // Create a new chat
-export async function POST({ request, locals }) {
+export async function POST({ request, locals }: RequestEvent) {
   try {
     const props: Partial<Chat> = await request.json();
 

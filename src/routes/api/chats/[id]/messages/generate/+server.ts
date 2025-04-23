@@ -1,10 +1,16 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 
-export async function POST({ request, params }) {
+export async function POST({ request, params }: RequestEvent) {
   try {
     // Get the chat ID from the URL parameters
     const chatId = params.id;
+
+    if (!chatId) {
+      return json({
+        error: 'Chat ID is required'
+      }, { status: 400 });
+    }
 
     console.log('Generating response for chat:', chatId);
     const response = await operations.bedrock.generateResponse(chatId);

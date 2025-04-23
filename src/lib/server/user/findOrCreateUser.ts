@@ -1,6 +1,6 @@
 import type { User } from '$lib/server/db/schema'
 import { findUser } from '$lib/server/user/findUser'
-import { findUserByName } from '$lib/server/user/findUserByName'
+import { findUserByUsername } from '$lib/server/user/findUserByUsername'
 import { createUser } from '$lib/server/user/createUser'
 
 export async function findOrCreateUser(
@@ -18,7 +18,7 @@ export async function findOrCreateUser(
     console.log('User not found by ID:', id);
   }
 
-  const user = await findUserByName(username || 'guest');
+  const user = await findUserByUsername(username || 'guest');
   if (user) {
     return user;
   }

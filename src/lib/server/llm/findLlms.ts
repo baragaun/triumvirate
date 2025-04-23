@@ -5,14 +5,19 @@ import { saveMultipleLlms } from '$lib/server/llm/saveMultipleLlms'
 import { importBedrockModels } from '$lib/server/bedrock/importBedrockModels'
 import dataStore from '$lib/server/dataStore'
 
-export async function findLlms(activeOnly: boolean = true): Promise<Llm[]> {
+/**
+ * Returns all (available) LLMs from the database.
+ *
+ * @param availableOnly
+ */
+export async function findLlms(availableOnly: boolean = true): Promise<Llm[]> {
   const db = dataStore.db.get();
 
-  if (activeOnly) {
+  if (availableOnly) {
     const llms = await db
       .select()
       .from(table.llm)
-      .where(eq(table.llm.isActive, true))
+      .where(eq(table.llm.isAvailable, true))
       .orderBy(table.llm.id);
 
     if (Array.isArray(llms) && llms.length > 0) {

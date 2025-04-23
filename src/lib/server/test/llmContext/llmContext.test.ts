@@ -18,6 +18,7 @@ describe('ChatConfig CRUD Operations', () => {
         id: 'config-id-123',
         caption: 'Test Caption',
         description: 'Test Config',
+        isDefault: false,
         welcomeMessage: 'Welcome to the test',
         llmId: 'llm-id-123',
         llmInstructions: 'Test instructions',

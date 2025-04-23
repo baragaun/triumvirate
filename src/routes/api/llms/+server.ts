@@ -1,9 +1,10 @@
 import { json } from '@sveltejs/kit';
+import type { RequestEvent } from './$types';
 import operations from '$lib/server/operations'
 import { env } from '$env/dynamic/private'
 import type { Llm } from '$lib/server/db/schema'
 
-export async function GET() {
+export async function GET({}: RequestEvent) {
   try {
     const llms = await operations.llm.find(true);
 
@@ -21,7 +22,7 @@ export async function GET() {
 }
 
 // Add a new model to our database
-export async function POST({ request }) {
+export async function POST({ request }: RequestEvent) {
   try {
     const props: Partial<Llm> = await request.json();
 

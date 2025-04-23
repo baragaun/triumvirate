@@ -10,7 +10,7 @@
   // Fetch llms on mount
   onMount(async () => {
     try {
-      const response = await fetch('/api/llm');
+      const response = await fetch('/api/llms');
       const data = await response.json();
 
       if (!data.error && data.llms) {

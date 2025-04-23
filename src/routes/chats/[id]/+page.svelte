@@ -90,12 +90,6 @@
 </script>
 
 <div class="container">
-  {#if chat?.caption}
-    <header>
-      <h1>{chat?.caption}</h1>
-    </header>
-  {/if}
-
   <main>
     {#if isLoading}
       <div class="loading-container">
@@ -202,8 +196,6 @@
 
   .chat-title {
     padding: 0.5rem 1rem;
-    background-color: #f5f5f5;
-    border-bottom: 1px solid #e0e0e0;
   }
 
   .chat-title h2 {

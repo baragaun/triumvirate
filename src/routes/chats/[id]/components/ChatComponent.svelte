@@ -114,6 +114,9 @@
         inputText = '';
       }
 
+      // Set loading state to show the typing indicator
+      isLoading = true;
+
       if (messageProps.id && role === MessageRole.user) {
         // The use is editing an existing message. We are deleting all AI generated messages
         // that were in response to this message.
@@ -159,19 +162,33 @@
           editingMessage.content = msg.content;
         } else {
           chatMessages.push(msg);
+
+          // If this is an AI response message, turn off the loading indicator
+          if (msg.role === MessageRole.assistant) {
+            isLoading = false;
+          }
         }
       }
 
       scrollToBottom();
+
+      // Note: We don't turn off isLoading here because the server will automatically
+      // generate an AI response, and we want to keep showing the loading indicator
+      // until that response comes back
     } catch (err) {
       console.error('Error creating message:', err);
       error = err instanceof Error ? err.message : 'Failed to send message';
+      // Turn off loading indicator if there was an error
+      isLoading = false;
     }
   }
 
   const onGenerateChatMessage = async (): Promise<void> => {
     try {
       // console.log('ChatComponent.onGenerateChatMessage called.');
+
+      // Set loading state to show the typing indicator
+      isLoading = true;
 
       const latestMessage = chatMessages[chatMessages.length - 1];
       if (latestMessage.role === MessageRole.assistant) {
@@ -192,9 +209,17 @@
 
       chatMessages[chatMessages.length - 1].canRegenerate = false;
       chatMessages.push(responseData.chatMessage);
+
+      // Turn off loading indicator after receiving the response
+      isLoading = false;
+
+      // Scroll to the bottom to show the new message
+      scrollToBottom();
     } catch (error) {
       console.error('ChatComponent.onGenerateChatMessage: error received',
         error instanceof Error ? error.message : 'An error occurred while saving settings');
+      // Turn off loading indicator if there was an error
+      isLoading = false;
     }
   };
 
@@ -342,7 +367,7 @@
           <div
             class="message {message.role} {message.error ? 'error' : ''} {message.sendStatus === 'retrying' ? 'retrying' : ''}"
             role="listitem"
-            aria-label="{message.role === 'user' ? 'Your message' : message.role === 'system' ? 'System message' : 'AI Assistant message'}"
+            aria-label="{message.role === 'user' ? 'Your message' : message.role === 'system' ? 'System message' : 'Assistant message'}"
           >
             <MessageBubble
               {chat}
@@ -363,11 +388,11 @@
       <div
         class="message assistant loading"
         role="status"
-        aria-label="AI Assistant is typing"
+        aria-label="Assistant is typing"
       >
         <div class="message-content">
           <div class="message-header">
-            <span class="message-role">AI Assistant</span>
+            <span class="message-role">Assistant</span>
           </div>
           <div class="message-text">
             <div class="typing-indicator" aria-hidden="true">
@@ -375,7 +400,7 @@
               <span></span>
               <span></span>
             </div>
-            <span class="sr-only">AI Assistant is generating a response</span>
+            <span class="sr-only">Assistant is generating a response</span>
           </div>
         </div>
       </div>

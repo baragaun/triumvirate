@@ -3,7 +3,9 @@
   import { goto } from '$app/navigation';
   import type { PageData } from './$types';
   import type { ChatInfo } from '$lib/types';
-  import type { Chat, ChatConfig } from '$lib/server/db/schema'
+  import type { Chat, ChatConfig } from '$lib/server/db/schema';
+  import NewChatForm from './NewChatForm.svelte';
+  import { ChatMode } from '$lib/enums';
 
   let { data } = $props<{ data: PageData }>();
 
@@ -11,7 +13,7 @@
   const user = data.user;
   const guestUserName = data.guestUserName;
 
-  // Get the user's name (either logged in user or guest)
+  // Get the user's name (either a signed-in user or guest)
   const getUserName = (): string => {
     if (user?.username) {
       return user.username;
@@ -24,11 +26,9 @@
 
   let chats = $state<Chat[]>([]);
   let chatConfigs = $state<ChatConfig[]>([]);
-  let selectedChatConfig = $state<ChatConfig | null>(null);
-  let selectedChatConfigId = $state<string>('default');
   let isLoading = $state(true);
-  let showConfigSection = $state(false);
   let error = $state<string | null>(null);
+  let showNewChatForm = $state(false);
 
   onMount(async () => {
     try {
@@ -51,11 +51,6 @@
 
       if (!responseData.error && responseData.chatConfigs && responseData.chatConfigs.length > 0) {
         chatConfigs = responseData.chatConfigs;
-        selectedChatConfigId = responseData.selectedChatConfigId;
-        if (responseData.selectedChatConfigId) {
-          selectedChatConfig = chatConfigs.find(config => config.id === responseData.selectedChatConfigId) || null;
-        }
-        showConfigSection = chatConfigs.length > 1;
       }
     } catch (error) {
       console.error('Error fetching chatConfigs:', error);
@@ -71,18 +66,23 @@
         chats = responseData.chats;
       }
     } catch (error) {
-      console.error('Error fetching chatConfigs:', error);
+      console.error('Error fetching chats:', error);
     }
   }
 
-  const createChat = async (): Promise<void> => {
+  const toggleNewChatForm = () => {
+    showNewChatForm = !showNewChatForm;
+  };
+
+  const handleChatFormSubmit = async (title: string, configId: string): Promise<void> => {
     // Clear any previous error
     error = null;
+
+    const selectedChatConfig = chatConfigs.find(config => config.id === configId);
+
     if (!selectedChatConfig) {
-      selectedChatConfig = chatConfigs.find(config => config.id === 'default') ||
-        chatConfigs[0] || null;
-      console.error('No chat config selected');
-      error = 'No chat config selected';
+      console.error('Selected chat config not found');
+      error = 'Selected chat configuration not found';
       return;
     }
 
@@ -90,7 +90,9 @@
     try {
       const chatProps: Partial<Chat> = {
         username: user?.username || getUserName(),
+        title: title || undefined,
         caption: selectedChatConfig.caption || undefined,
+        mode: ChatMode.tuning,
         welcomeMessage: selectedChatConfig.welcomeMessage || undefined,
         configId: selectedChatConfig.id || undefined,
         llmId: selectedChatConfig.llmId || undefined,
@@ -122,9 +124,11 @@
       }
 
       console.log('Navigating to chat page:', `/chats/${data.chat.id}`);
+      // Hide the form
+      showNewChatForm = false;
       await goto(`/chats/${data.chat.id}`);
     } catch (err) {
-      console.error('Error sending message:', err);
+      console.error('Error creating chat:', err);
       error = err instanceof Error ? err.message : 'An unknown error occurred';
     } finally {
       isLoading = false;
@@ -165,9 +169,17 @@
     {/if}
 
     <div class="new-chat-section">
-      <button class="new-chat-button" onclick={createChat}>
-        New
-      </button>
+      {#if !showNewChatForm}
+        <button class="new-chat-button" onclick={toggleNewChatForm}>
+          New Chat
+        </button>
+      {:else}
+        <NewChatForm
+          chatConfigs={chatConfigs}
+          onSubmit={handleChatFormSubmit}
+          onCancel={toggleNewChatForm}
+        />
+      {/if}
     </div>
   </div>
 </div>
@@ -178,8 +190,6 @@
     margin: 0 auto;
     padding: 2rem 1rem;
   }
-
-  /* Header styles removed - not used in this component */
 
   .chats-content {
     background-color: white;

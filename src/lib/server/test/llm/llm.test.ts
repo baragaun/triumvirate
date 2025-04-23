@@ -40,6 +40,7 @@ describe('Llm CRUD Operations', () => {
         description: 'Test Description',
         isOnDemand: true,
         isActive: true,
+        isAvailable: true,
         createdAt: new Date(),
         updatedAt: new Date()
       } as Llm);
@@ -78,6 +79,7 @@ describe('Llm CRUD Operations', () => {
           provider: 'Provider 2',
           isOnDemand: true,
           isActive: true,
+          isAvailable: true,
           createdAt: new Date(),
           updatedAt: new Date()
         } as Llm
@@ -101,6 +103,7 @@ describe('Llm CRUD Operations', () => {
         provider: 'Test Provider',
         isOnDemand: true,
         isActive: true,
+        isAvailable: true,
         createdAt: new Date(),
         updatedAt: new Date()
       } as Llm);
@@ -128,6 +131,7 @@ describe('Llm CRUD Operations', () => {
         provider: 'Test Provider',
         isOnDemand: true,
         isActive: true,
+        isAvailable: true,
         createdAt: new Date(),
         updatedAt: new Date()
       } as Llm);
@@ -148,6 +152,7 @@ describe('Llm CRUD Operations', () => {
         provider: 'Test Provider',
         isOnDemand: true,
         isActive: true,
+        isAvailable: true,
         createdAt: new Date(),
         updatedAt: new Date()
       } as Llm);
@@ -189,6 +194,7 @@ describe('Llm CRUD Operations', () => {
           description: 'Description 1',
           isOnDemand: true,
           isActive: true,
+          isAvailable: true,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -199,6 +205,7 @@ describe('Llm CRUD Operations', () => {
           description: 'Description 2',
           isOnDemand: true,
           isActive: true,
+          isAvailable: true,
           createdAt: new Date(),
           updatedAt: new Date(),
         }

@@ -1,7 +1,7 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 
-export async function DELETE({ params }) {
+export async function DELETE({ params }: RequestEvent) {
   try {
     const id = params.id;
 

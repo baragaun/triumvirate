@@ -1,8 +1,8 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 import type { EndChatRequest } from '$lib/types'
 
-export async function POST({ request, params }) {
+export async function POST({ request, params }: RequestEvent) {
   try {
     // Get the chat ID from the URL parameters
     const chatId = params.id;

@@ -3,7 +3,7 @@ import { eq, sql } from 'drizzle-orm'
 import type { User } from '$lib/server/db/schema'
 import dataStore from '$lib/server/dataStore'
 
-export async function findUserByName(username: string): Promise<User | null> {
+export async function findUserByUsername(username: string): Promise<User | null> {
   const db = dataStore.db.get();
 
   try {

@@ -44,6 +44,7 @@ export const initDb = async (recreate = false) => {
           description text,
           is_on_demand BOOLEAN NOT NULL DEFAULT FALSE,
           is_active BOOLEAN NOT NULL DEFAULT TRUE,
+          is_available BOOLEAN NOT NULL DEFAULT TRUE,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL
         )

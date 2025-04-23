@@ -10,6 +10,7 @@ export async function createUser(props: Partial<User>, password?: string): Promi
     const db = dataStore.db.get();
     const id = generateId();
 
+    // For guests, the password is empty, and the passwordHash is null
     let passwordHash = props.passwordHash;
     if (!passwordHash && password) {
       passwordHash = await hashPassword(password);
