@@ -45,7 +45,19 @@
       }
 
       if (message.llmTemperature !== null) {
-        infoLineParts.push(`temperature: ${message.llmTemperature}`);
+        infoLineParts.push(`temp: ${message.llmTemperature}`);
+      }
+
+      if (message.inputTokens > 0) {
+        infoLineParts.push(`tokens: ${message.inputTokens}/${message.outputTokens}`);
+      }
+
+      if (message.cost > 0) {
+        infoLineParts.push(`cost: $${message.cost}`);
+      }
+
+      if (message.responseTime > 0) {
+        infoLineParts.push(`${message.responseTime} ms`);
       }
 
       if (message.iteration !== null && message.iteration > 1) {

@@ -13,6 +13,7 @@ import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
 import type { GenerateChatMessageResponse } from '$lib/types'
 import { updateChatMessage } from '$lib/server/chatMessage/updateChatMessage'
 import { env } from '$env/dynamic/private';
+import { findLlm } from '$lib/server/llm/findLlm'
 
 const MOCK = env.MOCK_AI_RESPONSES === 'true';
 
@@ -104,6 +105,8 @@ export async function generateBedrockResponse(
       return { error: 'LLM ID is required' };
     }
 
+    const llm = await findLlm(llmId);
+
     if (llmInstructions) {
       messages.unshift({
         id: 'instructions',
@@ -120,6 +123,10 @@ export async function generateBedrockResponse(
         llmId,
         llmTemperature,
         llmInstructions: null,
+        inputTokens: 0,
+        outputTokens: 0,
+        cost: 0,
+        responseTime: 0,
         createdAt: chat.createdAt,
         updatedAt: chat.updatedAt,
       });
@@ -142,13 +149,19 @@ export async function generateBedrockResponse(
     });
 
     let generatedText: string;
+    let inputTokens = 0;
+    let outputTokens = 0;
+    let cost = 0;
+    let responseTime = 0;
+
     if (MOCK) {
       generatedText = sendingInstructions
         ? 'This is a mock response to the instructions.'
         : `This is a mock generated from the assistant #${iteration || '1'}.`;
     } else {
-      // Invoke the model
+      const start = Date.now();
       const response = await client.send(command);
+      responseTime = Date.now() - start;
 
       // Parse the response
       const responseBody = JSON.parse(new TextDecoder().decode(response.body));
@@ -156,6 +169,12 @@ export async function generateBedrockResponse(
 
       // Extract the generated text based on the model
       generatedText = extractResponseText(chat.llmId, responseBody);
+      inputTokens = responseBody.usage.input_tokens;
+      outputTokens = responseBody.usage.output_tokens;
+
+      if (llm?.tokenCost && !isNaN(inputTokens) && !isNaN(outputTokens)) {
+        cost = (inputTokens + outputTokens) * llm.tokenCost;
+      }
     }
 
     // Save the assistant's response to the database:
@@ -167,6 +186,10 @@ export async function generateBedrockResponse(
       sendToUser,
       llmId,
       llmTemperature,
+      inputTokens,
+      outputTokens,
+      cost,
+      responseTime,
     };
     const createChatMessageResponse = await createChatMessage(props, false);
 
