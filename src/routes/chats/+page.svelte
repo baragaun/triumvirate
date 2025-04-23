@@ -29,6 +29,7 @@
   let isLoading = $state(true);
   let error = $state<string | null>(null);
   let showNewChatForm = $state(false);
+  let isDeletingChat = $state<string | null>(null); // Tracks which chat is being deleted
 
   onMount(async () => {
     try {
@@ -72,6 +73,42 @@
 
   const toggleNewChatForm = () => {
     showNewChatForm = !showNewChatForm;
+  };
+
+  const deleteChat = async (chatId: string, event: Event): Promise<void> => {
+    // Prevent the click from navigating to the chat page
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Confirm deletion
+    if (!confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      isDeletingChat = chatId;
+
+      const response = await fetch(`/api/chats/${chatId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const responseData = await response.json();
+
+      if (responseData.error) {
+        error = responseData.error;
+        return;
+      }
+
+      // Remove the deleted chat from the list
+      chats = chats.filter(chat => chat.id !== chatId);
+
+    } catch (err) {
+      console.error('Error deleting chat:', err);
+      error = err instanceof Error ? err.message : 'An unknown error occurred';
+    } finally {
+      isDeletingChat = null;
+    }
   };
 
   const handleChatFormSubmit = async (title: string, configId: string): Promise<void> => {
@@ -153,17 +190,35 @@
     {:else}
       <div class="chats-list">
         {#each chats as chat (chat.id)}
-          <a href="/chats/{chat.id}" class="chat-card">
-            <div class="chat-info">
-              <h2 class="chat-title">{chat.title || 'Untitled Chat'}</h2>
-              <p class="chat-date">{new Date(chat.createdAt).toLocaleDateString()}</p>
-            </div>
-            <div class="chat-arrow">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 18l6-6-6-6"></path>
-              </svg>
-            </div>
-          </a>
+          <div class="chat-card-container">
+            <a href="/chats/{chat.id}" class="chat-card">
+              <div class="chat-info">
+                <h2 class="chat-title">{chat.title || 'Untitled Chat'}</h2>
+                <p class="chat-date">{new Date(chat.createdAt).toLocaleDateString()}</p>
+              </div>
+              <div class="chat-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 18l6-6-6-6"></path>
+                </svg>
+              </div>
+            </a>
+            <button
+              class="delete-button"
+              onclick={(e) => deleteChat(chat.id, e)}
+              disabled={isDeletingChat === chat.id}
+              aria-label="Delete chat"
+            >
+              {#if isDeletingChat === chat.id}
+                <div class="spinner"></div>
+              {:else}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                </svg>
+              {/if}
+            </button>
+          </div>
         {/each}
       </div>
     {/if}
@@ -186,9 +241,9 @@
 
 <style>
   .chats-container {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 2rem 1rem;
+    padding: 0.5rem 1rem; /* Reduced top padding from 2rem to 0.5rem */
   }
 
   .chats-content {
@@ -242,19 +297,66 @@
     flex-direction: column;
   }
 
+  .chat-card-container {
+    position: relative;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+  }
+
   .chat-card {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid #e0e0e0;
     text-decoration: none;
     color: inherit;
     transition: background-color 0.2s;
+    flex: 1;
   }
 
   .chat-card:hover {
     background-color: #f5f5f5;
+  }
+
+  .delete-button {
+    background: none;
+    border: none;
+    color: #bdbdbd;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+    width: 36px;
+    height: 36px;
+  }
+
+  .delete-button:hover {
+    background-color: #ffebee;
+    color: #e53935;
+  }
+
+  .delete-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-top: 2px solid #e53935;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 
   .chat-info {

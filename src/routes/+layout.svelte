@@ -44,6 +44,7 @@
 				| <a href="/register">Register</a>
 				{:else}
 				| Signed in as {data.user.username}
+				| Built with Svelte 5
 			{/if}
 		</div>
 	</footer>
@@ -53,30 +54,57 @@
 	.app-container {
 		display: flex;
 		flex-direction: column;
-		min-height: 100vh;
+		height: 100vh; /* Use exact viewport height */
+		overflow: hidden; /* Prevent scrolling at the body level */
+		background-color: #9d9d9d;
 	}
 
 	.app-header {
 		background-color: #275c87;
 		color: white;
-		padding: .1rem 0;
+		padding: 0.75rem 0; /* Increased vertical padding */
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 1000;
+		padding-left: 10px;
+		height: auto; /* Allow the header to expand based on content */
+		min-height: 2rem; /* Minimum height for the header */
 	}
 
 	.header-content {
 		max-width: 1200px;
 		margin: 0 auto;
-		padding: 0 1rem;
+		padding: 0;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		padding-right: 1rem; /* Keep padding on the right side only */
+		/* No padding on the left */
 	}
 
 	.logo {
 		/*font-size: .8rem;*/
-		letter-spacing: 8px;
+		letter-spacing: 5px;
 		color: white;
 		text-decoration: none;
+		text-align: left;
+		padding-left: 0; /* No padding */
+		margin-left: 0; /* No margin */
+		position: absolute; /* Absolute positioning */
+		left: 10px; /* Very close to the left edge */
+		top: 50%; /* Center vertically */
+		transform: translateY(-50%); /* Perfect vertical centering */
+		font-size: .9rem; /* Slightly larger font size */
+	}
+
+	.main-nav {
+		position: absolute;
+		right: 10px;
+		top: 50%;
+		transform: translateY(-50%);
 	}
 
 	.main-nav ul {
@@ -102,7 +130,7 @@
 		background: none;
 		border: none;
 		color: white;
-		font-weight: 500;
+		/*font-weight: 500;*/
 		cursor: pointer;
 		padding: 0;
 		font-size: 1rem;
@@ -115,18 +143,27 @@
 
 	.app-main {
 		flex: 1;
+		margin-top: 3.5rem; /* Space for header */
+		margin-bottom: 3.5rem; /* Space for footer */
+		overflow: hidden; /* Prevent scrolling at this level */
+		position: relative; /* For absolute positioning of children if needed */
+		height: calc(100vh - 7rem); /* Viewport height minus header and footer */
 	}
 
 	.app-footer {
-		background-color: #f5f5f5;
-		padding: 1rem 0;
-		margin-top: auto;
+		background-color: #e8e8e8;
+		padding: .2rem 0;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: 1000;
 	}
 
 	.footer-content {
 		max-width: 1200px;
 		margin: 0 auto;
-		padding: 0 1rem;
+		padding: 0 .2rem;
 		text-align: center;
 		color: #666;
 		font-size: 0.875rem;
