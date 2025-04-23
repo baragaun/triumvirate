@@ -19,7 +19,9 @@ export async function findLlm(id: string): Promise<Llm> {
     .limit(1)
     .then(rows => rows[0] || null);
 
-  cache.set(id, llm);
+  if (llm !== null) {
+    cache.set(id, llm);
+  }
 
   return llm;
 }
