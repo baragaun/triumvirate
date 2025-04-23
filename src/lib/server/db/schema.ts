@@ -30,6 +30,9 @@ export const chat = pgTable('chats', {
 	llmInstructions: text('llm_instructions'), // The instructions used at the start of the chat
 	llmTemperature: real('llm_temperature'), // The model temperature used
 	llmMaxTokens: integer('llm_max_tokens'), // The maximum number of tokens used
+	inputTokens: integer('input_tokens').notNull().default(0),
+	outputTokens: integer('output_tokens').notNull().default(0),
+	cost: real('cost').notNull().default(0),
 	feedback: text('feedback'), // User feedback on the chat
 	rating: integer('rating'), // Numerical rating of the chat
 	endedAt: timestamp('ended_at'), // When the chat ended
@@ -52,6 +55,10 @@ export const chatMessage = pgTable('chat_messages', {
 	llmId: text('llm_id'), // The model used (e.g., amazon.nova-lite-v1:0)
 	llmInstructions: text('llm_instructions'), // The instructions used at the start of the chat
 	llmTemperature: real('llm_temperature'), // The model temperature used
+	inputTokens: integer('input_tokens').notNull().default(0),
+	outputTokens: integer('output_tokens').notNull().default(0),
+	cost: real('cost').notNull().default(0),
+	responseTime: real('response_time').notNull().default(0),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
@@ -75,6 +82,7 @@ export const llm = pgTable('llms', {
 	name: text('name').notNull(), // The model name
 	provider: text('provider').notNull(), // The provider (e.g., Amazon, Anthropic)
 	description: text('description'), // Description of the model
+	tokenCost: real('token_cost').notNull().default(0),
 	isOnDemand: boolean('is_on_demand').notNull().default(false),
 	isActive: boolean('is_active').notNull().default(false),
 	isAvailable: boolean('is_available').notNull().default(false),

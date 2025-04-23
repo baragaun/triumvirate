@@ -517,7 +517,11 @@
     </form>
     <div class="chat-llm-info">
       <span>
-        {chat.llmId || 'Unknown model'} | temperature: {chat.llmTemperature !== null ? chat.llmTemperature : '???'}
+        {chat.llmId || 'Unknown model'} |
+        temperature: {chat.llmTemperature !== null ? chat.llmTemperature : '???'} |
+        inputToken: {chat.inputTokens} |
+        outputToken: {chat.outputTokens} |
+        cost: ${chat.cost}
       </span>
       <span>
         {#if chat.mode === ChatMode.tuning || user?.passwordHash}

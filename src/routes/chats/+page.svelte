@@ -194,7 +194,12 @@
             <a href="/chats/{chat.id}" class="chat-card">
               <div class="chat-info">
                 <h2 class="chat-title">{chat.title || 'Untitled Chat'}</h2>
-                <p class="chat-date">{new Date(chat.createdAt).toLocaleDateString()}</p>
+                <div class="chat-details">
+                  <p class="chat-date">{new Date(chat.createdAt).toLocaleDateString()}</p>
+                  {#if chat.configId}
+                    <p class="chat-config">Config: {chat.configId}</p>
+                  {/if}
+                </div>
               </div>
               <div class="chat-arrow">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -369,10 +374,28 @@
     color: #333;
   }
 
+  .chat-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 0.25rem;
+  }
+
   .chat-date {
-    margin: 0.25rem 0 0;
+    margin: 0;
     font-size: 0.8rem;
     color: #888;
+  }
+
+  .chat-config {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #666;
+    background-color: #f0f4f8;
+    padding: 0.1rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
   }
 
   .chat-arrow {

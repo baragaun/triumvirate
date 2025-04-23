@@ -1,11 +1,11 @@
 import * as table from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm'
-import { type ChatMessage } from '$lib/server/db/schema'
+import { type Chat, type ChatMessage } from '$lib/server/db/schema'
 
 import { generateId } from '$lib/server/helpers'
 import { findChatMessage } from '$lib/server/chatMessage/findChatMessage'
 import dataStore from '$lib/server/dataStore'
-import { MessageRole } from '$lib/enums'
+import { ChatMode, MessageRole } from '$lib/enums'
 import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
 import { findChat } from '$lib/server/chat/findChat'
 import type { ChangeChatMessageResponse } from '$lib/types'
@@ -43,19 +43,32 @@ export async function createChatMessage(
       chatId: props.chatId,
       role: props.role || MessageRole.user,
       content: props.content,
-      iteration: props.iteration ?? null,
+      iteration: null,
       feedback: props.feedback || null,
       sendToLlm: props.sendToLlm ?? true,
       sendToUser: props.sendToUser ?? true,
-      replaced: props.replaced ?? false,
+      replaced: false,
       sendStatus: props.sendStatus || null,
       error: props.error || null,
-      llmId: props.llmId || chat.llmId || chatConfig.llmId || null,
-      llmTemperature: props.llmTemperature ?? chat.llmTemperature ?? chatConfig.llmTemperature ?? null,
-      llmInstructions: props.llmInstructions || chat.llmInstructions || chatConfig.llmInstructions || null,
+      llmId: null,
+      llmTemperature: null,
+      llmInstructions: null,
+      inputTokens: props.inputTokens ?? 0,
+      outputTokens: props.outputTokens ?? 0,
+      cost: props.cost ?? 0,
+      responseTime: props.responseTime ?? 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
+    // Only in `tuning` mode can the user change these values:
+    if (chat.mode === ChatMode.tuning) {
+      values.replaced = props.replaced ?? false;
+      values.iteration = props.iteration ?? null;
+      values.llmId = props.llmId || chat.llmId || chatConfig.llmId || null;
+      values.llmTemperature = props.llmTemperature ?? chat.llmTemperature ?? chatConfig.llmTemperature ?? null;
+      values.llmInstructions = props.llmInstructions || chat.llmInstructions || chatConfig.llmInstructions || null;
+    }
 
     console.log('Adding message to chat:', values);
     await db.insert(table.chatMessage).values(values);
@@ -75,9 +88,24 @@ export async function createChatMessage(
       }
     }
 
-    // Update the chat's updatedAt timestamp
+    const chatChanges: Partial<Chat> = {
+      updatedAt: new Date(),
+    };
+
+    if (chatMessage.role === MessageRole.assistant) {
+      if (!isNaN(chatMessage.inputTokens) && chatMessage.inputTokens > 0) {
+        chatChanges.inputTokens = (chat.inputTokens || 0) + chatMessage.inputTokens;
+      }
+      if (!isNaN(chatMessage.outputTokens) && chatMessage.outputTokens > 0) {
+        chatChanges.outputTokens = (chat.outputTokens || 0) + chatMessage.outputTokens;
+      }
+      if (!isNaN(chatMessage.cost) && chatMessage.cost > 0) {
+        chatChanges.cost = (chat.cost || 0) + chatMessage.cost;
+      }
+    }
+
     await db.update(table.chat)
-      .set({ updatedAt: new Date() })
+      .set(chatChanges)
       .where(eq(table.chat.id, props.chatId));
 
     return { chatMessages };
