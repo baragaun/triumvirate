@@ -98,11 +98,6 @@
       </div>
     {:else}
       <div class="chat-container">
-        {#if chat?.title}
-          <div class="chat-title">
-            <h2>{chat?.title}</h2>
-          </div>
-        {/if}
         <ChatComponent
           {user}
           {chat}
@@ -117,46 +112,25 @@
       </div>
     {/if}
   </main>
-
-  <footer>
-    <p>Built with Svelte 5</p>
-  </footer>
 </div>
 
 <style>
   .container {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    padding: 1rem;
+    height: 100%;
+    padding: 0;
     max-width: 1000px;
     margin: 0 auto;
-  }
-
-  header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: #2196f3;
+    overflow: hidden;
   }
 
   main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 70vh;
-  }
-
-  footer {
-    text-align: center;
-    margin-top: 2rem;
-    padding: 1rem 0;
-    color: #666;
-    font-size: 0.875rem;
+    height: 100%;
+    overflow: hidden;
   }
 
   .loading-container {
@@ -188,20 +162,12 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
+    margin-top: 1rem;
     height: 100%;
     overflow: auto;
   }
 
-  .chat-title {
-    padding: 0.5rem 1rem;
-  }
 
-  .chat-title h2 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-  }
 </style>

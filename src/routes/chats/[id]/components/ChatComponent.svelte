@@ -354,6 +354,11 @@
 </script>
 
 <div class="chat-container" role="region" aria-label="Chat conversation">
+  {#if chat?.title && chat.mode === ChatMode.tuning}
+    <div class="chat-title">
+      {chat.title}
+    </div>
+  {/if}
   <div class="chat-messages" bind:this={chatContainer} aria-live="polite">
     {#if chatMessages.length === 0}
       <div class="empty-state" role="status" aria-live="polite">
@@ -565,12 +570,24 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     overflow: hidden;
     background-color: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  .chat-title {
+    padding: 0rem 1rem;
+    color: #797979;
+    letter-spacing: .5rem;
+    z-index: 10;
   }
 
   .chat-messages {
