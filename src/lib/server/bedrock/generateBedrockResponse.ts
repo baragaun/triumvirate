@@ -172,7 +172,7 @@ export async function generateBedrockResponse(
       inputTokens = responseBody.usage.input_tokens;
       outputTokens = responseBody.usage.output_tokens;
 
-      if (llm?.tokenCost) {
+      if (llm?.tokenCost && !isNaN(inputTokens) && !isNaN(outputTokens)) {
         cost = (inputTokens + outputTokens) * llm.tokenCost;
       }
     }
