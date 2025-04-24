@@ -31,7 +31,7 @@ export async function GET({ params }: RequestEvent) {
   }
 }
 
-// Update an chat config
+// Update a chat config
 export async function PUT({ params, request }: RequestEvent) {
   try {
     if (!params.id) {
@@ -41,8 +41,10 @@ export async function PUT({ params, request }: RequestEvent) {
     }
 
     const changes: Partial<ChatConfig> = await request.json();
+    // console.log('Received changes in API:', JSON.stringify(changes, null, 2));
     changes.id = params.id;
-    await operations.chatConfig.update(changes);
+    const result = await operations.chatConfig.update(changes);
+    // console.log('Update result:', JSON.stringify(result, null, 2));
 
     return json({});
   } catch (error) {

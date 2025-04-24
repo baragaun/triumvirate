@@ -18,6 +18,9 @@
 				<ul>
 					{#if isSignedIn}
 						<li><a href="/chats">Chats</a></li>
+						{#if data.user?.isAdmin}
+							<li><a href="/admin/chat-configs">Admin</a></li>
+						{/if}
 						<li>
 							<form method="POST" action="/logout">
 								<button type="submit" class="logout-button">Logout</button>
