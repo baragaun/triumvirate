@@ -20,6 +20,7 @@
     llms,
     guestUserName,
     updateChat,
+    updateChatConfig,
     deleteChat,
   } = $props<{
     user: Chat,
@@ -30,6 +31,7 @@
     llms: Llm[],
     guestUserName?: string | null,
     updateChat: (changes: Partial<Chat>) => Promise<string>,
+    updateChatConfig: (changes: Partial<ChatConfig>) => Promise<string>,
     deleteChat: () => Promise<void>,
   }>();
 
@@ -471,6 +473,7 @@
       {llms}
       onClose={closeLlmSettings}
       {updateChat}
+      {updateChatConfig}
     />
   {/if}
 

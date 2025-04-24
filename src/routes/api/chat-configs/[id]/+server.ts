@@ -41,12 +41,16 @@ export async function PUT({ params, request }: RequestEvent) {
     }
 
     const changes: Partial<ChatConfig> = await request.json();
-    // console.log('Received changes in API:', JSON.stringify(changes, null, 2));
+    console.log('/chat-configs/[id] PUT request received.', changes);
     changes.id = params.id;
     const result = await operations.chatConfig.update(changes);
     // console.log('Update result:', JSON.stringify(result, null, 2));
 
-    return json({});
+    if (result.error) {
+      return json({ error: result.error }, { status: 500 });
+    }
+
+    return json({ chatConfig: result.object });
   } catch (error) {
     console.error('Error updating chat config:', error);
 

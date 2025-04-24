@@ -3,19 +3,19 @@
   import { goto } from '$app/navigation'
   import ChatComponent from './components/ChatComponent.svelte'
   import type { ChatUiData } from '$lib/types'
-  import type { Chat } from '$lib/server/db/schema'
+  import type { Chat, ChatConfig } from '$lib/server/db/schema'
 
   let { data }: { data: ChatUiData } = $props<{ data: ChatUiData }>();
   const chatConfigs = data.chatConfigs || [];
   const user = data.user;
   const guestUserName = data.guestUserName;
   const llms = data.llms || [];
-  const chatConfig = data.chat?.configId && chatConfigs
-    ? chatConfigs.find(config => config.id === data.chat?.configId) || null
-    : null;
 
   // State
   let chat = $state(data.chat);
+  let chatConfig = $state(data.chat?.configId && chatConfigs
+    ? chatConfigs.find(config => config.id === data.chat?.configId) || null
+    : null);
   let chatMessages = $state(data.chatMessages || []);
   let isLoading = $state(true);
 
@@ -67,6 +67,37 @@
     }
   }
 
+  async function updateChatConfig(changes: Partial<ChatConfig>): Promise<string> {
+    try {
+      console.log('updateChatConfig: changes:', changes);
+      if (!changes.id) {
+        changes.id = chatConfig.id;
+      }
+
+      const response = await fetch(`/api/chat-configs/${changes.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(changes)
+      });
+
+      const responseData = await response.json();
+
+      if (responseData.error) {
+        return responseData.error;
+      }
+      chatConfig = responseData.chatConfig;
+
+      console.log('updateChatConfig: chatConfig:', $state.snapshot(chatConfig));
+
+      return 'ok';
+    } catch (error) {
+      error = error instanceof Error ? error.message : 'An error occurred while saving settings';
+      return error instanceof Error ? error.message : 'Unknown error';
+    }
+  }
+
   async function deleteChat(): Promise<void> {
     try {
       console.log('deleteChat called.');
@@ -107,6 +138,7 @@
           {llms}
           {guestUserName}
           {updateChat}
+          {updateChatConfig}
           {deleteChat}
         />
       </div>

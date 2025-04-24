@@ -11,6 +11,7 @@
     llms,
     onClose,
     updateChat,
+    updateChatConfig,
   } = $props<{
     chat: Chat,
     chatConfig: ChatConfig | null,
@@ -18,6 +19,7 @@
     llms: Llm[],
     onClose: () => void,
     updateChat: (changes: Partial<Chat>) => Promise<string>,
+    updateChatConfig: (changes: Partial<ChatConfig>) => Promise<string>,
   }>();
 
   // State
@@ -105,21 +107,20 @@
     }
   });
 
-  const onSubmit = async (event: Event) => {
-    event.preventDefault();
+  const processUpdateChat = async (closeModal: boolean) => {
     error = null;
     success = null;
     isSaving = true;
 
     try {
-      const changes = {
+      const changes: Partial<Chat> = {
         id: chat.id,
         title,
         mode,
         configId,
         llmId,
+        llmInstructions,
         llmTemperature,
-        llmInstructions
       };
 
       const response = await updateChat(changes);
@@ -129,7 +130,47 @@
         return;
       }
       success = 'Settings saved successfully';
-      onClose();
+
+      if (closeModal) {
+        onClose();
+      }
+    } catch (err) {
+      error = err instanceof Error ? err.message : 'An error occurred while saving settings';
+    } finally {
+      isSaving = false;
+    }
+  }
+
+  const onSubmit = async (event: Event) => {
+    event.preventDefault();
+    await processUpdateChat(true);
+  }
+
+  const onUpdateConfig = async (event: Event) => {
+    event.preventDefault();
+    error = null;
+    success = null;
+    isSaving = true;
+
+    try {
+      // First, we'll save the pending changes to the chat:
+      await processUpdateChat(false);
+
+      // Now the chat config:
+      const changes: Partial<ChatConfig> = {
+        id: chat.configId,
+        llmId,
+        llmInstructions,
+        llmTemperature,
+      };
+
+      const response = await updateChatConfig(changes);
+
+      if (response !== 'ok') {
+        error = response;
+        return;
+      }
+      success = 'Config saved successfully';
     } catch (err) {
       error = err instanceof Error ? err.message : 'An error occurred while saving settings';
     } finally {
@@ -184,6 +225,16 @@
               <option value={config.id}>{config.id} - {config.description || 'No description'}</option>
             {/each}
           </select>
+          <div class="update-config-button-div">
+            <button
+              type="button"
+              class="update-config-button"
+              onclick={onUpdateConfig}
+              disabled={isSaving}
+            >
+              Update Config
+            </button>
+          </div>
         </div>
 
         <div class="form-group">
@@ -497,5 +548,19 @@
 
   .save-button:hover:not(:disabled) {
     background-color: #1976d2;
+  }
+
+  .update-config-button {
+    background-color: #2196f3;
+    color: white;
+  }
+
+  .update-config-button:hover:not(:disabled) {
+    background-color: #1976d2;
+  }
+
+  .update-config-button-div {
+    text-align: right;
+    padding: 0.5rem 0;
   }
 </style>
