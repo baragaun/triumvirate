@@ -119,8 +119,8 @@
         mode,
         configId,
         llmId,
+        llmInstructions,
         llmTemperature,
-        llmInstructions
       };
 
       const response = await updateChat(changes);
@@ -160,8 +160,8 @@
       const changes: Partial<ChatConfig> = {
         id: chat.configId,
         llmId,
+        llmInstructions,
         llmTemperature,
-        llmInstructions
       };
 
       const response = await updateChatConfig(changes);
