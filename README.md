@@ -38,3 +38,29 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+## Deploying
+
+Use `bin/deploy.sh` to deploy to the server. For this to work, you need the file 
+`~/apps/ecosystem.config.cjs` on the server.
+
+Here is the content of this file:
+
+```js
+module.exports = {
+  apps: [{
+    name: "triumvirate",
+    script: "/home/ubuntu/apps/triumvirate/build/index.js",
+    env: {
+      PORT: "8080",
+      NODE_ENV: "production",
+      CONFIG_PATH: "config",
+      DATABASE_URL: "postgres://postgres:xxx@xxx.rds.amazonaws.com:5432/?sslmode=no-verify",
+      AWS_REGION: "xxx",
+      AWS_PROFILE_NAME: "xxx",
+      MOCK_AI_RESPONSES: "false",
+    }
+  }]
+}
+```
+

@@ -1,0 +1,15 @@
+module.exports = {
+  apps: [{
+    name: "triumvirate",
+    script: "/home/ubuntu/apps/triumvirate/build/index.js",
+    env: {
+      PORT: "8080",
+      NODE_ENV: "production",
+      CONFIG_PATH: "config",
+      DATABASE_URL: "postgres://postgres:xxx@xxx.rds.amazonaws.com:5432/?sslmode=no-verify",
+      AWS_REGION: "xxx",
+      AWS_PROFILE_NAME: "xxx",
+      MOCK_AI_RESPONSES: "false",
+    }
+  }]
+}
