@@ -1,8 +1,7 @@
 import { json, type RequestEvent } from '@sveltejs/kit'
-import * as table from '$lib/server/db/schema';
-import { findUsers } from '$lib/server/user/findUsers';
+import { findChats } from '$lib/server/chat/findChats';
 
-// Get all users
+// Get all chats
 export async function GET({ locals }: RequestEvent) {
   // Check if the user is logged in and is an admin
   if (!locals.user?.isAdmin) {
@@ -10,13 +9,14 @@ export async function GET({ locals }: RequestEvent) {
   }
 
   try {
-    const users = await findUsers();
+    // Get all chats (no userId filter means get all)
+    const chats = await findChats();
 
-    return json({ users });
+    return json({ chats });
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('Error fetching chats:', error);
     return json({
-      error: error instanceof Error ? error.message : 'Failed to fetch users'
+      error: error instanceof Error ? error.message : 'Failed to fetch chats'
     }, { status: 500 });
   }
 }

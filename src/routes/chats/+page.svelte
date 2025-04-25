@@ -174,7 +174,6 @@
 </script>
 
 <div class="chats-container">
-  <div class="chats-content">
     {#if isLoading}
       <div class="loading-state">
         <p>Loading your chats...</p>
@@ -241,26 +240,18 @@
         />
       {/if}
     </div>
-  </div>
 </div>
 
 <style>
   .chats-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 0.5rem 1rem; /* Reduced top padding from 2rem to 0.5rem */
+    width: 100%;
+    padding: 0;
   }
 
-  .chats-content {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-  }
+
 
   .new-chat-section {
-    padding: 1rem;
-    border-top: 1px solid #e0e0e0;
+    padding: 0 1rem 1rem 0;
     display: flex;
     justify-content: flex-end;
   }
@@ -300,6 +291,10 @@
   .chats-list {
     display: flex;
     flex-direction: column;
+    background-color: white;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
   }
 
   .chat-card-container {
@@ -307,6 +302,7 @@
     border-bottom: 1px solid #e0e0e0;
     display: flex;
     align-items: center;
+    background-color: white;
   }
 
   .chat-card {
@@ -318,6 +314,7 @@
     color: inherit;
     transition: background-color 0.2s;
     flex: 1;
+    background-color: white;
   }
 
   .chat-card:hover {

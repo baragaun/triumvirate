@@ -5,12 +5,13 @@ import { formatPromptForModel } from '$lib/server/bedrock/helpers/formatPromptFo
 import bedrockClient from '$lib/server/bedrock/bedrockClient'
 import { createRequestBody } from '$lib/server/bedrock/helpers/createRequestBody'
 import { extractResponseText } from '$lib/server/bedrock/helpers/extractResponseText'
+import { parseAiMessage } from '$lib/server/bedrock/helpers/parseAiMessage'
 import { findChatMessages } from '$lib/server/chatMessage/findChatMessages'
 import { findChat } from '$lib/server/chat/findChat'
 import { createChatMessage } from '$lib/server/chatMessage/createChatMessage'
 import { MessageRole } from '$lib/enums'
 import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
-import type { GenerateChatMessageResponse } from '$lib/types'
+import type { ChatMetadata, GenerateChatMessageResponse } from '$lib/types'
 import { updateChatMessage } from '$lib/server/chatMessage/updateChatMessage'
 import { env } from '$env/dynamic/private';
 import { findLlm } from '$lib/server/llm/findLlm'
@@ -120,6 +121,7 @@ export async function generateBedrockResponse(
         replaced: false,
         sendStatus: null,
         error: null,
+        metadata: null,
         llmId,
         llmTemperature,
         llmInstructions: null,
@@ -137,7 +139,7 @@ export async function generateBedrockResponse(
       return { error: 'No messages found' };
     }
 
-    const prompt = formatPromptForModel(llmId, messages);
+    const prompt = formatPromptForModel(chat, messages, llmId);
     const requestBody = createRequestBody(llmId, prompt, llmTemperature, llmMaxTokens);
     console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
@@ -153,6 +155,7 @@ export async function generateBedrockResponse(
     let outputTokens = 0;
     let cost = 0;
     let responseTime = 0;
+    let metadata: ChatMetadata | undefined = undefined;
 
     if (MOCK) {
       generatedText = sendingInstructions
@@ -169,6 +172,16 @@ export async function generateBedrockResponse(
 
       // Extract the generated text based on the model
       generatedText = extractResponseText(chat.llmId, responseBody);
+
+      if (generatedText.includes('<metadata>')) {
+        const parsedMessage = parseAiMessage(generatedText);
+        console.error('generateBedrockResponse: metadata found.', parsedMessage);
+        generatedText = parsedMessage.content;
+        if (parsedMessage.metadata) {
+          metadata = parsedMessage.metadata;
+        }
+      }
+
       inputTokens = responseBody.usage.input_tokens;
       outputTokens = responseBody.usage.output_tokens;
 
@@ -186,6 +199,7 @@ export async function generateBedrockResponse(
       sendToUser,
       llmId,
       llmTemperature,
+      metadata,
       inputTokens,
       outputTokens,
       cost,
@@ -198,7 +212,9 @@ export async function generateBedrockResponse(
       return { error: 'Failed to create chat message' };
     }
 
-    return { chatMessage: createChatMessageResponse.chatMessages[0] };
+    return {
+      chatMessage: createChatMessageResponse.chatMessages[0],
+    };
   } catch (error) {
     console.error('Error generating response from Bedrock:', error);
 

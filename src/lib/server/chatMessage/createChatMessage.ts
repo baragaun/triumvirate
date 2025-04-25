@@ -50,6 +50,7 @@ export async function createChatMessage(
       replaced: false,
       sendStatus: props.sendStatus || null,
       error: props.error || null,
+      metadata: props.metadata || null,
       llmId: null,
       llmTemperature: null,
       llmInstructions: null,
@@ -101,6 +102,9 @@ export async function createChatMessage(
       }
       if (!isNaN(chatMessage.cost) && chatMessage.cost > 0) {
         chatChanges.cost = (chat.cost || 0) + chatMessage.cost;
+      }
+      if (chatMessage.metadata) {
+        chatChanges.metadata = chatMessage.metadata;
       }
     }
 

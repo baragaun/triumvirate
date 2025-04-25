@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation'
-  import ChatComponent from './components/ChatComponent.svelte'
   import type { ChatUiData } from '$lib/types'
   import type { Chat, ChatConfig } from '$lib/server/db/schema'
+  import ChatComponent from '$lib/components/chat/ChatComponent.svelte'
 
   let { data }: { data: ChatUiData } = $props<{ data: ChatUiData }>();
   const chatConfigs = data.chatConfigs || [];
@@ -195,11 +195,8 @@
     flex-direction: column;
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto;
-    margin-top: 1rem;
+    margin: 1rem auto 0;
     height: 100%;
     overflow: auto;
   }
-
-
 </style>

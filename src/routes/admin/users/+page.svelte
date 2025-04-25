@@ -139,9 +139,6 @@
 </script>
 
 <div class="admin-container">
-  <header class="admin-header">
-    <h1>User Management</h1>
-  </header>
 
   {#if error}
     <div class="error-message">
@@ -233,24 +230,8 @@
 
 <style>
   .admin-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  .admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  .admin-header h1 {
-    margin: 0;
-    font-size: 1.8rem;
-    color: #333;
+    width: 100%;
+    padding: 0;
   }
 
   .error-message {
@@ -311,7 +292,6 @@
     border-collapse: collapse;
     margin-bottom: 2rem;
     background-color: white;
-    border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
