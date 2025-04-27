@@ -75,7 +75,7 @@ export async function generateBedrockResponse(
       messages = messages
         .filter((message) => message.sendToLlm)
         .map((message) => {
-          if (message.role === MessageRole.system) {
+          if (message.role === MessageRole.platform) {
             return {
               ...message,
               role: MessageRole.user,
@@ -109,6 +109,31 @@ export async function generateBedrockResponse(
     const llm = await findLlm(llmId);
 
     if (llmInstructions) {
+      if (chat.welcomeMessage || chatConfig?.welcomeMessage) {
+        messages.unshift({
+          id: 'welcome',
+          chatId: chat.id,
+          role: MessageRole.assistant,
+          content: chat.welcomeMessage || chatConfig?.welcomeMessage || '',
+          iteration: null,
+          feedback: null,
+          sendToLlm: true,
+          sendToUser: false,
+          replaced: false,
+          sendStatus: null,
+          error: null,
+          metadata: null,
+          llmId: null,
+          llmTemperature: null,
+          llmInstructions: null,
+          inputTokens: 0,
+          outputTokens: 0,
+          cost: 0,
+          responseTime: 0,
+          createdAt: chat.createdAt,
+          updatedAt: chat.updatedAt,
+        })
+      }
       messages.unshift({
         id: 'instructions',
         chatId: chat.id,
@@ -122,8 +147,8 @@ export async function generateBedrockResponse(
         sendStatus: null,
         error: null,
         metadata: null,
-        llmId,
-        llmTemperature,
+        llmId: null,
+        llmTemperature: null,
         llmInstructions: null,
         inputTokens: 0,
         outputTokens: 0,
@@ -197,6 +222,7 @@ export async function generateBedrockResponse(
       content: generatedText,
       iteration,
       sendToUser,
+      sendToLlm: !sendingInstructions, // dropping the model's response to the instructions
       llmId,
       llmTemperature,
       metadata,

@@ -11,11 +11,11 @@ export async function findChats(userId?: string): Promise<Chat[]> {
       .select()
       .from(table.chat)
       .where(eq(table.chat.userId, userId))
-      .orderBy(desc(table.chat.updatedAt));
+      .orderBy(table.chat.createdAt);
   }
 
   return db
     .select()
     .from(table.chat)
-    .orderBy(desc(table.chat.updatedAt));
+    .orderBy(table.chat.createdAt);
 }

@@ -23,6 +23,7 @@ import { findUser } from '$lib/server/user/findUser'
 import { findUserByUsername } from '$lib/server/user/findUserByUsername'
 import { findUsers } from '$lib/server/user/findUsers'
 import { generateBedrockResponse } from '$lib/server/bedrock/generateBedrockResponse'
+import { getLatestUserMessageIdForChat } from '$lib/server/chat/getLatestUserMessageIdForChat'
 import { importBedrockModels } from '$lib/server/bedrock/importBedrockModels'
 import { importChatConfigs } from '$lib/server/chatConfig/importChatConfigs'
 import { saveMultipleLlms } from '$lib/server/llm/saveMultipleLlms'
@@ -55,6 +56,7 @@ const operations = {
     findChatUiData,
     findOne: findChat,
     findInfo: findChatInfo,
+    getLatestUserMessageIdForChat,
     update: updateChat,
     upsert: upsertChat,
   },

@@ -8,7 +8,7 @@ export async function findUsers(): Promise<User[]> {
   const users = await db
     .select()
     .from(table.user)
-    .orderBy(table.user.id);
+    .orderBy(table.user.username);
 
   if (Array.isArray(users) && users.length > 0) {
     return users;

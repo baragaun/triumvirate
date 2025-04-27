@@ -13,6 +13,16 @@ export async function updateChatConfig(changes: Partial<ChatConfig>): Promise<Ch
       return { error: 'ID is required.' };
     }
 
+    const existingChatConfig = await findChatConfig(changes.id);
+    if (!existingChatConfig) {
+      return { error: 'Chat config not found' };
+    }
+
+    if (!existingChatConfig.isDefault && changes.isDefault) {
+      await db.update(table.chatConfig)
+        .set({ isDefault: false });
+    }
+
     // console.log('updateChatConfig received changes:', JSON.stringify(changes, null, 2));
 
     // Filter out undefined values from the changes object, but keep empty strings and other falsy values

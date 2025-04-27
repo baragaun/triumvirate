@@ -211,9 +211,9 @@
     </div>
   {:else if showCreateForm}
     <div class="form-container">
-      <h2>{editingConfig ? 'Edit Configuration' : 'Create New Configuration'}</h2>
+      <h2>{editingConfig ? 'Edit Chat Configuration' : 'Create Chat Configuration'}</h2>
 
-      <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+      <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="full-height-form">
         <div class="form-group">
           <label for="id">ID</label>
           <input
@@ -306,7 +306,7 @@
               formData.llmInstructions = e.currentTarget.value;
             }}
           ></textarea>
-          <small>System instructions that guide the LLM's behavior</small>
+          <small>Platform instructions that guide the LLM's behavior</small>
         </div>
 
         <div class="form-actions">
@@ -332,7 +332,6 @@
             <th>Default</th>
             <th>Last Updated</th>
             <th>
-              Actions
               <button class="create-button" onclick={showCreateConfigForm}>
                 New
               </button>
@@ -523,10 +522,12 @@
     background-color: white;
     padding: 1.5rem;
     border-radius: 8px;
-    margin-bottom: 2rem;
-    max-height: calc(100vh - 12rem); /* Limit height to fit in viewport with some margin */
-    overflow-y: auto; /* Enable vertical scrolling */
+    height: calc(100vh - 6rem);
+    overflow-y: auto;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    margin: 1rem;
   }
 
   .form-container h2 {
@@ -534,6 +535,12 @@
     margin-bottom: 1.5rem;
     font-size: 1.5rem;
     color: #333;
+  }
+
+  .full-height-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
   }
 
   .form-group {
@@ -581,7 +588,7 @@
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: auto; /* Push to bottom */
     position: sticky;
     bottom: 0;
     background-color: white;

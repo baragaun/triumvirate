@@ -79,7 +79,7 @@ export async function createChat(props: Partial<Chat>): Promise<ChatInfo> {
 
     const messageProps: Partial<ChatMessage> = {
       chatId: chatId,
-      role: MessageRole.system,
+      role: MessageRole.platform,
       sendToLlm: false,
       sendToUser: true,
       content: content,
