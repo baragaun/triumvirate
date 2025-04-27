@@ -6,6 +6,7 @@
     chat,
     message,
     replaced,
+    showMetadata,
     llms,
     canEdit,
     canRegenerate,
@@ -15,6 +16,7 @@
     chat: Chat,
     message: ChatMessage;
     replaced?: boolean;
+    showMetadata: boolean;
     llms: Llm[],
     canEdit?: boolean;
     canRegenerate?: boolean;
@@ -73,6 +75,11 @@
 <div class="message-content {isUserMessage ? 'user-message' : 'assistant-message'}">
   <div class="message-text">
     {message.content}
+    {#if showMetadata && message.metadata}
+      <div class="metadata">
+        <span>{JSON.stringify(message.metadata, null, 2)}</span>
+      </div>
+    {/if}
     {#if chat.mode === ChatMode.tuning && ((!isUserMessage && infoLine) || (isUserMessage && canEdit) || canRegenerate)}
       <div class="message-info {isUserMessage ? 'user-message-info' : ''}">
         {#if !isUserMessage && infoLine}
@@ -133,7 +140,17 @@
 
   .message-text {
     white-space: pre-wrap;
-    line-height: 1.4;
+    line-height: 1.3;
+  }
+
+  .metadata {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin-top: 1rem;
+    padding-top: .5rem;
+    white-space: pre-wrap;
+    line-height: 1.3;
+    font-size: 0.8rem;
+    color: #666;
   }
 
   .message-info {

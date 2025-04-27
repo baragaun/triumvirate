@@ -48,7 +48,8 @@
   let error = $state<string | null | undefined>(null);
   let chatContainer: HTMLElement;
   let showFeedback = $state(false);
-  let collapseResponses = $state(true); // show/hide AI responses that were replaced later
+  let showReplacedResponses = $state(false); // show/hide AI responses that were replaced later
+  let showMetadata = $state(false); // show/hide AI responses that were replaced later
   let feedbackText = $state('');
   let feedbackRating = $state<number | null>(null);
   let showSettingsModal = $state(false);
@@ -370,7 +371,7 @@
 
     {#key listRevision}
       {#each chatMessages as message (message.id)}
-        {#if !((collapseResponses || chat.mode === ChatMode.experiment) && message.replaced)}
+        {#if !((!showReplacedResponses || chat.mode === ChatMode.experiment) && message.replaced)}
           <div
             class="message {message.role} {message.error ? 'error' : ''} {message.sendStatus === 'retrying' ? 'retrying' : ''}"
             role="listitem"
@@ -380,6 +381,7 @@
               {chat}
               {message}
               replaced={message.replaced}
+              {showMetadata}
               {llms}
               canEdit={message.role === MessageRole.user && message.id === lastUserMessageId}
               canRegenerate={message.role === MessageRole.assistant && message.id === lastMessageId}
@@ -557,16 +559,31 @@
       </span>
     </div>
     {#if chat.mode === ChatMode.tuning}
-      <div class="toggle-container">
-        <label class="toggle-switch">
-          <input
-            type="checkbox"
-            checked={collapseResponses}
-            onclick={() => collapseResponses = !collapseResponses}
-          />
-          <span class="toggle-slider"></span>
-        </label>
-        <span class="toggle-label">Collapse responses</span>
+      <div class="toggles-wrapper">
+        <div class="toggle-container">
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              checked={showReplacedResponses}
+              onclick={() => showReplacedResponses = !showReplacedResponses}
+            />
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">Show replaced responses</span>
+        </div>
+        {#if chat.metadata}
+          <div class="toggle-container">
+            <label class="toggle-switch">
+              <input
+                type="checkbox"
+                checked={showMetadata}
+                onclick={() => showMetadata = !showMetadata}
+              />
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">Show metadata</span>
+          </div>
+        {/if}
       </div>
     {/if}
   {/if}
@@ -579,8 +596,8 @@
     height: 100%;
     max-width: 1000px;
     margin: 0 auto;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    /*border: 1px solid #e0e0e0;*/
+    /*border-radius: 8px;*/
     overflow: hidden;
     background-color: #fff;
     position: absolute;
@@ -928,11 +945,18 @@
     background-color: #388e3c;
   }
 
+  .toggles-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0 1rem;
+    margin: 0.5rem 0;
+  }
+
   .toggle-container {
     display: flex;
     align-items: center;
-    margin: 0.5rem 0;
-    padding: 0 1rem;
+    margin-right: 1.5rem;
   }
 
   .toggle-switch {

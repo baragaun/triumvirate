@@ -36,3 +36,30 @@ export interface EndChatRequest {
   feedback?: string;
   rating?: number;
 }
+
+export interface LocalsData {
+  user?: {
+    id: string;
+    username: string;
+    isAdmin: boolean;
+  }
+}
+
+export interface AdviceData {
+  value: string;
+  confidence: number;
+  specificity: number;
+  approved?: boolean;
+}
+
+export interface ChatMetadata {
+  chat_quality?: number;
+  user_willingness?: number;
+  is_bad_actor?: number;
+  goal_reached?: number;
+  messages_to_goal?: number;
+  notes_from_ai?: string;
+  info?: string[];
+  advice?: AdviceData[];
+  data?: Record<string, any>;
+}

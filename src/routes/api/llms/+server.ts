@@ -4,9 +4,9 @@ import operations from '$lib/server/operations'
 import { env } from '$env/dynamic/private'
 import type { Llm } from '$lib/server/db/schema'
 
-export async function GET({}: RequestEvent) {
+export async function GET({ url }: RequestEvent) {
   try {
-    const llms = await operations.llm.find(true);
+    const llms = await operations.llm.find(url.searchParams.get('all') !== 'y');
 
     return json({
       llms,

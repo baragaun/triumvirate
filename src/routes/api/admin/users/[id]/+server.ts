@@ -1,9 +1,9 @@
-import { json } from '@sveltejs/kit';
+import { json, type RequestEvent } from '@sveltejs/kit'
 import { findUser } from '$lib/server/user/findUser';
 import { updateUser } from '$lib/server/user/updateUser';
 
 // Update a user
-export async function PUT({ request, params, locals }) {
+export async function PUT({ request, params, locals }: RequestEvent) {
   // Check if the user is logged in and is an admin
   if (!locals.user?.isAdmin) {
     return json({ error: 'Unauthorized' }, { status: 401 });
@@ -12,6 +12,10 @@ export async function PUT({ request, params, locals }) {
   try {
     const userId = params.id;
     const changes = await request.json();
+
+    if (!userId) {
+      return json({ error: 'User ID is required' }, { status: 400 });
+    }
 
     // Validate the user exists
     const existingUser = await findUser(userId);

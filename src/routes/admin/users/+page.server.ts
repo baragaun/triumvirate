@@ -1,16 +1,10 @@
 import { redirect } from '@sveltejs/kit';
+import type { LocalsData } from '$lib/types'
 
-export const load = async ({ locals }: { locals: { user?: { id: string, isAdmin: boolean } } }) => {
-  // Check if the user is logged in and is an admin
-  if (!locals.user) {
-    throw redirect(302, '/login?redirectTo=/admin/users');
+export const load = async ({ locals }: { locals: LocalsData }) => {
+  if (!locals.user || !locals.user?.isAdmin) {
+    throw redirect(302, '/login?redirectTo=/admin/chat-configs');
   }
 
-  if (!locals.user.isAdmin) {
-    throw redirect(302, '/');
-  }
-
-  return {
-    user: locals.user
-  };
+  return { user: locals.user };
 };

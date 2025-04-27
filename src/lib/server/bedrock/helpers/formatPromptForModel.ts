@@ -1,32 +1,34 @@
-import type { ChatMessage } from '$lib/server/db/schema'
+import type { Chat, ChatMessage } from '$lib/server/db/schema'
+import { compileMessageForAi } from '$lib/server/bedrock/helpers/compileMessageForAi'
 
 export function formatPromptForModel(
+  chat: Chat,
+  messages: ChatMessage[],
   llmId: string,
-  messages: ChatMessage[]
 ): string | object | Array<{role: string, content: string}> {
   if (llmId.includes('anthropic.claude')) {
-    // Format for Claude llms
+    // Format for Claude models
     // { role: 'user' | 'assistant'; content: string }
     return messages.map(m => ({
       role: m.role,
-      content: m.content
+      content: compileMessageForAi(chat, m)
     }));
   } else if (llmId.includes('amazon.titan')) {
-    // Format for Titan llms
+    // Format for Titan models
     return {
-      inputText: messages.map(m => `${m.role}: ${m.content}`).join('\n')
+      inputText: messages.map(m => `${m.role}: ${compileMessageForAi(chat, m)}`).join('\n')
     };
   } else if (llmId.includes('amazon.nova')) {
-    // Format for Nova llms (both Pro and Lite)
+    // Format for Nova models (both Pro and Lite)
     return messages.map(message => ({
       role: message.role,
-      content: [{ text: message.content }]
+      content: [{ text: compileMessageForAi(chat, message) }]
     }));
   } else if (llmId.includes('meta.llama')) {
-    // Format for Llama llms
-    return messages.map(m => `${m.role}: ${m.content}`).join('\n');
+    // Format for Llama models
+    return messages.map(m => `${m.role}: ${compileMessageForAi(chat, m)}`).join('\n');
   } else {
     // Default format
-    return messages.map(m => `${m.role}: ${m.content}`).join('\n');
+    return messages.map(m => `${m.role}: ${compileMessageForAi(chat, m)}`).join('\n');
   }
 }

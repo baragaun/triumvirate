@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, real, integer } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean, real, integer, json } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('users', {
 	id: text('id').primaryKey(),
@@ -33,6 +33,7 @@ export const chat = pgTable('chats', {
 	inputTokens: integer('input_tokens').notNull().default(0),
 	outputTokens: integer('output_tokens').notNull().default(0),
 	cost: real('cost').notNull().default(0),
+	metadata: json('metadata'),
 	feedback: text('feedback'), // User feedback on the chat
 	rating: integer('rating'), // Numerical rating of the chat
 	endedAt: timestamp('ended_at'), // When the chat ended
@@ -52,6 +53,7 @@ export const chatMessage = pgTable('chat_messages', {
 	replaced: boolean('replaced').notNull().default(false),
 	sendStatus: text('send_status'), // status of sending/receiving
 	error: text('error'), // any error message
+	metadata: json('metadata'),
 	llmId: text('llm_id'), // The model used (e.g., amazon.nova-lite-v1:0)
 	llmInstructions: text('llm_instructions'), // The instructions used at the start of the chat
 	llmTemperature: real('llm_temperature'), // The model temperature used

@@ -1,22 +1,24 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { ChatConfig, Llm } from '$lib/server/db/schema';
+  import { goto } from '$app/navigation';
+  import type { Chat, ChatConfig } from '$lib/server/db/schema';
+  import { ChatMode } from '$lib/enums';
 
   // State
+  let chats = $state<Chat[]>([]);
   let chatConfigs = $state<ChatConfig[]>([]);
-  let llms = $state<Llm[]>([]);
   let isLoading = $state(true);
   let error = $state<string | null>(null);
-  let showCreateForm = $state(false);
-  let editingConfig = $state<ChatConfig | null>(null);
-  let isDeleting = $state<string | null>(null);
+  let editingChat = $state<Chat | null>(null);
+  let showEditForm = $state(false);
+  let isDeletingChat = $state<string | null>(null);
 
   // Form state
-  let formData = $state<Partial<ChatConfig>>({
-    id: '',
-    description: '',
-    isDefault: false,
-    welcomeMessage: '',
+  let formData = $state<Partial<Chat>>({
+    title: '',
+    caption: '',
+    mode: ChatMode.experiment,
+    configId: '',
     llmId: '',
     llmInstructions: '',
     llmTemperature: 0.7,
@@ -25,14 +27,31 @@
 
   onMount(async () => {
     try {
+      await fetchChats();
       await fetchChatConfigs();
-      await fetchLlms();
     } catch (err) {
       error = err instanceof Error ? err.message : 'An error occurred';
     } finally {
       isLoading = false;
     }
   });
+
+  async function fetchChats() {
+    try {
+      const response = await fetch('/api/admin/chats');
+      const data = await response.json();
+
+      if (data.error) {
+        error = data.error;
+        return;
+      }
+
+      chats = data.chats || [];
+    } catch (err) {
+      console.error('Error fetching chats:', err);
+      error = err instanceof Error ? err.message : 'Failed to fetch chats';
+    }
+  }
 
   async function fetchChatConfigs() {
     try {
@@ -51,90 +70,46 @@
     }
   }
 
-  async function fetchLlms() {
-    try {
-      const response = await fetch('/api/llms');
-      const data = await response.json();
-
-      if (data.error) {
-        error = data.error;
-        return;
-      }
-
-      llms = data.llms || [];
-    } catch (err) {
-      console.error('Error fetching LLMs:', err);
-      error = err instanceof Error ? err.message : 'Failed to fetch LLM models';
-    }
-  }
-
-  function resetForm() {
-    formData = {
-      id: '',
-      description: '',
-      isDefault: false,
-      welcomeMessage: '',
-      llmId: llms.length > 0 ? llms[0].id : '',
-      llmInstructions: '',
-      llmTemperature: 0.7,
-      llmMaxTokens: 1000
-    };
-    editingConfig = null;
-  }
-
-  function showCreateConfigForm() {
-    resetForm();
-    showCreateForm = true;
-  }
-
   function hideForm() {
-    showCreateForm = false;
-    editingConfig = null;
+    showEditForm = false;
+    editingChat = null;
   }
 
-  function editConfig(config: ChatConfig) {
-    editingConfig = config;
-    formData = { ...config };
-    showCreateForm = true;
+  function editChat(chat: Chat) {
+    editingChat = chat;
+    formData = {
+      title: chat.title || '',
+      caption: chat.caption || '',
+      mode: chat.mode || ChatMode.experiment,
+      configId: chat.configId || '',
+      llmId: chat.llmId || '',
+      llmInstructions: chat.llmInstructions || '',
+      llmTemperature: chat.llmTemperature || 0.7,
+      llmMaxTokens: chat.llmMaxTokens || 1000
+    };
+    showEditForm = true;
   }
 
   async function handleSubmit() {
-    // Ensure form data is properly captured and remove timestamp fields
-    const { createdAt, updatedAt, ...dataToSend } = formData;
-    const currentFormData = { ...dataToSend };
-    console.log('Form data at submission:', JSON.stringify(currentFormData, null, 2));
     try {
-      if (!currentFormData.id) {
-        error = 'ID is required';
+      if (!editingChat) {
+        error = 'No chat selected for editing';
         return;
       }
 
-      if (!currentFormData.llmId) {
-        error = 'LLM model is required';
-        return;
-      }
+      // Create a copy of the form data to send
+      const { createdAt, updatedAt, ...dataToSend } = formData;
+      console.log('Sending form data:', JSON.stringify(dataToSend, null, 2));
 
-      if (!currentFormData.llmInstructions) {
-        error = 'Instructions are required';
-        return;
-      }
-
-      const isEditing = !!editingConfig;
-      const url = isEditing && editingConfig
-        ? `/api/chat-configs/${editingConfig.id}`
-        : '/api/chat-configs';
-
-      const method = isEditing ? 'PUT' : 'POST';
-
-      // Send the captured form data
-      console.log('Sending form data:', JSON.stringify(currentFormData, null, 2));
-
-      const response = await fetch(url, {
-        method,
+      const response = await fetch(`/api/chats/${editingChat.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(currentFormData)
+        body: JSON.stringify({
+          id: editingChat.id,
+          ...dataToSend
+        })
       });
 
       const data = await response.json();
@@ -145,7 +120,7 @@
       }
 
       // Refresh the list
-      await fetchChatConfigs();
+      await fetchChats();
 
       // Hide the form
       hideForm();
@@ -153,50 +128,69 @@
       // Show success message
       error = null;
     } catch (err) {
-      console.error('Error saving chat config:', err);
-      error = err instanceof Error ? err.message : 'Failed to save chat configuration';
+      console.error('Error updating chat:', err);
+      error = err instanceof Error ? err.message : 'Failed to update chat';
     }
   }
 
-  async function deleteConfig(id: string) {
-    if (!confirm(`Are you sure you want to delete the configuration "${id}"? This action cannot be undone.`)) {
+  async function deleteChat(chatId: string, event: Event) {
+    // Prevent the click from navigating to the chat page
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Confirm deletion
+    if (!confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
       return;
     }
 
     try {
-      isDeleting = id;
+      isDeletingChat = chatId;
 
-      const response = await fetch(`/api/chat-configs/${id}`, {
-        method: 'DELETE'
+      const response = await fetch(`/api/chats/${chatId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
       });
 
-      const data = await response.json();
+      const responseData = await response.json();
 
-      if (data.error) {
-        error = data.error;
+      if (responseData.error) {
+        error = responseData.error;
         return;
       }
 
-      // Refresh the list
-      await fetchChatConfigs();
+      // Remove the deleted chat from the list
+      chats = chats.filter(chat => chat.id !== chatId);
 
-      // Show success message
-      error = null;
     } catch (err) {
-      console.error('Error deleting chat config:', err);
-      error = err instanceof Error ? err.message : 'Failed to delete chat configuration';
+      console.error('Error deleting chat:', err);
+      error = err instanceof Error ? err.message : 'An unknown error occurred';
     } finally {
-      isDeleting = null;
+      isDeletingChat = null;
     }
+  }
+
+  function viewChat(chatId: string) {
+    goto(`/chats/${chatId}`);
   }
 
   function formatDate(dateString: string | Date) {
     const date = new Date(dateString);
     return date.toLocaleString();
   }
+
+  function formatCost(cost: number) {
+    return `$${cost.toFixed(6)}`;
+  }
+
+  function getChatConfigName(configId: string | null) {
+    if (!configId) return '-';
+    const config = chatConfigs.find(c => c.id === configId);
+    return config ? (config.caption || config.id) : configId;
+  }
 </script>
 
 <div class="admin-container">
+
   {#if error}
     <div class="error-message">
       <p>{error}</p>
@@ -207,61 +201,67 @@
   {#if isLoading}
     <div class="loading-state">
       <div class="spinner"></div>
-      <p>Loading configurations...</p>
+      <p>Loading chats...</p>
     </div>
-  {:else if showCreateForm}
+  {:else if showEditForm}
     <div class="form-container">
-      <h2>{editingConfig ? 'Edit Configuration' : 'Create New Configuration'}</h2>
+      <h2>Edit Chat</h2>
 
       <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
         <div class="form-group">
-          <label for="id">ID</label>
+          <label for="chat-id">Chat ID</label>
           <input
             type="text"
-            id="id"
-            bind:value={formData.id}
-            required
-            disabled={!!editingConfig}
-            placeholder="unique-config-id"
+            id="chat-id"
+            value={editingChat?.id || ''}
+            disabled
           />
-          <small>A unique identifier for this configuration</small>
         </div>
 
         <div class="form-group">
-          <label for="description">Description</label>
+          <label for="title">Title</label>
           <input
             type="text"
-            id="description"
-            bind:value={formData.description}
-            placeholder="Brief description of this configuration"
+            id="title"
+            bind:value={formData.title}
+            placeholder="Chat title"
           />
-          <small>A short description explaining the purpose of this configuration</small>
-        </div>
-
-        <div class="form-group checkbox">
-          <label>
-            <input type="checkbox" bind:checked={formData.isDefault} />
-            Set as default configuration
-          </label>
-          <small>If checked, this will be the default configuration for new chats</small>
         </div>
 
         <div class="form-group">
-          <label for="llmId">LLM Model</label>
-          <select id="llmId" bind:value={formData.llmId} required>
-            <option value="">Select a model</option>
-            {#each llms as llm}
-              <option value={llm.id}>{llm.name} ({llm.provider})</option>
+          <label for="caption">Caption</label>
+          <input
+            type="text"
+            id="caption"
+            bind:value={formData.caption}
+            placeholder="Chat caption"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="mode">Mode</label>
+          <select id="mode" bind:value={formData.mode}>
+            <option value={ChatMode.experiment}>Experiment</option>
+            <option value={ChatMode.tuning}>Tuning</option>
+          </select>
+          <small>The mode determines how this chat is used in the system</small>
+        </div>
+
+        <div class="form-group">
+          <label for="config-id">Chat Configuration</label>
+          <select id="config-id" bind:value={formData.configId}>
+            <option value="">None</option>
+            {#each chatConfigs as config}
+              <option value={config.id}>{config.caption || config.id}</option>
             {/each}
           </select>
-          <small>The language model to use for this configuration</small>
         </div>
 
         <div class="form-group">
-          <label for="llmTemperature">Temperature</label>
+          <label for="llm-temperature">Temperature</label>
           <input
             type="number"
-            id="llmTemperature"
+            id="llm-temperature"
             bind:value={formData.llmTemperature}
             min="0"
             max="1"
@@ -271,10 +271,10 @@
         </div>
 
         <div class="form-group">
-          <label for="llmMaxTokens">Max Tokens</label>
+          <label for="llm-max-tokens">Max Tokens</label>
           <input
             type="number"
-            id="llmMaxTokens"
+            id="llm-max-tokens"
             bind:value={formData.llmMaxTokens}
             min="100"
             step="100"
@@ -283,23 +283,11 @@
         </div>
 
         <div class="form-group">
-          <label for="welcomeMessage">Welcome Message</label>
+          <label for="llm-instructions">Instructions</label>
           <textarea
-            id="welcomeMessage"
-            bind:value={formData.welcomeMessage}
-            rows="3"
-            placeholder="Optional welcome message to display when starting a chat"
-          ></textarea>
-          <small>The first message shown to users when starting a chat with this configuration</small>
-        </div>
-
-        <div class="form-group">
-          <label for="llmInstructions">Instructions</label>
-          <textarea
-            id="llmInstructions"
+            id="llm-instructions"
             bind:value={formData.llmInstructions}
             rows="6"
-            required
             placeholder="Instructions for the LLM on how to respond"
             oninput={(e) => {
               // Ensure the value is properly updated in formData
@@ -311,56 +299,59 @@
 
         <div class="form-actions">
           <button type="button" class="cancel-button" onclick={hideForm}>Cancel</button>
-          <button type="submit" class="submit-button">
-            {editingConfig ? 'Update Configuration' : 'Create Configuration'}
-          </button>
+          <button type="submit" class="submit-button">Update Chat</button>
         </div>
       </form>
     </div>
-  {:else if chatConfigs.length === 0}
+  {:else if chats.length === 0}
     <div class="empty-state">
-      <p>No chat configurations found.</p>
-      <button onclick={showCreateConfigForm}>Create your first configuration</button>
+      <p>No chats found.</p>
     </div>
   {:else}
-    <div class="configs-list">
+    <div class="chats-list">
       <table>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>LLM Model</th>
-            <th>Default</th>
-            <th>Last Updated</th>
-            <th>
-              Actions
-              <button class="create-button" onclick={showCreateConfigForm}>
-                New
-              </button>
-            </th>
+            <th>Title</th>
+            <th>User</th>
+            <th>Config</th>
+            <th>Mode</th>
+            <th>Cost</th>
+            <th>Updated</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {#each chatConfigs as config}
+          {#each chats as chat}
             <tr>
-              <td>{config.id}</td>
-              <td>{config.llmId}</td>
-              <td>{config.isDefault ? '✓' : ''}</td>
-              <td>{formatDate(config.updatedAt)}</td>
+              <td>{chat.title || 'Untitled'}</td>
+              <td>{chat.username || '-'}</td>
+              <td>{getChatConfigName(chat.configId)}</td>
+              <td>{chat.mode}</td>
+              <td>{formatCost(chat.cost || 0)}</td>
+              <td>{formatDate(chat.updatedAt)}</td>
               <td class="actions">
                 <button
+                  class="view-button"
+                  onclick={() => viewChat(chat.id)}
+                  title="View chat"
+                >
+                  View
+                </button>
+                <button
                   class="edit-button"
-                  onclick={() => editConfig(config)}
-                  title="Edit configuration"
+                  onclick={() => editChat(chat)}
+                  title="Edit chat"
                 >
                   Edit
                 </button>
                 <button
                   class="delete-button"
-                  onclick={() => deleteConfig(config.id)}
-                  disabled={isDeleting === config.id}
-                  title="Delete configuration"
+                  onclick={(e) => deleteChat(chat.id, e)}
+                  disabled={isDeletingChat === chat.id}
+                  title="Delete chat"
                 >
-                  {isDeleting === config.id ? 'Deleting...' : 'Delete'}
+                  {isDeletingChat === chat.id ? 'Deleting...' : 'Delete'}
                 </button>
               </td>
             </tr>
@@ -375,22 +366,6 @@
   .admin-container {
     width: 100%;
     padding: 0;
-  }
-
-  .create-button {
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 0.1rem .5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s;
-    margin-left: .5rem;
-  }
-
-  .create-button:hover {
-    background-color: #388e3c;
   }
 
   .error-message {
@@ -442,17 +417,7 @@
     color: #666;
   }
 
-  .empty-state button {
-    margin-top: 1rem;
-    background-color: #2196f3;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .configs-list {
+  .chats-list {
     overflow-x: auto;
   }
 
@@ -486,6 +451,16 @@
     gap: 0.5rem;
   }
 
+  .view-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+
   .edit-button {
     background-color: #2196f3;
     color: white;
@@ -506,6 +481,10 @@
     font-size: 0.8rem;
   }
 
+  .view-button:hover {
+    background-color: #388e3c;
+  }
+
   .edit-button:hover {
     background-color: #1976d2;
   }
@@ -524,8 +503,8 @@
     padding: 1.5rem;
     border-radius: 8px;
     margin-bottom: 2rem;
-    max-height: calc(100vh - 12rem); /* Limit height to fit in viewport with some margin */
-    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: calc(100vh - 12rem);
+    overflow-y: auto;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
@@ -547,13 +526,6 @@
     color: #333;
   }
 
-  .form-group.checkbox label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: normal;
-  }
-
   .form-group input[type="text"],
   .form-group input[type="number"],
   .form-group select,
@@ -566,8 +538,9 @@
     font-family: inherit;
   }
 
-  .form-group input[type="checkbox"] {
-    margin: 0;
+  .form-group input[disabled] {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
   }
 
   .form-group small {

@@ -17,6 +17,5 @@ export async function findChats(userId?: string): Promise<Chat[]> {
   return db
     .select()
     .from(table.chat)
-    .where(isNull(table.chat.userId))
     .orderBy(desc(table.chat.updatedAt));
 }

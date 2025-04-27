@@ -10,6 +10,7 @@ import { createChatMessage } from '$lib/server/chatMessage/createChatMessage';
 import type { ChatInfo } from '$lib/types';
 import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
 import { generateBedrockResponse } from '$lib/server/bedrock/generateBedrockResponse'
+import { updateChat } from '$lib/server/chat/updateChat'
 
 export async function createChat(props: Partial<Chat>): Promise<ChatInfo> {
   console.log('operations.chat.createChat called.', { props });
@@ -51,6 +52,7 @@ export async function createChat(props: Partial<Chat>): Promise<ChatInfo> {
       inputTokens: props.inputTokens ?? 0,
       outputTokens: props.outputTokens ?? 0,
       cost: props.cost ?? 0,
+      metadata: props.metadata || null,
       feedback: null,
       rating: null,
       endedAt: null,
@@ -65,10 +67,10 @@ export async function createChat(props: Partial<Chat>): Promise<ChatInfo> {
     const chatMessages: ChatMessage[] = [];
 
     // Sending instructions to the LLM:
-    const response = await generateBedrockResponse(chatId, chat);
-    if (response.chatMessage) {
-      response.chatMessage.sendToUser = false;
-      chatMessages.push(response.chatMessage);
+    const aiResponse = await generateBedrockResponse(chatId, chat);
+    if (aiResponse.chatMessage) {
+      aiResponse.chatMessage.sendToUser = false;
+      chatMessages.push(aiResponse.chatMessage);
     }
 
     // Adding welcome message:

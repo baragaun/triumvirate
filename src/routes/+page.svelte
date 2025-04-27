@@ -132,14 +132,6 @@
     flex-direction: column;
   }
 
-  footer {
-    text-align: center;
-    margin-top: 2rem;
-    padding: 1rem 0;
-    color: #666;
-    font-size: 0.875rem;
-  }
-
   .loading-container {
     display: flex;
     flex-direction: column;
@@ -260,21 +252,5 @@
     color: #d32f2f;
     margin: 0;
     font-size: 0.95rem;
-  }
-
-  .login-prompt {
-    margin-top: 1rem;
-    font-size: 0.95rem;
-    color: #666;
-  }
-
-  .login-prompt a {
-    color: #2196f3;
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .login-prompt a:hover {
-    text-decoration: underline;
   }
 </style>
