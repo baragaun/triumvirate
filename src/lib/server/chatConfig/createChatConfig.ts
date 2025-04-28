@@ -34,7 +34,7 @@ export async function createChatConfig(props: ChatConfig): Promise<ChangeObjectR
       createdAt: props.createdAt || new Date(),
       updatedAt: props.updatedAt || new Date(),
     };
-    await db.insert(table.chatConfig).values(props);
+    await db.insert(table.chatConfig).values(values);
 
     const chatConfig = await findChatConfig(props.id);
 
