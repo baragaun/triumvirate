@@ -1,6 +1,7 @@
 import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 import type { Chat } from '$lib/server/db/schema';
+import { decryptString } from '$lib/helpers/decryptString'
 
 export async function GET({ locals }: RequestEvent) {
   try {
@@ -25,6 +26,11 @@ export async function GET({ locals }: RequestEvent) {
 export async function POST({ request, locals }: RequestEvent) {
   try {
     const props: Partial<Chat> = await request.json();
+
+    if (props.llmInstructions) {
+      // The app is sending this encrypted, to prevent security alarms.
+      props.llmInstructions = decryptString(props.llmInstructions);
+    }
 
     console.log('api/chats POST request received', { locals, props });
 

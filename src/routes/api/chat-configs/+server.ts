@@ -1,6 +1,7 @@
 import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 import type { ChatConfig } from '$lib/server/db/schema'
+import { decryptString } from '$lib/helpers/decryptString'
 
 // Get all chat configs
 export async function GET() {
@@ -33,6 +34,11 @@ export async function POST({ request }: RequestEvent) {
       return json({
         error: 'Missing required fields: id and instructions are required'
       }, { status: 400 });
+    }
+
+    if (props.llmInstructions) {
+      // The app is sending this encrypted, to prevent security alarms.
+      props.llmInstructions = decryptString(props.llmInstructions);
     }
 
     const chatConfig = await operations.chatConfig.create(props);

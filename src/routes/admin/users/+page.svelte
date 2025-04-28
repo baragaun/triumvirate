@@ -64,7 +64,9 @@
     showEditForm = true;
   }
 
-  async function handleSubmit() {
+  const onSubmit = async (event: Event) => {
+    event.preventDefault();
+
     try {
       if (!editingUser) {
         error = 'No user selected for editing';
@@ -156,7 +158,7 @@
     <div class="form-container">
       <h2>Edit User</h2>
 
-      <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+      <form onsubmit={onSubmit}>
         <div class="form-group">
           <label for="username">Username</label>
           <input
