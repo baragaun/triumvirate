@@ -1,6 +1,7 @@
 import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 import type { Chat } from '$lib/server/db/schema';
+import { decryptString } from '$lib/helpers/decryptString'
 
 export async function GET({ params }: RequestEvent) {
   try {
@@ -33,7 +34,12 @@ export async function PUT({ params, request }: RequestEvent) {
     }
 
     const changes: Partial<Chat> = await request.json();
-    const id = params.id;
+    changes.id = params.id;
+
+    if (changes.llmInstructions) {
+      // The app is sending this encrypted, to prevent security alarms.
+      changes.llmInstructions = decryptString(changes.llmInstructions);
+    }
 
     const response = await operations.chat.update(changes);
 
@@ -41,7 +47,7 @@ export async function PUT({ params, request }: RequestEvent) {
       return json({ error: response.error }, { status: 500 });
     }
 
-    const chat = await operations.chat.findOne(id);
+    const chat = await operations.chat.findOne(changes.id);
 
     return json({ chat });
   } catch (error) {

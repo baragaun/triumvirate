@@ -56,7 +56,9 @@
     showEditForm = true;
   }
 
-  async function handleSubmit() {
+  const onSubmit = async (event: Event) => {
+    event.preventDefault();
+
     try {
       if (!editingLlm) {
         error = 'No LLM selected for editing';
@@ -148,7 +150,7 @@
     <div class="form-container">
       <h2>Edit LLM Model</h2>
 
-      <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+      <form onsubmit={onSubmit}>
         <div class="form-group">
           <label for="model-id">Model ID</label>
           <input

@@ -1,6 +1,7 @@
 import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
 import type { ChatConfig } from '$lib/server/db/schema';
+import { decryptString } from '$lib/helpers/decryptString'
 
 // Get a specific CHAT config
 export async function GET({ params }: RequestEvent) {
@@ -41,6 +42,11 @@ export async function PUT({ params, request }: RequestEvent) {
     }
 
     const changes: Partial<ChatConfig> = await request.json();
+
+    if (changes.llmInstructions) {
+      // The app is sending this encrypted, to prevent security alarms.
+      changes.llmInstructions = decryptString(changes.llmInstructions);
+    }
     console.log('/chat-configs/[id] PUT request received.', changes);
     changes.id = params.id;
     const result = await operations.chatConfig.update(changes);

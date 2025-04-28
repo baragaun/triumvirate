@@ -41,8 +41,9 @@ You can preview the production build with `npm run preview`.
 
 ## Deploying
 
-Use `bin/deploy.sh` to deploy to the server. For this to work, you need the file 
-`~/apps/ecosystem.config.cjs` on the server.
+Use `bin/deploy.sh` to deploy to the server. For this to work, you need: 
+
+1) The file `~/apps/ecosystem.config.cjs` on the server.
 
 Here is the content of this file:
 
@@ -55,7 +56,7 @@ module.exports = {
       PORT: "8080",
       NODE_ENV: "production",
       CONFIG_PATH: "config",
-      DATABASE_URL: "postgres://postgres:xxx@xxx.rds.amazonaws.com:5432/?sslmode=no-verify",
+      DATABASE_URL: "<connect-url>",
       AWS_REGION: "xxx",
       AWS_PROFILE_NAME: "xxx",
       MOCK_AI_RESPONSES: "false",
@@ -63,4 +64,9 @@ module.exports = {
   }]
 }
 ```
+ 
+2) The file `~/bin/deploy.sh` on the server. Copy `bin/remote-deploy.sh` to this file:
 
+```shell
+scp bin/remote-deploy.sh ai-chat:bin/deploy.sh
+```
