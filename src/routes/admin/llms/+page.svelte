@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { Llm } from '$lib/server/db/schema';
+  import '$lib/styles/actionButtons.css';
 
   // State
   let llms = $state<Llm[]>([]);
@@ -221,20 +222,37 @@
               <td>{llm.provider}</td>
               <td>${llm.tokenCost?.toFixed(6) || '0.000000'}</td>
               <td>{llm.isAvailable ? '✓' : ''}</td>
-              <td class="actions">
+              <td class="action-buttons">
                 <button
-                  class="edit-button"
+                  class="action-button edit-button"
                   onclick={() => editLlm(llm)}
                   title="Edit model"
+                  aria-label="Edit model"
                 >
-                  Edit
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
                 </button>
                 <button
-                  class={llm.isAvailable ? 'availability-button active' : 'availability-button'}
+                  class={`action-button ${llm.isAvailable ? 'view-button' : 'edit-button'}`}
                   onclick={() => toggleAvailability(llm)}
                   title={llm.isAvailable ? 'Make unavailable' : 'Make available'}
+                  aria-label={llm.isAvailable ? 'Make unavailable' : 'Make available'}
                 >
-                  {llm.isAvailable ? 'Disable' : 'Enable'}
+                  {#if llm.isAvailable}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                      <polyline points="16 17 21 12 16 7"></polyline>
+                      <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                  {:else}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                      <polyline points="10 17 15 12 10 7"></polyline>
+                      <line x1="15" y1="12" x2="3" y2="12"></line>
+                    </svg>
+                  {/if}
                 </button>
               </td>
             </tr>
@@ -329,46 +347,7 @@
     background-color: #f9f9f9;
   }
 
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .edit-button {
-    background-color: #2196f3;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-  }
-
-  .availability-button {
-    background-color: #9e9e9e;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-  }
-
-  .availability-button.active {
-    background-color: #4caf50;
-  }
-
-  .edit-button:hover {
-    background-color: #1976d2;
-  }
-
-  .availability-button:hover {
-    background-color: #757575;
-  }
-
-  .availability-button.active:hover {
-    background-color: #388e3c;
-  }
+  /* Action button styles are imported from actionButtons.css */
 
   .form-container {
     background-color: white;

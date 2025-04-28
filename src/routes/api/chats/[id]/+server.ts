@@ -51,7 +51,7 @@ export async function PUT({ params, request }: RequestEvent) {
 
     return json({ chat });
   } catch (error) {
-    console.error('Error updating CHAT config:', error);
+    console.error('Error updating chat:', error);
 
     return json({
       error: error instanceof Error ? error.message : 'Unknown error'

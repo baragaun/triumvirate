@@ -1,71 +1,35 @@
 <script lang="ts">
-  import { browser } from '$app/environment'
+  import { page } from '$app/state';
+  import { browser } from '$app/environment';
 
   let { isAdmin } = $props<{ isAdmin: boolean }>();
 
-  // Get the current path from the page store
-  let currentPath = $derived(browser ? window.location.pathname : '');
-
-  // Update currentPath when the component is mounted and when navigation occurs
-  $effect(() => {
-    if (browser) {
-      currentPath = window.location.pathname;
-      console.log('Current path updated:', currentPath);
-    }
-  });
-
   const userRoutes = [
-    { path: '/chats', label: 'My Chats', active: false },
+    { path: '/chats', label: 'My Chats' },
   ];
 
   const adminRoutes = [
-    { path: '/admin/chats', label: 'Chats', active: false },
-    { path: '/admin/chat-configs', label: 'Chat Configurations', active: false },
-    { path: '/admin/users', label: 'Users', active: false },
-    { path: '/admin/llms', label: 'LLM Models', active: false },
+    { path: '/admin/chats', label: 'Chats' },
+    { path: '/admin/chat-configs', label: 'Chat Configurations' },
+    { path: '/admin/users', label: 'Users' },
+    { path: '/admin/llms', label: 'LLM Models' },
   ];
 
-  // Update the active state of routes when currentPath changes
-  $effect(() => {
-    if (!browser) return;
-
-    // Update user routes
-    userRoutes.forEach(route => {
-      route.active = isActive(route.path);
-    });
-
-    // Update admin routes
-    adminRoutes.forEach(route => {
-      route.active = isActive(route.path);
-    });
-  });
-
   function isActive(path: string): boolean {
-    if (!browser) return false // Skip during SSR
+    if (!browser) return false; // Skip during SSR
 
-    const currentPath = window.location.pathname
-    console.log(`Checking if ${path} is active. Current path: ${currentPath}`)
+    const currentPath = page.url.pathname;
 
     // Exact match
-    if (currentPath === path) {
-      console.log(`Exact match for ${path}`)
-      return true
-    }
+    if (currentPath === path) return true;
 
     // For admin routes, check if we're in a specific admin section
-    if (path.startsWith('/admin/') && currentPath.startsWith(path)) {
-      // This handles cases like /admin/chats/123 matching /admin/chats
-      console.log(`Admin section match for ${path}`)
-      return true
-    }
+    if (path.startsWith('/admin/') && currentPath.startsWith(path + '/')) return true;
 
-    // For the chats route, only match exactly or individual chat pages
-    if (path === '/chats' && currentPath.startsWith('/chats/')) {
-      console.log(`Chats section match for ${path}`)
-      return true
-    }
+    // For the chats route, match individual chat pages
+    if (path === '/chats' && currentPath.startsWith('/chats/')) return true;
 
-    return false
+    return false;
   }
 </script>
 
@@ -73,10 +37,10 @@
   <nav class="app-nav">
     <ul class="main-nav-list">
       {#each userRoutes as route}
-        <li class:active={route.active}>
+        <li class:active={isActive(route.path)}>
           <a href={route.path}>
-            {route.label}
-            {#if route.active}<span class="active-indicator">•</span>{/if}
+            <span class="indicator-space">{#if isActive(route.path)}<span class="active-indicator">▶</span>{/if}</span>
+            <span class="menu-label">{route.label}</span>
           </a>
         </li>
       {/each}
@@ -84,10 +48,10 @@
       {#if isAdmin}
         <li class="section-header">Admin</li>
         {#each adminRoutes as route}
-          <li class:active={route.active}>
+          <li class:active={isActive(route.path)}>
             <a href={route.path}>
-              {route.label}
-              {#if route.active}<span class="active-indicator">•</span>{/if}
+              <span class="indicator-space">{#if isActive(route.path)}<span class="active-indicator">▶</span>{/if}</span>
+              <span class="menu-label">{route.label}</span>
             </a>
           </li>
         {/each}
@@ -105,7 +69,7 @@
 
 <style>
   .app-sidebar {
-    width: 250px;
+    width: 260px;
     background-color: #f5f5f5;
     border-right: 1px solid #e0e0e0;
     padding: 1rem 0 0 0;
@@ -149,25 +113,48 @@
 
   /* Style for active menu items - more prominent styling */
   .app-nav li.active a {
-    background-color: #1976d2 !important;
+    background-color: #4a90e2 !important;
     color: white !important;
     font-weight: 500 !important;
-    border-left: 5px solid #0d47a1 !important;
+    border-left: 5px solid #2a6fc9 !important;
     padding-left: calc(1.5rem - 5px) !important;
   }
 
   /* Make sure hover doesn't override active state */
   .app-nav li.active a:hover {
-    background-color: #1565c0 !important;
+    background-color: #3a80d2 !important;
     color: white !important;
   }
 
-  /* Active indicator dot */
-  .active-indicator {
-    margin-left: 5px;
-    font-size: 2rem;
+  /* Indicator space to maintain consistent alignment */
+  .indicator-space {
     display: inline-block;
-    vertical-align: middle;
+    width: 20px;
+    text-align: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* Menu label */
+  .menu-label {
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  /* Active indicator triangle */
+  .active-indicator {
+    font-size: 0.7rem;
+    display: inline-block;
+    position: relative;
+    top: -1px;
+    color: inherit;
+    line-height: 1;
+  }
+
+  /* Ensure vertical alignment of menu items */
+  .app-nav a {
+    display: flex;
+    align-items: center;
   }
 
   .section-header {

@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { Chat, ChatMessage, Llm } from '$lib/server/db/schema'
-  import { ChatMode, MessageRole } from '$lib/enums'
+  import type { Chat, ChatMessage, Llm } from '$lib/server/db/schema';
+  import { ChatMode, MessageRole } from '$lib/enums';
+  import MessageFeedback from './MessageFeedback.svelte';
 
   const {
     chat,
@@ -11,7 +12,8 @@
     canEdit,
     canRegenerate,
     onEditMessage,
-    onGenerateChatMessage
+    onGenerateChatMessage,
+    updateChatMessage,
   } = $props<{
     chat: Chat,
     message: ChatMessage;
@@ -22,6 +24,7 @@
     canRegenerate?: boolean;
     onEditMessage: (messageId: string, content: string) => void;
     onGenerateChatMessage: () => void;
+    updateChatMessage: (changes: Partial<ChatMessage>) => void;
   }>();
 
   // Derive values from message object
@@ -68,8 +71,8 @@
     }
 
     return infoLineParts.length > 0 ? infoLineParts.join(' | ') : '';
-  }
-  const infoLine = $derived(buildInfoLine())
+  };
+  const infoLine = $derived(buildInfoLine());
 </script>
 
 <div class="message-content {isUserMessage ? 'user-message' : 'assistant-message'}">
@@ -80,6 +83,11 @@
         <span>{JSON.stringify(message.metadata, null, 2)}</span>
       </div>
     {/if}
+    {#if !isUserMessage}
+      <!-- Feedback UI for assistant messages -->
+      <MessageFeedback message={message} {updateChatMessage} />
+    {/if}
+
     {#if chat.mode === ChatMode.tuning && ((!isUserMessage && infoLine) || (isUserMessage && canEdit) || canRegenerate)}
       <div class="message-info {isUserMessage ? 'user-message-info' : ''}">
         {#if !isUserMessage && infoLine}
@@ -121,7 +129,7 @@
 <style>
   .message-content {
     max-width: 80%;
-    padding: 0.75rem 1rem 0.6rem;
+    padding: 0.75rem 1rem 0.5rem;
     border-radius: 1rem;
     overflow-wrap: break-word;
   }
@@ -139,7 +147,7 @@
   /* Header styles removed for simplified UI */
 
   .message-text {
-    white-space: pre-wrap;
+    /*white-space: pre-wrap;*/
     line-height: 1.3;
   }
 
@@ -157,8 +165,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 0.3rem;
-    padding-top: 0.3rem;
+    margin-top: 0.2rem;
+    padding-top: 0.2rem;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     font-size: 0.7rem;
     color: #666;
@@ -203,4 +211,6 @@
   .recycle-button:hover {
     color: #4caf50;
   }
+
+
 </style>

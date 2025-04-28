@@ -12,8 +12,8 @@ import type { ChatConfig } from '$lib/server/db/schema';
 
 describe('ChatConfig CRUD Operations', () => {
   describe('createChatConfig', () => {
-    it('should create a new CHAT config', async () => {
-      // Create a new CHAT config
+    it('should create a new chat config', async () => {
+      // Create a new chat config
       const result = await createChatConfig({
         id: 'config-id-123',
         caption: 'Test Caption',
@@ -39,7 +39,7 @@ describe('ChatConfig CRUD Operations', () => {
   });
 
   describe('findChatConfig', () => {
-    it('should find an CHAT config by ID', async () => {
+    it('should find an chat config by ID', async () => {
       // Add a mock config to the database
       mockData.chatConfigs.push({
         id: 'config-id-123',
@@ -69,7 +69,7 @@ describe('ChatConfig CRUD Operations', () => {
   });
 
   describe('findChatConfigs', () => {
-    it('should find all CHAT configs', async () => {
+    it('should find all chat configs', async () => {
       // Add mock configs to the database
       mockData.chatConfigs.push(
         {
@@ -100,7 +100,7 @@ describe('ChatConfig CRUD Operations', () => {
   });
 
   describe('updateChatConfig', () => {
-    it('should update an CHAT config', async () => {
+    it('should update an chat config', async () => {
       // Add a mock config to the database
       mockData.chatConfigs.push({
         id: 'config-id-123',
@@ -133,7 +133,7 @@ describe('ChatConfig CRUD Operations', () => {
   });
 
   describe('deleteChatConfig', () => {
-    it('should delete an CHAT config', async () => {
+    it('should delete an chat config', async () => {
       // Add a mock config to the database
       mockData.chatConfigs.push({
         id: 'config-id-123',
@@ -152,7 +152,7 @@ describe('ChatConfig CRUD Operations', () => {
   });
 
   describe('upsertChatConfig', () => {
-    it('should update an existing CHAT config', async () => {
+    it('should update an existing chat config', async () => {
       // Add a mock config to the database
       mockData.chatConfigs.push({
         id: 'config-id-123',
@@ -172,7 +172,7 @@ describe('ChatConfig CRUD Operations', () => {
       expect(mockData.chatConfigs[0].description).toBe('Updated Config');
     });
 
-    it('should create a new CHAT config if it does not exist', async () => {
+    it('should create a new chat config if it does not exist', async () => {
       await upsertChatConfig({
         id: 'new-config-123',
         description: 'New Config',
@@ -192,7 +192,7 @@ describe('ChatConfig CRUD Operations', () => {
   });
 
   describe('importChatConfigs', () => {
-    it('should import CHAT configs', async () => {
+    it('should import chat configs', async () => {
       await importChatConfigs();
 
       // Verify at least one config was imported

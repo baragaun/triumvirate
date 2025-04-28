@@ -226,7 +226,7 @@ describe('Chat CRUD Operations', () => {
         updatedAt: new Date()
       } as Chat);
 
-      // Add a mock CHAT config
+      // Add a mock chat config
       mockData.chatConfigs.push({
         id: 'config-id-123',
         description: 'Test Config',
