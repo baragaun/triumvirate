@@ -130,8 +130,8 @@ export async function generateBedrockResponse(
           outputTokens: 0,
           cost: 0,
           responseTime: 0,
-          createdAt: chat.createdAt,
-          updatedAt: chat.updatedAt,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         })
       }
       messages.unshift({
@@ -154,8 +154,8 @@ export async function generateBedrockResponse(
         outputTokens: 0,
         cost: 0,
         responseTime: 0,
-        createdAt: chat.createdAt,
-        updatedAt: chat.updatedAt,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
     }
 
