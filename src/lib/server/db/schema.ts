@@ -44,7 +44,7 @@ export const chat = pgTable('chats', {
 export const chatMessage = pgTable('chat_messages', {
 	id: text('id').primaryKey(),
 	chatId: text('chat_id').notNull().references(() => chat.id),
-	role: text('role').notNull(), // 'user', 'assistant', or 'system'
+	role: text('role').notNull(), // 'user', 'assistant', or 'platform'
 	content: text('content').notNull(),
 	iteration: integer('iteration'),
 	feedback: text('feedback'), // feedback that the user provided for a message from the assistant

@@ -195,7 +195,7 @@
             <th>Username</th>
             <th>Admin</th>
             <th>Last Updated</th>
-            <th>Actions</th>
+            <th>&nbsp;</th>
           </tr>
         </thead>
         <tbody>

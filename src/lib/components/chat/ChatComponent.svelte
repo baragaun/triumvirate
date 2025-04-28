@@ -50,6 +50,7 @@
   let showFeedback = $state(false);
   let showReplacedResponses = $state(false); // show/hide AI responses that were replaced later
   let showMetadata = $state(false); // show/hide AI responses that were replaced later
+  let showMetadataToggle = $derived(!!chat.metadata);
   let feedbackText = $state('');
   let feedbackRating = $state<number | null>(null);
   let showSettingsModal = $state(false);
@@ -375,7 +376,7 @@
           <div
             class="message {message.role} {message.error ? 'error' : ''} {message.sendStatus === 'retrying' ? 'retrying' : ''}"
             role="listitem"
-            aria-label="{message.role === 'user' ? 'Your message' : message.role === 'system' ? 'System message' : 'Assistant message'}"
+            aria-label="{message.role === 'user' ? 'Your message' : message.role === 'platform' ? 'Platform message' : 'Assistant message'}"
           >
             <MessageBubble
               {chat}
@@ -571,7 +572,7 @@
           </label>
           <span class="toggle-label">Show replaced responses</span>
         </div>
-        {#if chat.metadata}
+        {#if showMetadataToggle}
           <div class="toggle-container">
             <label class="toggle-switch">
               <input
@@ -608,7 +609,7 @@
   }
 
   .chat-title {
-    padding: 0rem 1rem;
+    padding: 0 1rem;
     color: #797979;
     letter-spacing: .5rem;
     z-index: 10;

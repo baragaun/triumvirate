@@ -1,6 +1,6 @@
 export enum MessageRole {
   assistant = 'assistant',
-  system = 'system',
+  platform = 'platform',
   user = 'user',
 }
 

@@ -53,13 +53,19 @@ export interface AdviceData {
 }
 
 export interface ChatMetadata {
-  chat_quality?: number;
-  user_willingness?: number;
-  is_bad_actor?: number;
-  goal_reached?: number;
-  messages_to_goal?: number;
-  notes_from_ai?: string;
-  info?: string[];
-  advice?: AdviceData[];
-  data?: Record<string, any>;
+  from_ai: {
+    chat_quality?: number;
+    user_willingness?: number;
+    is_bad_actor?: number;
+    goal_reached?: number;
+    messages_to_goal?: number;
+    notes_from_ai?: string;
+    concerns?: string[];
+    advice?: AdviceData[];
+    data?: Record<string, any>;
+  }
+  from_platform?: {
+    info?: string[];
+    instructions?: string[];
+  }
 }

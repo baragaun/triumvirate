@@ -215,7 +215,7 @@
               {#if isDeletingChat === chat.id}
                 <div class="spinner"></div>
               {:else}
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 6h18"></path>
                   <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
                   <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
@@ -246,12 +246,14 @@
   .chats-container {
     width: 100%;
     padding: 0;
+    overflow-y: auto; /* Enable vertical scrolling */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
-
-
   .new-chat-section {
-    padding: 0 1rem 1rem 0;
+    padding: 1rem;
     display: flex;
     justify-content: flex-end;
   }
@@ -309,10 +311,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
+    padding: .5rem .5rem;
     text-decoration: none;
     color: inherit;
-    transition: background-color 0.2s;
+    transition: background-color 0.5s;
     flex: 1;
     background-color: white;
   }
@@ -332,9 +334,9 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    transition: all 0.2s;
-    width: 36px;
-    height: 36px;
+    transition: all 0.5s;
+    width: 46px;
+    height: 46px;
   }
 
   .delete-button:hover {

@@ -209,7 +209,7 @@
             <th>Provider</th>
             <th>Token Cost</th>
             <th>Available</th>
-            <th>Actions</th>
+            <th>&nbsp;</th>
           </tr>
         </thead>
         <tbody>

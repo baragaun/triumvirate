@@ -244,7 +244,7 @@
             <option value={ChatMode.experiment}>Experiment</option>
             <option value={ChatMode.tuning}>Tuning</option>
           </select>
-          <small>The mode determines how this chat is used in the system</small>
+          <small>The mode determines how this chat is used in the platform</small>
         </div>
 
         <div class="form-group">
@@ -294,7 +294,7 @@
               formData.llmInstructions = e.currentTarget.value;
             }}
           ></textarea>
-          <small>System instructions that guide the LLM's behavior</small>
+          <small>Platform instructions that guide the LLM's behavior</small>
         </div>
 
         <div class="form-actions">
@@ -318,7 +318,7 @@
             <th>Mode</th>
             <th>Cost</th>
             <th>Updated</th>
-            <th>Actions</th>
+            <th>&nbsp;</th>
           </tr>
         </thead>
         <tbody>
