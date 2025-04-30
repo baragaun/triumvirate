@@ -133,7 +133,7 @@ describe('ChatConfig CRUD Operations', () => {
   });
 
   describe('deleteChatConfig', () => {
-    it('should delete an chat config', async () => {
+    it('should delete a chat config', async () => {
       // Add a mock config to the database
       mockData.chatConfigs.push({
         id: 'config-id-123',
