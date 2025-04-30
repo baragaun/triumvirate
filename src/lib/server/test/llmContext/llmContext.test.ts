@@ -39,7 +39,7 @@ describe('ChatConfig CRUD Operations', () => {
   });
 
   describe('findChatConfig', () => {
-    it('should find an chat config by ID', async () => {
+    it('should find a chat config by ID', async () => {
       // Add a mock config to the database
       mockData.chatConfigs.push({
         id: 'config-id-123',
