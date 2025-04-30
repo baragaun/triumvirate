@@ -152,7 +152,7 @@ describe('ChatConfig CRUD Operations', () => {
   });
 
   describe('upsertChatConfig', () => {
-    it('should update an existing chat config', async () => {
+    it('should update a chat config', async () => {
       // Add a mock config to the database
       mockData.chatConfigs.push({
         id: 'config-id-123',
