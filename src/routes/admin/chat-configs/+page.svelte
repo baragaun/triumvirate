@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { ChatConfig, Llm } from '$lib/server/db/schema';
-  import { encryptString } from '$lib/helpers/encryptString'
+  import { encryptString } from '$lib/helpers/encryptString';
+  import '$lib/styles/actionButtons.css';
 
   // State
   let chatConfigs = $state<ChatConfig[]>([]);
@@ -359,21 +360,34 @@
               <td>{config.llmId}</td>
               <td>{config.isDefault ? '✓' : ''}</td>
               <td>{formatDate(config.updatedAt)}</td>
-              <td class="actions">
+              <td class="action-buttons">
                 <button
-                  class="edit-button"
+                  class="action-button edit-button"
                   onclick={() => editConfig(config)}
                   title="Edit configuration"
+                  aria-label="Edit configuration"
                 >
-                  Edit
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
                 </button>
                 <button
-                  class="delete-button"
+                  class="action-button delete-button"
                   onclick={() => deleteConfig(config.id)}
                   disabled={isDeleting === config.id}
                   title="Delete configuration"
+                  aria-label="Delete configuration"
                 >
-                  {isDeleting === config.id ? 'Deleting...' : 'Delete'}
+                  {#if isDeleting === config.id}
+                    <div class="button-spinner"></div>
+                  {:else}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 6h18"></path>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    </svg>
+                  {/if}
                 </button>
               </td>
             </tr>
@@ -494,43 +508,7 @@
     background-color: #f9f9f9;
   }
 
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .edit-button {
-    background-color: #2196f3;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-  }
-
-  .delete-button {
-    background-color: #f44336;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-  }
-
-  .edit-button:hover {
-    background-color: #1976d2;
-  }
-
-  .delete-button:hover:not(:disabled) {
-    background-color: #d32f2f;
-  }
-
-  .delete-button:disabled {
-    background-color: #ffcdd2;
-    cursor: not-allowed;
-  }
+  /* Action button styles are imported from actionButtons.css */
 
   .form-container {
     background-color: white;

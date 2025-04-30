@@ -25,7 +25,7 @@ export const chat = pgTable('chats', {
 	userId: text('user_id').references(() => user.id),
 	username: text('user_name'), // Name of the test user
 	llmId: text('llm_id').notNull(), // The model used (e.g., amazon.nova-lite-v1:0)
-	configId: text('config_id'), // Reference to the CHAT config used
+	configId: text('config_id'), // Reference to the chat config used
 	welcomeMessage: text('welcome_message'), // The first message to send to the user
 	llmInstructions: text('llm_instructions'), // The instructions used at the start of the chat
 	llmTemperature: real('llm_temperature'), // The model temperature used
@@ -47,19 +47,20 @@ export const chatMessage = pgTable('chat_messages', {
 	role: text('role').notNull(), // 'user', 'assistant', or 'platform'
 	content: text('content').notNull(),
 	iteration: integer('iteration'),
-	feedback: text('feedback'), // feedback that the user provided for a message from the assistant
 	sendToLlm: boolean('send_to_llm').notNull().default(true),
 	sendToUser: boolean('send_to_user').notNull().default(true),
 	replaced: boolean('replaced').notNull().default(false),
 	sendStatus: text('send_status'), // status of sending/receiving
 	error: text('error'), // any error message
-	metadata: json('metadata'),
 	llmId: text('llm_id'), // The model used (e.g., amazon.nova-lite-v1:0)
 	llmInstructions: text('llm_instructions'), // The instructions used at the start of the chat
 	llmTemperature: real('llm_temperature'), // The model temperature used
 	inputTokens: integer('input_tokens').notNull().default(0),
 	outputTokens: integer('output_tokens').notNull().default(0),
 	cost: real('cost').notNull().default(0),
+	metadata: json('metadata'),
+	feedback: text('feedback'), // feedback that the user provided for a message from the assistant
+	rating: integer('rating'), // Numerical rating of the chat
 	responseTime: real('response_time').notNull().default(0),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -67,7 +68,7 @@ export const chatMessage = pgTable('chat_messages', {
 
 export const chatConfig = pgTable('chat_configs', {
 	id: text('id').primaryKey(),
-	description: text('description'), // Description of the CHAT config
+	description: text('description'), // Description of the chat config
 	caption: text('caption'),
 	isDefault: boolean('is_default').notNull().default(false),
 	welcomeMessage: text('welcome_message'), // The first message to send to the user

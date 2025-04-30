@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { User } from '$lib/server/db/schema';
+  import '$lib/styles/actionButtons.css';
 
   // State
   let users = $state<User[]>([]);
@@ -206,20 +207,37 @@
               <td>{user.username}</td>
               <td>{user.isAdmin ? '✓' : ''}</td>
               <td>{user.updatedAt ? formatDate(user.updatedAt) : '-'}</td>
-              <td class="actions">
+              <td class="action-buttons">
                 <button
-                  class="edit-button"
+                  class="action-button edit-button"
                   onclick={() => editUser(user)}
                   title="Edit user"
+                  aria-label="Edit user"
                 >
-                  Edit
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
                 </button>
                 <button
-                  class={user.isAdmin ? 'admin-button active' : 'admin-button'}
+                  class={`action-button ${user.isAdmin ? 'delete-button' : 'view-button'}`}
                   onclick={() => toggleAdminStatus(user)}
                   title={user.isAdmin ? 'Remove admin privileges' : 'Grant admin privileges'}
+                  aria-label={user.isAdmin ? 'Remove admin privileges' : 'Grant admin privileges'}
                 >
-                  {user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                  {#if user.isAdmin}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                  {:else}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="8.5" cy="7" r="4"></circle>
+                      <line x1="20" y1="8" x2="20" y2="14"></line>
+                      <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                  {/if}
                 </button>
               </td>
             </tr>
@@ -314,46 +332,7 @@
     background-color: #f9f9f9;
   }
 
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .edit-button {
-    background-color: #2196f3;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-  }
-
-  .admin-button {
-    background-color: #9e9e9e;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-  }
-
-  .admin-button.active {
-    background-color: #f44336;
-  }
-
-  .edit-button:hover {
-    background-color: #1976d2;
-  }
-
-  .admin-button:hover {
-    background-color: #757575;
-  }
-
-  .admin-button.active:hover {
-    background-color: #d32f2f;
-  }
+  /* Action button styles are imported from actionButtons.css */
 
   .form-container {
     background-color: white;

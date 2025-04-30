@@ -40,7 +40,7 @@ export async function createChatConfig(props: ChatConfig): Promise<ChangeObjectR
 
     return { object: chatConfig };
   } catch (error) {
-    console.error('Error creating CHAT config:', error);
+    console.error('Error creating chat config:', error);
     return { error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }

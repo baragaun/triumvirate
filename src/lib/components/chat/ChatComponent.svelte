@@ -19,9 +19,10 @@
     chatConfigs,
     llms,
     guestUserName,
-    updateChat,
-    updateChatConfig,
     deleteChat,
+    updateChat,
+    updateChatMessage,
+    updateChatConfig,
   } = $props<{
     user: Chat,
     chat: Chat,
@@ -30,9 +31,10 @@
     chatConfigs: ChatConfig[],
     llms: Llm[],
     guestUserName?: string | null,
-    updateChat: (changes: Partial<Chat>) => Promise<string>,
-    updateChatConfig: (changes: Partial<ChatConfig>) => Promise<string>,
     deleteChat: () => Promise<void>,
+    updateChat: (changes: Partial<Chat>) => Promise<string>,
+    updateChatMessage: (changes: Partial<ChatMessage>) => Promise<string>,
+    updateChatConfig: (changes: Partial<ChatConfig>) => Promise<string>,
   }>();
 
   // Wrapper for deleteChat that adds confirmation
@@ -388,6 +390,7 @@
               canRegenerate={message.role === MessageRole.assistant && message.id === lastMessageId}
               {onGenerateChatMessage}
               {onEditMessage}
+              {updateChatMessage}
             />
           </div>
         {/if}

@@ -2,8 +2,9 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation'
   import type { ChatUiData } from '$lib/types'
-  import type { Chat, ChatConfig } from '$lib/server/db/schema'
+  import type { Chat, ChatConfig, ChatMessage } from '$lib/server/db/schema'
   import ChatComponent from '$lib/components/chat/ChatComponent.svelte'
+  import { encryptString } from '$lib/helpers/encryptString'
 
   let { data }: { data: ChatUiData } = $props<{ data: ChatUiData }>();
   const chatConfigs = data.chatConfigs || [];
@@ -36,11 +37,16 @@
     }, 100);
   });
 
-  async function updateChat(changes: Partial<Chat>): Promise<string> {
+  const updateChat = async (changes: Partial<Chat>): Promise<string> => {
     try {
       console.log('updateChat: changes:', changes);
       if (!changes.id) {
         changes.id = chat.id;
+      }
+
+      if (changes.llmInstructions) {
+        // The app is sending this encrypted, to prevent security alarms.
+        changes.llmInstructions = await encryptString(changes.llmInstructions);
       }
 
       const response = await fetch(`/api/chats/${chat.id}`, {
@@ -59,6 +65,44 @@
       chat = responseData.chat;
 
       console.log('updateChat: chat:', $state.snapshot(chat));
+
+      return 'ok';
+    } catch (error) {
+      error = error instanceof Error ? error.message : 'An error occurred while saving settings';
+      return error instanceof Error ? error.message : 'Unknown error';
+    }
+  }
+
+  const updateChatMessage = async (changes: Partial<ChatMessage>): Promise<string> => {
+    try {
+      console.log('updateChatMessage: changes:', changes);
+      if (!changes.id) {
+        changes.id = chat.id;
+      }
+
+      if (changes.llmInstructions) {
+        // The app is sending this encrypted, to prevent security alarms.
+        changes.llmInstructions = await encryptString(changes.llmInstructions);
+      }
+
+      const response = await fetch(`/api/chats/${chat.id}/messages/${changes.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(changes)
+      });
+
+      const responseData = await response.json();
+
+      if (responseData.error) {
+        return responseData.error;
+      }
+
+      const messageIndex = chatMessages.findIndex((m: ChatMessage) => m.id === changes.id);
+      if (messageIndex > -1) {
+        chatMessages[messageIndex] = responseData.chatMessage;
+      }
+
+      console.log('updateChatMessage: chat message:', $state.snapshot(responseData.chatMessage));
 
       return 'ok';
     } catch (error) {
@@ -137,9 +181,10 @@
           {chatConfigs}
           {llms}
           {guestUserName}
-          {updateChat}
-          {updateChatConfig}
           {deleteChat}
+          {updateChatConfig}
+          {updateChatMessage}
+          {updateChat}
         />
       </div>
     {/if}

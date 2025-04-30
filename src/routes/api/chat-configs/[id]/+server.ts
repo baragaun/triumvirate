@@ -3,7 +3,7 @@ import operations from '$lib/server/operations';
 import type { ChatConfig } from '$lib/server/db/schema';
 import { decryptString } from '$lib/helpers/decryptString'
 
-// Get a specific CHAT config
+// Get a specific chat config
 export async function GET({ params }: RequestEvent) {
   try {
     const id = params.id;
@@ -18,7 +18,7 @@ export async function GET({ params }: RequestEvent) {
 
     if (!chatConfig) {
       return json({
-        error: 'CHAT config not found'
+        error: 'chat config not found'
       }, { status: 404 });
     }
 

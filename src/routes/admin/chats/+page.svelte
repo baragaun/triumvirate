@@ -3,7 +3,8 @@
   import { goto } from '$app/navigation';
   import type { Chat, ChatConfig } from '$lib/server/db/schema';
   import { ChatMode } from '$lib/enums';
-  import { encryptString } from '$lib/helpers/encryptString'
+  import { encryptString } from '$lib/helpers/encryptString';
+  import '$lib/styles/actionButtons.css';
 
   // State
   let chats = $state<Chat[]>([]);
@@ -348,28 +349,45 @@
               <td>{chat.mode}</td>
               <td>{formatCost(chat.cost || 0)}</td>
               <td>{formatDate(chat.updatedAt)}</td>
-              <td class="actions">
+              <td class="action-buttons">
                 <button
-                  class="view-button"
+                  class="action-button view-button"
                   onclick={() => viewChat(chat.id)}
                   title="View chat"
+                  aria-label="View chat"
                 >
-                  View
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
                 </button>
                 <button
-                  class="edit-button"
+                  class="action-button edit-button"
                   onclick={() => editChat(chat)}
                   title="Edit chat"
+                  aria-label="Edit chat"
                 >
-                  Edit
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
                 </button>
                 <button
-                  class="delete-button"
+                  class="action-button delete-button"
                   onclick={(e) => deleteChat(chat.id, e)}
                   disabled={isDeletingChat === chat.id}
                   title="Delete chat"
+                  aria-label="Delete chat"
                 >
-                  {isDeletingChat === chat.id ? 'Deleting...' : 'Delete'}
+                  {#if isDeletingChat === chat.id}
+                    <div class="button-spinner"></div>
+                  {:else}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 6h18"></path>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    </svg>
+                  {/if}
                 </button>
               </td>
             </tr>
@@ -464,57 +482,7 @@
     background-color: #f9f9f9;
   }
 
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .view-button {
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-  }
-
-  .edit-button {
-    background-color: #2196f3;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-  }
-
-  .delete-button {
-    background-color: #f44336;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-  }
-
-  .view-button:hover {
-    background-color: #388e3c;
-  }
-
-  .edit-button:hover {
-    background-color: #1976d2;
-  }
-
-  .delete-button:hover:not(:disabled) {
-    background-color: #d32f2f;
-  }
-
-  .delete-button:disabled {
-    background-color: #ffcdd2;
-    cursor: not-allowed;
-  }
+  /* Action button styles are imported from actionButtons.css */
 
   .form-container {
     background-color: white;
