@@ -1,40 +1,36 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import type { Chat, ChatConfig, ChatMessage, Llm } from '$lib/server/db/schema'
+  import { onMount } from 'svelte';
+  import type { Chat, ChatConfig, ChatMessage, Llm } from '$lib/server/db/schema';
   import type {
     ChangeChatMessageResponse,
-    EndChatRequest,
     GenerateChatMessageResponse,
-  } from '$lib/types'
-  import { ChatMode, MessageRole } from '$lib/enums'
-  import { goto } from '$app/navigation'
-  import ChatConfigModal from './ChatConfigModal.svelte'
-  import MessageBubble from './MessageBubble.svelte'
+  } from '$lib/types';
+  import { ChatMode, MessageRole } from '$lib/enums';
+  import ChatConfigModal from './ChatConfigModal.svelte';
+  import MessageBubble from './MessageBubble.svelte';
 
   let {
-    user,
     chat,
     chatMessages = $bindable<ChatMessage[]>(),
     chatConfig,
     chatConfigs,
     llms,
-    guestUserName,
     deleteChat,
     updateChat,
     updateChatMessage,
     updateChatConfig,
+    onEndChat,
   } = $props<{
-    user: Chat,
-    chat: Chat,
-    chatMessages: ChatMessage[],
-    chatConfig: ChatConfig | null,
-    chatConfigs: ChatConfig[],
-    llms: Llm[],
-    guestUserName?: string | null,
-    deleteChat: () => Promise<void>,
-    updateChat: (changes: Partial<Chat>) => Promise<string>,
-    updateChatMessage: (changes: Partial<ChatMessage>) => Promise<string>,
-    updateChatConfig: (changes: Partial<ChatConfig>) => Promise<string>,
+    chat: Chat;
+    chatMessages: ChatMessage[];
+    chatConfig: ChatConfig | null;
+    chatConfigs: ChatConfig[];
+    llms: Llm[];
+    deleteChat: () => Promise<void>;
+    updateChat: (changes: Partial<Chat>) => Promise<string>;
+    updateChatMessage: (changes: Partial<ChatMessage>) => Promise<string>;
+    updateChatConfig: (changes: Partial<ChatConfig>) => Promise<string>;
+    onEndChat: () => void;
   }>();
 
   // Wrapper for deleteChat that adds confirmation
@@ -49,12 +45,9 @@
   let isLoading = $state(false);
   let error = $state<string | null | undefined>(null);
   let chatContainer: HTMLElement;
-  let showFeedback = $state(false);
   let showReplacedResponses = $state(false); // show/hide AI responses that were replaced later
   let showMetadata = $state(false); // show/hide AI responses that were replaced later
   let showMetadataToggle = $derived(!!chat.metadata);
-  let feedbackText = $state('');
-  let feedbackRating = $state<number | null>(null);
   let showSettingsModal = $state(false);
   let editingMessageId = $state<string | null>(null);
   let listRevision = $state(0);
@@ -80,8 +73,6 @@
 
   const upsertChatMessage = async (messageProps?: Partial<ChatMessage>): Promise<void> => {
     try {
-      // console.log('ChatComponent.upsertChatMessage called.', messageProps);
-
       if (!chat) {
         return;
       }
@@ -140,7 +131,6 @@
         await Promise.all(promises);
       }
 
-      // console.log('ChatComponent.upsertChatMessage: Sending', messageProps);
       const response = await fetch(`/api/chats/${chat.id}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -229,7 +219,6 @@
     }
   };
 
-  // Handle form submission
   const onSubmit = (event: Event): void => {
     event.preventDefault();
     upsertChatMessage(
@@ -241,7 +230,6 @@
     editingMessageId = null;
   }
 
-  // Handle keydown events
   const handleKeydown = (event: KeyboardEvent): void => {
     // Send message on Enter (without Shift)
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -253,56 +241,6 @@
       );
       // Clear the editing state
       editingMessageId = null;
-    }
-  }
-
-  // Format timestamp
-  const formatTime = (date: Date | string): string => {
-    if (typeof date === 'string') {
-      date = new Date(date);
-    }
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-
-  // Get the current user's name (either logged in user or guest)
-  const getUserName = (): string => {
-    if (user?.username) {
-      return user.username;
-    } else if (guestUserName) {
-      return guestUserName;
-    } else {
-      return 'Guest';
-    }
-  }
-
-  const endChat = async (feedback?: string, rating?: number): Promise<void> => {
-    try {
-      if (!chat) {
-        return;
-      }
-
-      const requestData: EndChatRequest = {
-        feedback,
-        rating
-      }
-
-      console.log(`Ending chat ${chat.id} with feedback:`, feedback);
-
-      const response = await fetch(`/api/chats/${chat.id}/end`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData)
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        console.error('Error ending chat:', data.error);
-      }
-
-      await goto('/');
-    } catch (error) {
-      console.error('Error ending chat:', error);
     }
   }
 
@@ -378,7 +316,7 @@
           <div
             class="message {message.role} {message.error ? 'error' : ''} {message.sendStatus === 'retrying' ? 'retrying' : ''}"
             role="listitem"
-            aria-label="{message.role === 'user' ? 'Your message' : message.role === 'platform' ? 'Platform message' : 'Assistant message'}"
+            aria-label="{message.role === MessageRole.user ? 'Your message' : message.role === MessageRole.platform ? 'Platform message' : 'Assistant message'}"
           >
             <MessageBubble
               {chat}
@@ -426,51 +364,6 @@
     {/if}
   </div>
 
-  {#if showFeedback}
-    <div class="feedback-container" role="dialog" aria-labelledby="feedback-title">
-      <h3 id="feedback-title">Provide Feedback</h3>
-      <div class="rating-container" role="radiogroup" aria-label="Rating from 1 to 5 stars">
-        {#each [1, 2, 3, 4, 5] as rating (rating)}
-          <button
-            class="rating-button {feedbackRating === rating ? 'selected' : ''}"
-            onclick={() => feedbackRating = rating}
-            role="radio"
-            aria-checked={feedbackRating === rating}
-            aria-label="{rating} star{rating !== 1 ? 's' : ''}"
-          >
-            {rating}
-          </button>
-        {/each}
-      </div>
-      <textarea
-        placeholder="Your feedback helps us improve..."
-        bind:value={feedbackText}
-        rows="3"
-        aria-label="Feedback comments"
-      ></textarea>
-      <div class="feedback-actions">
-        <button
-          class="cancel-button"
-          onclick={() => showFeedback = false}
-          aria-label="Cancel feedback"
-        >
-          Cancel
-        </button>
-        <button
-          class="submit-button"
-          disabled={!feedbackRating}
-          onclick={() => {
-            endChat(feedbackText, feedbackRating || 0);
-            showFeedback = false;
-          }}
-          aria-label="Submit feedback"
-        >
-          Submit Feedback
-        </button>
-      </div>
-    </div>
-  {/if}
-
   {#if showSettingsModal}
     <ChatConfigModal
       {chat}
@@ -483,7 +376,7 @@
     />
   {/if}
 
-  {#if !showFeedback && !showSettingsModal}
+  {#if !showSettingsModal}
     <form class="chat-input {editingMessageId ? 'editing' : ''}" onsubmit={onSubmit} aria-label="Message input form">
       {#if editingMessageId}
         <div class="editing-indicator" aria-live="polite">
@@ -523,25 +416,46 @@
           </svg>
         </button>
       </div>
+      {#if chat.mode === ChatMode.experiment}
+        <div class="end-chat-section">
+          <div class="info-text">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            Please continue this chat until you feel that the platform has a good understanding
+            of your situation and can find the optimal mentor for you.
+          </div>
+          <div class="button-container">
+            <button
+              type="button"
+              class="end-chat-button"
+              onclick={() => onEndChat()}
+              title="Provide feedback"
+              aria-label="End this chat"
+            >
+              I am ready for a mentor - end chat
+            </button>
+          </div>
+        </div>
+      {/if}
     </form>
     <div class="chat-llm-info">
       <span>
         {chat.llmId || 'Unknown model'} |
-        temperature: {chat.llmTemperature !== null ? chat.llmTemperature : '???'} |
-        inputToken: {chat.inputTokens} |
-        outputToken: {chat.outputTokens} |
+        temp: {chat.llmTemperature !== null ? chat.llmTemperature : '???'} |
+        token: {chat.inputTokens}/{chat.outputTokens} |
         cost: ${chat.cost}
       </span>
       <span>
-        {#if chat.mode === ChatMode.tuning || user?.passwordHash}
+        {#if chat.mode === ChatMode.tuning}
           <button class="edit-settings-button" onclick={() => openLlmSettings()} title="Edit settings" aria-label="Edit settings">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
             </svg>
           </button>
-        {/if}
-        {#if chat.mode === ChatMode.tuning}
           <button class="delete-settings-button" onclick={() => onDeleteChat()} title="Delete chat" aria-label="Delete chat">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 6h18"></path>
@@ -549,16 +463,6 @@
               <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
             </svg>
           </button>
-          {:else}
-            <button
-              type="button"
-              class="feedback-button"
-              onclick={() => showFeedback = true}
-              title="Provide feedback"
-              aria-label="Open feedback form"
-            >
-              End chat
-            </button>
           {/if}
       </span>
     </div>
@@ -594,14 +498,45 @@
 </div>
 
 <style>
+  .end-chat-section {
+    color: #797979;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .info-text {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .info-icon {
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  .button-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .end-chat-button {
+    padding: 6px 12px;
+    font-weight: normal;
+    background-color: #797979;
+    text-wrap: nowrap !important;
+    white-space: nowrap;
+  }
+
   .chat-container {
     display: flex;
     flex-direction: column;
     height: 100%;
     max-width: 1000px;
     margin: 0 auto;
-    /*border: 1px solid #e0e0e0;*/
-    /*border-radius: 8px;*/
     overflow: hidden;
     background-color: #fff;
     position: absolute;
@@ -645,11 +580,9 @@
     justify-content: flex-end;
   }
 
-  /* Message container styles only - content styling is in MessageBubble.svelte */
-
-  .message.retrying :global(.message-content) {
-    opacity: 0.7;
-  }
+  /*.message.retrying :global(.message-content) {*/
+  /*  opacity: 0.7;*/
+  /*}*/
 
   /* Accessibility - Screen reader only content */
   .sr-only {
@@ -753,6 +686,7 @@
 
   textarea {
     flex: 1;
+    width: 100%;
     padding: 0.75rem 2.5rem 0.75rem 0.75rem;
     border: 1px solid #ddd;
     border-radius: 0.5rem;
@@ -762,6 +696,7 @@
     outline: none;
     transition: border-color 0.2s;
     min-height: 60px;
+    box-sizing: border-box;
   }
 
   textarea:focus {
@@ -822,29 +757,6 @@
     cursor: not-allowed;
   }
 
-  .feedback-button {
-    color: #666;
-    background-color: #f9f9f9;
-    font-size: .7rem;
-    padding: 0 0.5rem;
-    height: auto;
-    display: flex;
-    align-items: center;
-  }
-
-  .feedback-button:hover {
-    color: #2196f3;
-    background-color: transparent;
-  }
-
-  .feedback-container {
-    padding: 1rem;
-    border-top: 1px solid #e0e0e0;
-    background-color: #f9f9f9;
-  }
-
-  /* Message info styling is in MessageBubble.svelte */
-
   .chat-llm-info {
     display: flex;
     justify-content: space-between;
@@ -866,8 +778,7 @@
     border: none;
     color: #666;
     padding: 0;
-    margin: 0;
-    margin-right: 0.5rem;
+    margin: 0 0.5rem 0 0;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -879,15 +790,12 @@
     color: #0d47a1;
   }
 
-  /* Button styling is in MessageBubble.svelte */
-
   .delete-settings-button {
     background: none;
     border: none;
     color: #666;
     padding: 0;
-    margin: 0;
-    margin-left: 0.5rem;
+    margin: 0 0 0 0.5rem;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -897,56 +805,6 @@
 
   .delete-settings-button:hover {
     color: #d32f2f;
-  }
-
-  .feedback-container h3 {
-    margin-top: 0;
-    margin-bottom: 0.75rem;
-    font-size: 1rem;
-    color: #333;
-  }
-
-  .rating-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1rem;
-  }
-
-  .rating-button {
-    width: 2.5rem;
-    height: 2.5rem;
-    margin: 0 0.25rem;
-    border-radius: 50%;
-    background-color: #f0f0f0;
-    color: #333;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .rating-button.selected {
-    background-color: #2196f3;
-    color: white;
-  }
-
-  .feedback-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 1rem;
-  }
-
-  .cancel-button {
-    background-color: #f0f0f0;
-    color: #333;
-  }
-
-  .submit-button {
-    background-color: #4caf50;
-  }
-
-  .submit-button:hover:not(:disabled) {
-    background-color: #388e3c;
   }
 
   .toggles-wrapper {

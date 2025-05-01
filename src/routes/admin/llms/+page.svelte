@@ -13,6 +13,8 @@
   // Form state
   let formData = $state<Partial<Llm>>({
     tokenCost: 0,
+    inputTokenCost: 0,
+    outputTokenCost: 0,
     isAvailable: false
   });
 
@@ -52,6 +54,8 @@
     editingLlm = llm;
     formData = {
       tokenCost: llm.tokenCost || 0,
+      inputTokenCost: llm.inputTokenCost || 0,
+      outputTokenCost: llm.outputTokenCost || 0,
       isAvailable: llm.isAvailable || false
     };
     showEditForm = true;
@@ -66,7 +70,6 @@
         return;
       }
 
-      // Create a copy of the form data to send
       const dataToSend = { ...formData };
       console.log('Sending form data:', JSON.stringify(dataToSend, null, 2));
 
@@ -85,13 +88,8 @@
         return;
       }
 
-      // Refresh the list
       await fetchLlms();
-
-      // Hide the form
       hideForm();
-
-      // Show success message
       error = null;
     } catch (err) {
       console.error('Error updating LLM:', err);
@@ -118,9 +116,7 @@
         return;
       }
 
-      // Refresh the list
       await fetchLlms();
-
     } catch (err) {
       console.error('Error toggling availability:', err);
       error = err instanceof Error ? err.message : 'Failed to update LLM model';
@@ -134,7 +130,6 @@
 </script>
 
 <div class="admin-container">
-
   {#if error}
     <div class="error-message">
       <p>{error}</p>
@@ -174,6 +169,30 @@
         </div>
 
         <div class="form-group">
+          <label for="input-token-cost">Input Token Cost</label>
+          <input
+            type="number"
+            id="input-token-cost"
+            bind:value={formData.inputTokenCost}
+            step="0.000001"
+            min="0"
+          />
+          <small>Cost per input token for this model (in USD)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="output-token-cost">Output Token Cost</label>
+          <input
+            type="number"
+            id="output-token-cost"
+            bind:value={formData.outputTokenCost}
+            step="0.000001"
+            min="0"
+          />
+          <small>Cost per output token for this model (in USD)</small>
+        </div>
+
+        <div class="form-group">
           <label for="token-cost">Token Cost</label>
           <input
             type="number"
@@ -182,7 +201,7 @@
             step="0.000001"
             min="0"
           />
-          <small>Cost per token for this model (in USD)</small>
+          <small>Cost per token (input or output) for this model (in USD).</small>
         </div>
 
         <div class="form-group checkbox">
@@ -204,59 +223,63 @@
       <p>No LLM models found.</p>
     </div>
   {:else}
-    <div class="llms-list">
-      <table>
+    <div class="scrollable-table">
+      <table class="llms-table">
         <thead>
-          <tr>
-            <th>Name</th>
-            <th>Provider</th>
-            <th>Token Cost</th>
-            <th>Available</th>
-            <th>&nbsp;</th>
-          </tr>
+        <tr>
+          <th>Name</th>
+          <th>Provider</th>
+          <th>Input Token Cost</th>
+          <th>Output Token Cost</th>
+          <th>Token Cost</th>
+          <th>Available</th>
+          <th>&nbsp;</th>
+        </tr>
         </thead>
         <tbody>
-          {#each llms as llm}
-            <tr>
-              <td>{llm.name}</td>
-              <td>{llm.provider}</td>
-              <td>${llm.tokenCost?.toFixed(6) || '0.000000'}</td>
-              <td>{llm.isAvailable ? '✓' : ''}</td>
-              <td class="action-buttons">
-                <button
-                  class="action-button edit-button"
-                  onclick={() => editLlm(llm)}
-                  title="Edit model"
-                  aria-label="Edit model"
-                >
+        {#each llms as llm}
+          <tr>
+            <td>{llm.name}</td>
+            <td>{llm.provider}</td>
+            <td>${llm.inputTokenCost?.toFixed(6) || '0.000000'}</td>
+            <td>${llm.outputTokenCost?.toFixed(6) || '0.000000'}</td>
+            <td>${llm.tokenCost?.toFixed(6) || '0.000000'}</td>
+            <td>{llm.isAvailable ? '✓' : ''}</td>
+            <td class="action-buttons">
+              <button
+                class="action-button edit-button"
+                onclick={() => editLlm(llm)}
+                title="Edit model"
+                aria-label="Edit model"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button
+                class={`action-button ${llm.isAvailable ? 'view-button' : 'edit-button'}`}
+                onclick={() => toggleAvailability(llm)}
+                title={llm.isAvailable ? 'Make unavailable' : 'Make available'}
+                aria-label={llm.isAvailable ? 'Make unavailable' : 'Make available'}
+              >
+                {#if llm.isAvailable}
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
                   </svg>
-                </button>
-                <button
-                  class={`action-button ${llm.isAvailable ? 'view-button' : 'edit-button'}`}
-                  onclick={() => toggleAvailability(llm)}
-                  title={llm.isAvailable ? 'Make unavailable' : 'Make available'}
-                  aria-label={llm.isAvailable ? 'Make unavailable' : 'Make available'}
-                >
-                  {#if llm.isAvailable}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                      <polyline points="16 17 21 12 16 7"></polyline>
-                      <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                  {:else}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                      <polyline points="10 17 15 12 10 7"></polyline>
-                      <line x1="15" y1="12" x2="3" y2="12"></line>
-                    </svg>
-                  {/if}
-                </button>
-              </td>
-            </tr>
-          {/each}
+                {:else}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                    <polyline points="10 17 15 12 10 7"></polyline>
+                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                  </svg>
+                {/if}
+              </button>
+            </td>
+          </tr>
+        {/each}
         </tbody>
       </table>
     </div>
@@ -318,37 +341,49 @@
     color: #666;
   }
 
-  .llms-list {
-    overflow-x: auto;
+  /* Simplified scrollable table */
+  .scrollable-table {
+    width: 100%;
+    max-height: 100vh;
+    overflow: auto;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
   }
 
-  table {
+  .llms-table {
     width: 100%;
+    min-width: 800px;
     border-collapse: collapse;
-    margin-bottom: 2rem;
     background-color: white;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   th, td {
     padding: 0.75rem 1rem;
     text-align: left;
     border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
   }
 
   th {
     background-color: #f5f5f5;
     font-weight: 500;
     color: #333;
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
 
   tr:hover {
     background-color: #f9f9f9;
   }
 
-  /* Action button styles are imported from actionButtons.css */
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
 
+  /* Form styles */
   .form-container {
     background-color: white;
     padding: 1.5rem;
@@ -449,5 +484,12 @@
 
   .submit-button:hover {
     background-color: #1976d2;
+  }
+
+  /* Simple media query */
+  @media (max-width: 768px) {
+    .llms-table {
+      min-width: 650px;
+    }
   }
 </style>

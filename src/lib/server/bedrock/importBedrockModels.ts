@@ -86,6 +86,8 @@ export const importBedrockModels = async () => {
       name: model.modelName || '',
       description: JSON.stringify(model),
       tokenCost: 0,
+      inputTokenCost: 0,
+      outputTokenCost: 0,
       isOnDemand: model.inferenceTypesSupported?.includes('ON_DEMAND') || false,
       isActive: model.modelLifecycle?.status === 'ACTIVE' || false,
       isAvailable: !!model.modelId && enabledModels.includes(model.modelId),

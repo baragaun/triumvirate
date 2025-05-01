@@ -113,6 +113,15 @@ export async function createChatMessage(
       .set(chatChanges)
       .where(eq(table.chat.id, props.chatId));
 
+    if (props.metadata && chat.userId) {
+      await db.update(table.user)
+        .set({
+          metadata: props.metadata,
+          updatedAt: new Date(),
+        })
+        .where(eq(table.user.id, chat.userId));
+    }
+
     return { chatMessages };
   } catch (error) {
     console.error('Error creating chat message:', error);

@@ -9,8 +9,6 @@ import { ChatMode, MessageRole } from '$lib/enums'
 import { createChatMessage } from '$lib/server/chatMessage/createChatMessage';
 import type { ChatInfo } from '$lib/types';
 import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
-import { generateBedrockResponse } from '$lib/server/bedrock/generateBedrockResponse'
-import { updateChat } from '$lib/server/chat/updateChat'
 
 export async function createChat(props: Partial<Chat>): Promise<ChatInfo> {
   console.log('operations.chat.createChat called.', { props });
@@ -55,6 +53,16 @@ export async function createChat(props: Partial<Chat>): Promise<ChatInfo> {
       metadata: props.metadata || null,
       feedback: null,
       rating: null,
+      feedbackAnswer0: props.feedbackAnswer0 || null,
+      feedbackAnswer1: props.feedbackAnswer1 || null,
+      feedbackAnswer2: props.feedbackAnswer2 || null,
+      feedbackAnswer3: props.feedbackAnswer3 || null,
+      feedbackAnswer4: props.feedbackAnswer4 || null,
+      feedbackAnswer5: props.feedbackAnswer5 || null,
+      feedbackAnswer6: props.feedbackAnswer6 || null,
+      feedbackAnswer7: props.feedbackAnswer7 || null,
+      feedbackAnswer8: props.feedbackAnswer8 || null,
+      feedbackAnswer9: props.feedbackAnswer9 || null,
       endedAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -65,13 +73,6 @@ export async function createChat(props: Partial<Chat>): Promise<ChatInfo> {
     const chat = await findChat(chatId);
 
     const chatMessages: ChatMessage[] = [];
-
-    // Sending instructions to the LLM:
-    const aiResponse = await generateBedrockResponse(chatId, chat);
-    if (aiResponse.chatMessage) {
-      aiResponse.chatMessage.sendToUser = false;
-      chatMessages.push(aiResponse.chatMessage);
-    }
 
     // Adding welcome message:
     let content = chatConfig?.welcomeMessage ||

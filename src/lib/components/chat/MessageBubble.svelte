@@ -29,6 +29,8 @@
 
   // Derive values from message object
   const isUserMessage = message.role === MessageRole.user;
+  const bubbleClass = isUserMessage ? 'user-message' : 'assistant-message';
+  const showInfoLine = $derived(chat.mode === ChatMode.tuning && message.role === MessageRole.assistant);
 
   const buildInfoLine = (): string => {
     const infoLineParts: string[] = [];
@@ -75,39 +77,24 @@
   const infoLine = $derived(buildInfoLine());
 </script>
 
-<div class="message-content {isUserMessage ? 'user-message' : 'assistant-message'}">
+<div class="message-bubble {bubbleClass}">
   <div class="message-text">
-    {message.content}
+    <div class="message-content">{message.content}</div>
     {#if showMetadata && message.metadata}
       <div class="metadata">
         <span>{JSON.stringify(message.metadata, null, 2)}</span>
       </div>
     {/if}
-    {#if !isUserMessage}
+    {#if message.role === MessageRole.assistant}
       <!-- Feedback UI for assistant messages -->
       <MessageFeedback message={message} {updateChatMessage} />
     {/if}
 
-    {#if chat.mode === ChatMode.tuning && ((!isUserMessage && infoLine) || (isUserMessage && canEdit) || canRegenerate)}
-      <div class="message-info {isUserMessage ? 'user-message-info' : ''}">
-        {#if !isUserMessage && infoLine}
-          <span>{infoLine}</span>
-        {/if}
-
+    {#if showInfoLine}
+      <div class="message-info">
+        <span>{infoLine}</span>
         <div class="message-actions {isUserMessage ? 'user-message-actions' : ''}">
-          {#if canEdit}
-            <button
-              class="edit-button"
-              onclick={() => onEditMessage(message.id, message.content)}
-              title="Edit message"
-              aria-label="Edit message"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-              </svg>
-            </button>
-          {:else if canRegenerate}
+          {#if canRegenerate}
             <button
               class="recycle-button"
               onclick={onGenerateChatMessage}
@@ -124,14 +111,31 @@
         </div>
       </div>
     {/if}
+
+    {#if chat.mode === ChatMode.tuning && isUserMessage && infoLine || canEdit}
+      <div class="message-info user-message-info">
+        <button
+          class="edit-button"
+          onclick={() => onEditMessage(message.id, message.content)}
+          title="Edit message"
+          aria-label="Edit message"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        </button>
+      </div>
+    {/if}
   </div>
 </div>
 <style>
-  .message-content {
+  .message-bubble {
     max-width: 80%;
     padding: 0.75rem 1rem 0.5rem;
     border-radius: 1rem;
     overflow-wrap: break-word;
+    box-shadow: 2px 5px 7px rgba(0, 0, 0, 0.2);
   }
 
   .user-message {
@@ -147,8 +151,11 @@
   /* Header styles removed for simplified UI */
 
   .message-text {
-    /*white-space: pre-wrap;*/
     line-height: 1.3;
+  }
+
+  .message-content {
+    white-space: pre-wrap;
   }
 
   .metadata {
@@ -165,8 +172,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 0.2rem;
-    padding-top: 0.2rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     font-size: 0.7rem;
     color: #666;

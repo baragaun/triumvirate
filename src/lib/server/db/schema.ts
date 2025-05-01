@@ -5,6 +5,7 @@ export const user = pgTable('users', {
 	username: text('username').notNull().unique(),
 	passwordHash: text('password_hash'),
 	isAdmin: boolean('is_admin').notNull().default(false),
+	metadata: json('metadata'),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
@@ -35,6 +36,16 @@ export const chat = pgTable('chats', {
 	cost: real('cost').notNull().default(0),
 	metadata: json('metadata'),
 	feedback: text('feedback'), // User feedback on the chat
+	feedbackAnswer0: text('feedback_answer_0'),
+	feedbackAnswer1: text('feedback_answer_1'),
+	feedbackAnswer2: text('feedback_answer_2'),
+	feedbackAnswer3: text('feedback_answer_3'),
+	feedbackAnswer4: text('feedback_answer_4'),
+	feedbackAnswer5: text('feedback_answer_5'),
+	feedbackAnswer6: text('feedback_answer_6'),
+	feedbackAnswer7: text('feedback_answer_7'),
+	feedbackAnswer8: text('feedback_answer_8'),
+	feedbackAnswer9: text('feedback_answer_9'),
 	rating: integer('rating'), // Numerical rating of the chat
 	endedAt: timestamp('ended_at'), // When the chat ended
 	createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -68,9 +79,20 @@ export const chatMessage = pgTable('chat_messages', {
 
 export const chatConfig = pgTable('chat_configs', {
 	id: text('id').primaryKey(),
+	isDefault: boolean('is_default').notNull().default(false),
 	description: text('description'), // Description of the chat config
 	caption: text('caption'),
-	isDefault: boolean('is_default').notNull().default(false),
+	introduction: text('introduction'),
+	feedbackQuestion0: text('feedback_question_0'),
+	feedbackQuestion1: text('feedback_question_1'),
+	feedbackQuestion2: text('feedback_question_2'),
+	feedbackQuestion3: text('feedback_question_3'),
+	feedbackQuestion4: text('feedback_question_4'),
+	feedbackQuestion5: text('feedback_question_5'),
+	feedbackQuestion6: text('feedback_question_6'),
+	feedbackQuestion7: text('feedback_question_7'),
+	feedbackQuestion8: text('feedback_question_8'),
+	feedbackQuestion9: text('feedback_question_9'),
 	welcomeMessage: text('welcome_message'), // The first message to send to the user
 	llmId: text('llm_id').notNull(), // The model used (e.g., amazon.nova-lite-v1:0)
 	llmInstructions: text('llm_instructions').notNull(), // The instructions used at the start of the chat
@@ -86,6 +108,8 @@ export const llm = pgTable('llms', {
 	provider: text('provider').notNull(), // The provider (e.g., Amazon, Anthropic)
 	description: text('description'), // Description of the model
 	tokenCost: real('token_cost').notNull().default(0),
+	inputTokenCost: real('input_token_cost').notNull().default(0),
+	outputTokenCost: real('output_token_cost').notNull().default(0),
 	isOnDemand: boolean('is_on_demand').notNull().default(false),
 	isActive: boolean('is_active').notNull().default(false),
 	isAvailable: boolean('is_available').notNull().default(false),

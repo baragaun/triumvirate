@@ -16,8 +16,19 @@
   // Form state
   let formData = $state<Partial<ChatConfig>>({
     id: '',
-    description: '',
     isDefault: false,
+    description: '',
+    introduction: '',
+    feedbackQuestion0: '',
+    feedbackQuestion1: '',
+    feedbackQuestion2: '',
+    feedbackQuestion3: '',
+    feedbackQuestion4: '',
+    feedbackQuestion5: '',
+    feedbackQuestion6: '',
+    feedbackQuestion7: '',
+    feedbackQuestion8: '',
+    feedbackQuestion9: '',
     welcomeMessage: '',
     llmId: '',
     llmInstructions: '',
@@ -73,8 +84,19 @@
   function resetForm() {
     formData = {
       id: '',
-      description: '',
       isDefault: false,
+      description: '',
+      introduction: '',
+      feedbackQuestion0: '',
+      feedbackQuestion1: '',
+      feedbackQuestion2: '',
+      feedbackQuestion3: '',
+      feedbackQuestion4: '',
+      feedbackQuestion5: '',
+      feedbackQuestion6: '',
+      feedbackQuestion7: '',
+      feedbackQuestion8: '',
+      feedbackQuestion9: '',
       welcomeMessage: '',
       llmId: llms.length > 0 ? llms[0].id : '',
       llmInstructions: '',
@@ -121,9 +143,20 @@
 
       const changes: Partial<ChatConfig> = {
         id: formData.id,
+        isDefault: formData.isDefault,
         description: formData.description,
         caption: formData.caption,
-        isDefault: formData.isDefault,
+        introduction: formData.introduction,
+        feedbackQuestion0: formData.feedbackQuestion0,
+        feedbackQuestion1: formData.feedbackQuestion1,
+        feedbackQuestion2: formData.feedbackQuestion2,
+        feedbackQuestion3: formData.feedbackQuestion3,
+        feedbackQuestion4: formData.feedbackQuestion4,
+        feedbackQuestion5: formData.feedbackQuestion5,
+        feedbackQuestion6: formData.feedbackQuestion6,
+        feedbackQuestion7: formData.feedbackQuestion7,
+        feedbackQuestion8: formData.feedbackQuestion8,
+        feedbackQuestion9: formData.feedbackQuestion9,
         welcomeMessage: formData.welcomeMessage,
         llmId: formData.llmId,
         llmInstructions: formData.llmInstructions
@@ -242,6 +275,14 @@
           <small>A unique identifier for this configuration</small>
         </div>
 
+        <div class="form-group checkbox">
+          <label>
+            <input type="checkbox" bind:checked={formData.isDefault} />
+            Set as default configuration
+          </label>
+          <small>If checked, this will be the default configuration for new chats</small>
+        </div>
+
         <div class="form-group">
           <label for="description">Description</label>
           <input
@@ -253,12 +294,116 @@
           <small>A short description explaining the purpose of this configuration</small>
         </div>
 
-        <div class="form-group checkbox">
-          <label>
-            <input type="checkbox" bind:checked={formData.isDefault} />
-            Set as default configuration
-          </label>
-          <small>If checked, this will be the default configuration for new chats</small>
+        <div class="form-group">
+          <label for="description">Introduction</label>
+          <textarea
+            id="introduction"
+            bind:value={formData.introduction}
+            rows="3"
+            placeholder="Introduction for the user..."
+          ></textarea>
+          <small>An introduction shown to the user</small>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #1</label>
+          <input
+            type="text"
+            id="feedbackQuestion0"
+            bind:value={formData.feedbackQuestion0}
+            placeholder="Tell us about your experience..."
+          />
+          <small>This question is shown to the user on the feedback form</small>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #2</label>
+          <input
+            type="text"
+            id="feedbackQuestion1"
+            bind:value={formData.feedbackQuestion1}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #3</label>
+          <input
+            type="text"
+            id="feedbackQuestion2"
+            bind:value={formData.feedbackQuestion2}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #4</label>
+          <input
+            type="text"
+            id="feedbackQuestion3"
+            bind:value={formData.feedbackQuestion3}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #5</label>
+          <input
+            type="text"
+            id="feedbackQuestion4"
+            bind:value={formData.feedbackQuestion4}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #6</label>
+          <input
+            type="text"
+            id="feedbackQuestion5"
+            bind:value={formData.feedbackQuestion5}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #7</label>
+          <input
+            type="text"
+            id="feedbackQuestion6"
+            bind:value={formData.feedbackQuestion6}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #8</label>
+          <input
+            type="text"
+            id="feedbackQuestion7"
+            bind:value={formData.feedbackQuestion7}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #9</label>
+          <input
+            type="text"
+            id="feedbackQuestion8"
+            bind:value={formData.feedbackQuestion8}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #10</label>
+          <input
+            type="text"
+            id="feedbackQuestion9"
+            bind:value={formData.feedbackQuestion9}
+            placeholder="Tell us about your experience..."
+          />
         </div>
 
         <div class="form-group">
@@ -309,7 +454,7 @@
         </div>
 
         <div class="form-group">
-          <label for="llmInstructions">Instructions</label>
+          <label for="llmInstructions">Instructions for LLM</label>
           <textarea
             id="llmInstructions"
             bind:value={formData.llmInstructions}
@@ -338,8 +483,8 @@
       <button onclick={showCreateConfigForm}>Create your first configuration</button>
     </div>
   {:else}
-    <div class="configs-list">
-      <table>
+    <div class="scrollable-table">
+      <table class="configs-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -479,29 +624,37 @@
     cursor: pointer;
   }
 
-  .configs-list {
-    overflow-x: auto;
+  /* Simplified scrollable table */
+  .scrollable-table {
+    width: 100%;
+    max-height: 100vh;
+    overflow: auto;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
   }
 
-  table {
+  .configs-table {
     width: 100%;
+    min-width: 800px; /* Ensures table doesn't shrink too much */
     border-collapse: collapse;
-    margin-bottom: 2rem;
     background-color: white;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   th, td {
     padding: 0.75rem 1rem;
     text-align: left;
     border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
   }
 
   th {
     background-color: #f5f5f5;
     font-weight: 500;
     color: #333;
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
 
   tr:hover {

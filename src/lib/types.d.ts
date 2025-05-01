@@ -32,11 +32,6 @@ export interface GenerateChatMessageResponse {
   chatMessage?: ChatMessage;
 }
 
-export interface EndChatRequest {
-  feedback?: string;
-  rating?: number;
-}
-
 export interface LocalsData {
   user?: {
     id: string;
