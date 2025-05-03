@@ -1,15 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation'
-  import type { ChatUiData } from '$lib/types'
-  import type { Chat, ChatConfig, ChatMessage } from '$lib/server/db/schema'
-  import ChatComponent from '$lib/components/chat/ChatComponent.svelte'
-  import { encryptString } from '$lib/helpers/encryptString'
+  import { goto } from '$app/navigation';
+  import type { ChatUiData } from '$lib/types';
+  import type { Chat, ChatConfig, ChatMessage } from '$lib/server/db/schema';
+  import ChatComponent from '$lib/components/chat/ChatComponent.svelte';
+  import FeedbackForm from '$lib/components/chat/FeedbackForm.svelte';
+  import { encryptString } from '$lib/helpers/encryptString';
 
   let { data }: { data: ChatUiData } = $props<{ data: ChatUiData }>();
   const chatConfigs = data.chatConfigs || [];
-  const user = data.user;
-  const guestUserName = data.guestUserName;
   const llms = data.llms || [];
 
   // State
@@ -19,17 +18,13 @@
     : null);
   let chatMessages = $state(data.chatMessages || []);
   let isLoading = $state(true);
+  let showFeedback = $state(false);
 
   onMount(async () => {
-    // console.log('Chat page mounted, chat ID:', page.params.id);
-
     if (!data.chat) {
       await goto('/');
       return;
     }
-
-    // console.log('Chat data:', data.chat);
-    // console.log(`Loaded ${data.chatMessages?.length || 0} messages`);
 
     // Set isLoading to false after a short delay to ensure the page has rendered
     setTimeout(() => {
@@ -37,7 +32,7 @@
     }, 100);
   });
 
-  const updateChat = async (changes: Partial<Chat>): Promise<string> => {
+  const updateChat = async (changes: Partial<Chat>, endChat = false): Promise<string> => {
     try {
       console.log('updateChat: changes:', changes);
       if (!changes.id) {
@@ -66,12 +61,17 @@
 
       console.log('updateChat: chat:', $state.snapshot(chat));
 
+      if (endChat) {
+        showFeedback = false;
+        await goto('/');
+      }
+
       return 'ok';
     } catch (error) {
-      error = error instanceof Error ? error.message : 'An error occurred while saving settings';
-      return error instanceof Error ? error.message : 'Unknown error';
+      console.error('Error updating Chat:', error instanceof Error ? error.message : 'Unknown error');
+      return error instanceof Error ? error.message : 'An error occurred while saving settings';
     }
-  }
+  };
 
   const updateChatMessage = async (changes: Partial<ChatMessage>): Promise<string> => {
     try {
@@ -106,12 +106,12 @@
 
       return 'ok';
     } catch (error) {
-      error = error instanceof Error ? error.message : 'An error occurred while saving settings';
-      return error instanceof Error ? error.message : 'Unknown error';
+      console.error('Error updating ChatMessage:', error instanceof Error ? error.message : 'Unknown error');
+      return error instanceof Error ? error.message : 'An error occurred while saving settings';
     }
-  }
+  };
 
-  async function updateChatConfig(changes: Partial<ChatConfig>): Promise<string> {
+  const updateChatConfig = async (changes: Partial<ChatConfig>): Promise<string> => {
     try {
       console.log('updateChatConfig: changes:', changes);
       if (!changes.id) {
@@ -137,12 +137,12 @@
 
       return 'ok';
     } catch (error) {
-      error = error instanceof Error ? error.message : 'An error occurred while saving settings';
-      return error instanceof Error ? error.message : 'Unknown error';
+      console.error('Error updating ChatConfig:', error instanceof Error ? error.message : 'Unknown error');
+      return error instanceof Error ? error.message : 'An error occurred while saving settings';
     }
-  }
+  };
 
-  async function deleteChat(): Promise<void> {
+  const deleteChat = async (): Promise<void> => {
     try {
       console.log('deleteChat called.');
 
@@ -161,7 +161,15 @@
     } catch (error) {
       console.error('Error deleting chat:', error instanceof Error ? error.message : 'Unknown error');
     }
-  }
+  };
+
+  const onCloseFeedback = (): void => {
+    showFeedback = false;
+  };
+
+  const onEndChat = (): void => {
+    showFeedback = true;
+  };
 </script>
 
 <div class="container">
@@ -171,20 +179,28 @@
         <div class="loading-spinner"></div>
         <p>Loading...</p>
       </div>
+    {:else if showFeedback}
+      <div class="feedback-page">
+        <FeedbackForm
+          {chat}
+          {chatConfig}
+          {updateChat}
+          {onCloseFeedback}
+        />
+      </div>
     {:else}
       <div class="chat-container">
         <ChatComponent
-          {user}
           {chat}
           bind:chatMessages
           {chatConfig}
           {chatConfigs}
           {llms}
-          {guestUserName}
           {deleteChat}
           {updateChatConfig}
           {updateChatMessage}
           {updateChat}
+          {onEndChat}
         />
       </div>
     {/if}
@@ -234,7 +250,6 @@
     100% { transform: rotate(360deg); }
   }
 
-  /* Chat container styles */
   .chat-container {
     display: flex;
     flex-direction: column;
@@ -243,5 +258,15 @@
     margin: 1rem auto 0;
     height: 100%;
     overflow: auto;
+  }
+
+  .feedback-page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: #f5f8fa;
+    background-image: linear-gradient(135deg, #f5f8fa 0%, #e9f2f9 100%);
   }
 </style>

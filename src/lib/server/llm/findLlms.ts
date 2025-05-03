@@ -18,7 +18,7 @@ export async function findLlms(availableOnly: boolean = true): Promise<Llm[]> {
       .select()
       .from(table.llm)
       .where(eq(table.llm.isAvailable, true))
-      .orderBy(table.llm.id);
+      .orderBy(table.llm.provider, table.llm.name);
 
     if (Array.isArray(llms) && llms.length > 0) {
       return llms;
@@ -28,7 +28,7 @@ export async function findLlms(availableOnly: boolean = true): Promise<Llm[]> {
   const llms = await db
     .select()
     .from(table.llm)
-    .orderBy(table.llm.id);
+    .orderBy(table.llm.provider, table.llm.name);
 
   if (Array.isArray(llms) && llms.length > 0) {
     return llms;

@@ -1,6 +1,11 @@
 import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
-import type { EndChatRequest } from '$lib/types'
+
+interface ExtendedEndChatRequest {
+  feedback?: string;
+  rating?: number;
+  [key: string]: string | number | undefined;
+}
 
 export async function POST({ request, params }: RequestEvent) {
   try {
@@ -8,14 +13,26 @@ export async function POST({ request, params }: RequestEvent) {
     const chatId = params.id;
 
     // Parse the request body
-    const body: EndChatRequest = await request.json();
+    const body: ExtendedEndChatRequest = await request.json();
 
-    // Update the chat with feedback and rating
-    await operations.chat.update({
+    // Prepare update data
+    const updateData: any = {
       id: chatId,
       feedback: body.feedback,
       rating: body.rating,
-    });
+      endedAt: new Date()
+    };
+
+    // Add feedback answers if they exist
+    for (let i = 0; i < 10; i++) {
+      const answerKey = `feedbackAnswer${i}`;
+      if (body[answerKey]) {
+        updateData[answerKey] = body[answerKey];
+      }
+    }
+
+    // Update the chat with feedback, rating, and answers
+    await operations.chat.update(updateData);
 
     return json({});
   } catch (error) {

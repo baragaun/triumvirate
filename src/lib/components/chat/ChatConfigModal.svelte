@@ -194,7 +194,7 @@
 >
   <div class="modal-content">
     <div class="modal-header">
-      <h3 id="settings-title">Edit Chat Settings</h3>
+      <div id="settings-title">Edit Chat Settings</div>
     </div>
 
     <div class="modal-body">
@@ -225,6 +225,11 @@
               <option value={config.id}>{config.id} - {config.description || 'No description'}</option>
             {/each}
           </select>
+          <div class="save-config-help">
+            When you like the configuration you worked out in this chat,
+            you can save it to the named chat configuration. Then you can
+            use it in other chats, or share it with others.
+          </div>
           <div class="update-config-button-div">
             <button
               type="button"
@@ -314,9 +319,15 @@
         {/if}
 
       </form>
+
+      <div class="save-config-help">
+        All settings are saved to this chat only. You can save them to the named
+        chat configuration with the "Save Config" button above.
+      </div>
     </div>
 
     <div class="modal-footer">
+
       <div class="modal-actions">
         <button
           type="button"
@@ -372,6 +383,7 @@
   }
 
   .modal-header {
+    font-size: 1.2rem;
     padding: 1.5rem 1.5rem 1rem;
     border-bottom: 1px solid #eee;
     flex-shrink: 0;
@@ -562,5 +574,11 @@
   .update-config-button-div {
     text-align: right;
     padding: 0.5rem 0;
+  }
+
+  .save-config-help {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 1.3rem;
   }
 </style>

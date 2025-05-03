@@ -191,8 +191,8 @@
       <p>No users found.</p>
     </div>
   {:else}
-    <div class="users-list">
-      <table>
+    <div class="scrollable-table">
+      <table class="users-table">
         <thead>
           <tr>
             <th>Username</th>
@@ -303,29 +303,37 @@
     color: #666;
   }
 
-  .users-list {
-    overflow-x: auto;
+  /* Simplified scrollable table */
+  .scrollable-table {
+    width: 100%;
+    max-height: 100vh;
+    overflow: auto;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
   }
 
-  table {
+  .users-table {
     width: 100%;
+    min-width: 700px; /* Ensures table doesn't shrink too much */
     border-collapse: collapse;
-    margin-bottom: 2rem;
     background-color: white;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   th, td {
     padding: 0.75rem 1rem;
     text-align: left;
     border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
   }
 
   th {
     background-color: #f5f5f5;
     font-weight: 500;
     color: #333;
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
 
   tr:hover {

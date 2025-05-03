@@ -6,11 +6,11 @@
 
   const userRoutes = [
     { path: '/chats', label: 'My Chats' },
+    { path: '/admin/chats', label: 'Chats' },
+    { path: '/admin/chat-configs', label: 'Chat Configurations' },
   ];
 
   const adminRoutes = [
-    { path: '/admin/chats', label: 'Chats' },
-    { path: '/admin/chat-configs', label: 'Chat Configurations' },
     { path: '/admin/users', label: 'Users' },
     { path: '/admin/llms', label: 'LLM Models' },
   ];
@@ -27,9 +27,7 @@
     if (path.startsWith('/admin/') && currentPath.startsWith(path + '/')) return true;
 
     // For the chats route, match individual chat pages
-    if (path === '/chats' && currentPath.startsWith('/chats/')) return true;
-
-    return false;
+    return path === '/chats' && currentPath.startsWith('/chats/');
   }
 </script>
 
@@ -39,7 +37,6 @@
       {#each userRoutes as route}
         <li class:active={isActive(route.path)}>
           <a href={route.path}>
-            <span class="indicator-space">{#if isActive(route.path)}<span class="active-indicator">▶</span>{/if}</span>
             <span class="menu-label">{route.label}</span>
           </a>
         </li>
@@ -50,7 +47,6 @@
         {#each adminRoutes as route}
           <li class:active={isActive(route.path)}>
             <a href={route.path}>
-              <span class="indicator-space">{#if isActive(route.path)}<span class="active-indicator">▶</span>{/if}</span>
               <span class="menu-label">{route.label}</span>
             </a>
           </li>
@@ -113,10 +109,10 @@
 
   /* Style for active menu items - more prominent styling */
   .app-nav li.active a {
-    background-color: #4a90e2 !important;
-    color: white !important;
+    background-color: #cae0fe !important;
+    /*color: white !important;*/
     font-weight: 500 !important;
-    border-left: 5px solid #2a6fc9 !important;
+    border-left: 10px solid #2a6fc9 !important;
     padding-left: calc(1.5rem - 5px) !important;
   }
 
@@ -126,29 +122,10 @@
     color: white !important;
   }
 
-  /* Indicator space to maintain consistent alignment */
-  .indicator-space {
-    display: inline-block;
-    width: 20px;
-    text-align: center;
-    position: relative;
-    flex-shrink: 0;
-  }
-
   /* Menu label */
   .menu-label {
     display: inline-block;
     white-space: nowrap;
-  }
-
-  /* Active indicator triangle */
-  .active-indicator {
-    font-size: 0.7rem;
-    display: inline-block;
-    position: relative;
-    top: -1px;
-    color: inherit;
-    line-height: 1;
   }
 
   /* Ensure vertical alignment of menu items */
@@ -160,11 +137,12 @@
   .section-header {
     padding: 0.75rem 1.5rem 0.25rem;
     margin-top: 0.5rem;
+    border-top: 1px solid #e0e0e0;
     font-size: 0.8rem;
     color: #757575;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 3px;
   }
 
   .logout-container {

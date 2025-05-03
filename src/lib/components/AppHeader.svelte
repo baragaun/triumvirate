@@ -4,13 +4,16 @@
 
 <header class="app-header">
   <div class="header-content">
-    <a href="/" class="logo">Micromentor Assistant (Alpha)</a>
+    <a href="/" class="logo">
+      <img src="/logo-512.png" alt="Micromentor Logo" class="logo-image" />
+      <span class="logo-text">Micromentor Assistant Test</span>
+    </a>
   </div>
 </header>
 
 <style>
   .app-header {
-    background-color: #275c87;
+    background-color: #b2cce1;
     color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: fixed;
@@ -33,9 +36,9 @@
   }
 
   .logo {
-    letter-spacing: 5px;
-    color: white;
+    color: #466876;
     text-decoration: none;
+    font-weight: bold;
     text-align: left;
     padding-left: 0;
     margin-left: 0;
@@ -46,7 +49,18 @@
     font-size: 1rem;
     cursor: pointer;
     transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
   }
 
+  .logo-image {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
 
+  .logo-text {
+    display: inline-block;
+  }
 </style>

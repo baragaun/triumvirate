@@ -2,9 +2,9 @@
   import type { ChatMessage } from '$lib/server/db/schema';
   import { ChatMessageFeedback } from '$lib/enums';
 
-  const { 
-    message, 
-    updateChatMessage 
+  const {
+    message,
+    updateChatMessage
   } = $props<{
     message: ChatMessage;
     updateChatMessage: (changes: Partial<ChatMessage>) => void;
@@ -77,11 +77,10 @@
 <style>
   /* Feedback UI styles */
   .message-feedback {
-    margin-top: 0.3rem;
-    padding-top: 0.2rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
     padding-bottom: 0;
     margin-bottom: 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
     font-size: 0.85rem;
     display: flex;
     justify-content: flex-end;

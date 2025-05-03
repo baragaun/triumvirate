@@ -55,10 +55,11 @@
   };
 </script>
 
+<div class="landing-page">
 <div class="container">
   <header>
-    <h1>Welcome!</h1>
-    <p>Thank you for helping us to optimize the new mentoring assistant experience!</p>
+    <h1>Welcome to Micromentor&apos;s Assistant Test</h1>
+    <p class="subtitle">Thank you for helping us optimize the new mentoring assistant experience!</p>
   </header>
 
   <main>
@@ -101,8 +102,22 @@
     {/if}
   </main>
 </div>
+</div>
 
 <style>
+  .landing-page {
+    min-height: 100vh;
+    width: 100%;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .container {
     display: flex;
     flex-direction: column;
@@ -110,18 +125,30 @@
     padding: 1rem;
     max-width: 1200px;
     margin: 0 auto;
+    z-index: 1;
   }
 
   header {
     text-align: center;
     margin-bottom: 3rem;
     padding-top: 2rem;
+    animation: fadeIn 1s ease-in-out;
   }
 
   h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
     margin-bottom: 0.5rem;
-    color: #2196f3;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    font-weight: 700;
+  }
+
+  .subtitle {
+    color: white;
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
 
   /* h2 styles removed */
@@ -166,11 +193,14 @@
   .welcome-content {
     background-color: white;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     padding: 3rem;
-    max-width: 600px;
+    max-width: 500px;
     width: 100%;
     text-align: center;
+    animation: slideUp 0.8s ease-out;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .welcome-content p {
@@ -219,14 +249,33 @@
     font-size: 1.2rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s;
     margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .start-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.6s;
+    z-index: -1;
   }
 
   .start-button:hover:not(:disabled) {
     background-color: #1976d2;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  }
+
+  .start-button:hover::before {
+    left: 100%;
   }
 
   .start-button:active:not(:disabled) {
@@ -252,5 +301,32 @@
     color: #d32f2f;
     margin: 0;
     font-size: 0.95rem;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .welcome-content {
+      padding: 2rem;
+      margin: 0 1rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+    }
   }
 </style>

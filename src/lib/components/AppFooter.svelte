@@ -10,16 +10,16 @@
 
 <footer class="app-footer">
   <div class="footer-content">
-    &copy; 2025 Micromentor |
-    <a href="https://resources.micromentor.org/privacy-policy/">Privacy Policy</a>
-    | <a href="https://resources.micromentor.org/terms-of-use/">Terms Of Use</a>
-    | <a href="https://micromentor.org/contact">Contact</a>
+    &copy; 2025 Micromentor
+    &nbsp;|&nbsp; <a href="https://resources.micromentor.org/privacy-policy/">Privacy Policy</a>
+    &nbsp;|&nbsp; <a href="https://resources.micromentor.org/terms-of-use/">Terms Of Use</a>
+    &nbsp;|&nbsp; <a href="https://micromentor.org/contact">Contact</a>
     {#if !isSignedIn}
-      | <a href="/login">Login</a>
-      | <a href="/register">Register</a>
+      &nbsp;|&nbsp; <a href="/login">Login</a>
+      &nbsp;|&nbsp; <a href="/register">Register</a>
     {:else}
-      | Signed in as {username}
-      | Built with Svelte 5
+      &nbsp;|&nbsp; Signed in as {username}
+      &nbsp;|&nbsp; Built with Svelte 5
     {/if}
   </div>
 </footer>

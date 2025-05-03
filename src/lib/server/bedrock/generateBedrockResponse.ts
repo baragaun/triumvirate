@@ -44,7 +44,6 @@ export async function generateBedrockResponse(
     }
 
     let messages = await findChatMessages(chatId);
-    const sendingInstructions = messages.length < 1;
     let iteration: number | null = null;
     let llmInstructions = chat.llmInstructions;
 
@@ -96,10 +95,6 @@ export async function generateBedrockResponse(
     const llmId = chat.llmId || chatConfig?.llmId;
     const llmTemperature = chat.llmTemperature || chatConfig?.llmTemperature || 0.7;
     const llmMaxTokens = chat.llmMaxTokens || chatConfig?.llmMaxTokens || 1000;
-    // When the config has a welcome message, we don't show the first response of the LLM
-    // to the instructions to the user. That gives us better control over the first message
-    // shown to the user.
-    const sendToUser = !sendingInstructions || !chatConfig?.welcomeMessage;
 
     if (!llmId) {
       console.error('Error generating response from Bedrock: LLM ID is required');
@@ -185,9 +180,7 @@ export async function generateBedrockResponse(
     let metadata: ChatMetadata | undefined = undefined;
 
     if (MOCK) {
-      generatedText = sendingInstructions
-        ? 'This is a mock response to the instructions.'
-        : `This is a mock generated from the assistant #${iteration || '1'}.`;
+      generatedText = `This is a mock generated from the assistant #${iteration || '1'}.`;
     } else {
       const start = Date.now();
       const response = await client.send(command);
@@ -212,8 +205,11 @@ export async function generateBedrockResponse(
       inputTokens = responseBody.usage.input_tokens;
       outputTokens = responseBody.usage.output_tokens;
 
-      if (llm?.tokenCost && !isNaN(inputTokens) && !isNaN(outputTokens)) {
-        cost = (inputTokens + outputTokens) * llm.tokenCost;
+      if (llm?.inputTokenCost !== undefined || llm?.tokenCost !== undefined) {
+        cost = inputTokens * (llm.inputTokenCost ?? llm.tokenCost);
+      }
+      if (llm?.outputTokenCost !== undefined || llm?.tokenCost !== undefined) {
+        cost += outputTokens * (llm.outputTokenCost ?? llm.tokenCost);
       }
     }
 
@@ -223,8 +219,8 @@ export async function generateBedrockResponse(
       role: 'assistant',
       content: generatedText,
       iteration,
-      sendToUser,
-      sendToLlm: !sendingInstructions, // dropping the model's response to the instructions
+      sendToUser: true,
+      sendToLlm: true,
       llmId,
       llmTemperature,
       metadata,
