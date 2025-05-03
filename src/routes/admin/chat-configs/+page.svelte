@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import type { ChatConfig, Llm } from '$lib/server/db/schema';
-  import { encryptString } from '$lib/helpers/encryptString';
-  import '$lib/styles/actionButtons.css';
+  import { onMount } from 'svelte'
+  import type { ChatConfig, Llm } from '$lib/server/db/schema'
+  import { encryptString } from '$lib/helpers/encryptString'
+  import '$lib/styles/actionButtons.css'
 
   // State
-  let chatConfigs = $state<ChatConfig[]>([]);
-  let llms = $state<Llm[]>([]);
-  let isLoading = $state(true);
-  let error = $state<string | null>(null);
-  let showCreateForm = $state(false);
-  let editingConfig = $state<ChatConfig | null>(null);
-  let isDeleting = $state<string | null>(null);
+  let chatConfigs = $state<ChatConfig[]>([])
+  let llms = $state<Llm[]>([])
+  let isLoading = $state(true)
+  let error = $state<string | null>(null)
+  let showCreateForm = $state(false)
+  let editingConfig = $state<ChatConfig | null>(null)
+  let isDeleting = $state<string | null>(null)
 
   // Form state
   let formData = $state<Partial<ChatConfig>>({
@@ -34,50 +34,50 @@
     llmInstructions: '',
     llmTemperature: 0.7,
     llmMaxTokens: 1000
-  });
+  })
 
   onMount(async () => {
     try {
-      await fetchChatConfigs();
-      await fetchLlms();
+      await fetchChatConfigs()
+      await fetchLlms()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'An error occurred';
+      error = err instanceof Error ? err.message : 'An error occurred'
     } finally {
-      isLoading = false;
+      isLoading = false
     }
-  });
+  })
 
   async function fetchChatConfigs() {
     try {
-      const response = await fetch('/api/chat-configs');
-      const data = await response.json();
+      const response = await fetch('/api/chat-configs')
+      const data = await response.json()
 
       if (data.error) {
-        error = data.error;
-        return;
+        error = data.error
+        return
       }
 
-      chatConfigs = data.chatConfigs || [];
+      chatConfigs = data.chatConfigs || []
     } catch (err) {
-      console.error('Error fetching chat configs:', err);
-      error = err instanceof Error ? err.message : 'Failed to fetch chat configurations';
+      console.error('Error fetching chat configs:', err)
+      error = err instanceof Error ? err.message : 'Failed to fetch chat configurations'
     }
   }
 
   async function fetchLlms() {
     try {
-      const response = await fetch('/api/llms');
-      const data = await response.json();
+      const response = await fetch('/api/llms')
+      const data = await response.json()
 
       if (data.error) {
-        error = data.error;
-        return;
+        error = data.error
+        return
       }
 
-      llms = data.llms || [];
+      llms = data.llms || []
     } catch (err) {
-      console.error('Error fetching LLMs:', err);
-      error = err instanceof Error ? err.message : 'Failed to fetch LLM models';
+      console.error('Error fetching LLMs:', err)
+      error = err instanceof Error ? err.message : 'Failed to fetch LLM models'
     }
   }
 
@@ -102,43 +102,43 @@
       llmInstructions: '',
       llmTemperature: 0.7,
       llmMaxTokens: 1000
-    };
-    editingConfig = null;
+    }
+    editingConfig = null
   }
 
   function showCreateConfigForm() {
-    resetForm();
-    showCreateForm = true;
+    resetForm()
+    showCreateForm = true
   }
 
   function hideForm() {
-    showCreateForm = false;
-    editingConfig = null;
+    showCreateForm = false
+    editingConfig = null
   }
 
   function editConfig(config: ChatConfig) {
-    editingConfig = config;
-    formData = { ...config };
-    showCreateForm = true;
+    editingConfig = config
+    formData = { ...config }
+    showCreateForm = true
   }
 
   const onSubmit = async (event: Event) => {
-    event.preventDefault();
+    event.preventDefault()
 
     try {
       if (!formData.id) {
-        error = 'ID is required';
-        return;
+        error = 'ID is required'
+        return
       }
 
       if (!formData.llmId) {
-        error = 'LLM model is required';
-        return;
+        error = 'LLM model is required'
+        return
       }
 
       if (!formData.llmInstructions) {
-        error = 'Instructions are required';
-        return;
+        error = 'Instructions are required'
+        return
       }
 
       const changes: Partial<ChatConfig> = {
@@ -166,16 +166,16 @@
           : '',
         llmTemperature: formData.llmTemperature,
         llmMaxTokens: formData.llmMaxTokens,
-      };
+      }
 
       // console.log('Form data at submission:', changes);
 
-      const isEditing = !!editingConfig;
+      const isEditing = !!editingConfig
       const url = isEditing && editingConfig
         ? `/api/chat-configs/${editingConfig.id}`
-        : '/api/chat-configs';
+        : '/api/chat-configs'
 
-      const method = isEditing ? 'PUT' : 'POST';
+      const method = isEditing ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
         method,
@@ -183,64 +183,64 @@
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(changes)
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.error) {
-        error = data.error;
-        return;
+        error = data.error
+        return
       }
 
       // Refresh the list
-      await fetchChatConfigs();
+      await fetchChatConfigs()
 
       // Hide the form
-      hideForm();
+      hideForm()
 
       // Show success message
-      error = null;
+      error = null
     } catch (err) {
-      console.error('Error saving chat config:', err);
-      error = err instanceof Error ? err.message : 'Failed to save chat configuration';
+      console.error('Error saving chat config:', err)
+      error = err instanceof Error ? err.message : 'Failed to save chat configuration'
     }
   }
 
   async function deleteConfig(id: string) {
     if (!confirm(`Are you sure you want to delete the configuration "${id}"? This action cannot be undone.`)) {
-      return;
+      return
     }
 
     try {
-      isDeleting = id;
+      isDeleting = id
 
       const response = await fetch(`/api/chat-configs/${id}`, {
         method: 'DELETE'
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.error) {
-        error = data.error;
-        return;
+        error = data.error
+        return
       }
 
       // Refresh the list
-      await fetchChatConfigs();
+      await fetchChatConfigs()
 
       // Show success message
-      error = null;
+      error = null
     } catch (err) {
-      console.error('Error deleting chat config:', err);
-      error = err instanceof Error ? err.message : 'Failed to delete chat configuration';
+      console.error('Error deleting chat config:', err)
+      error = err instanceof Error ? err.message : 'Failed to delete chat configuration'
     } finally {
-      isDeleting = null;
+      isDeleting = null
     }
   }
 
   function formatDate(dateString: string | Date) {
-    const date = new Date(dateString);
-    return date.toLocaleString();
+    const date = new Date(dateString)
+    return date.toLocaleString()
   }
 </script>
 
@@ -277,7 +277,7 @@
 
         <div class="form-group checkbox">
           <label>
-            <input type="checkbox" bind:checked={formData.isDefault} />
+            <input type="checkbox" bind:checked={formData.isDefault}/>
             Set as default configuration
           </label>
           <small>If checked, this will be the default configuration for new chats</small>
@@ -450,7 +450,8 @@
             rows="3"
             placeholder="Optional welcome message to display when starting a chat"
           ></textarea>
-          <small>The first message shown to users when starting a chat with this configuration</small>
+          <small>The first message shown to users when starting a chat with this
+            configuration</small>
         </div>
 
         <div class="form-group">
@@ -486,62 +487,68 @@
     <div class="scrollable-table">
       <table class="configs-table">
         <thead>
-          <tr>
-            <th>ID</th>
-            <th>LLM Model</th>
-            <th>Default</th>
-            <th>Last Updated</th>
-            <th>
-              <button class="create-button" onclick={showCreateConfigForm}>
-                New
-              </button>
-            </th>
-          </tr>
+        <tr>
+          <th>ID</th>
+          <th>LLM Model</th>
+          <th>Default</th>
+          <th>Last Updated</th>
+        </tr>
         </thead>
         <tbody>
-          {#each chatConfigs as config}
-            <tr>
-              <td>{config.id}</td>
-              <td>{config.llmId}</td>
-              <td>{config.isDefault ? '✓' : ''}</td>
-              <td>{formatDate(config.updatedAt)}</td>
-              <td class="action-buttons">
-                <button
-                  class="action-button edit-button"
-                  onclick={() => editConfig(config)}
-                  title="Edit configuration"
-                  aria-label="Edit configuration"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+        {#each chatConfigs as config}
+          <tr>
+            <td>{config.id}</td>
+            <td>{config.llmId}</td>
+            <td>{config.isDefault ? '✓' : ''}</td>
+            <td>{formatDate(config.updatedAt)}</td>
+            <td class="action-buttons">
+              <button
+                class="action-button edit-button"
+                onclick={() => editConfig(config)}
+                title="Edit configuration"
+                aria-label="Edit configuration"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button
+                class="action-button delete-button"
+                onclick={() => deleteConfig(config.id)}
+                disabled={isDeleting === config.id}
+                title="Delete configuration"
+                aria-label="Delete configuration"
+              >
+                {#if isDeleting === config.id}
+                  <div class="button-spinner"></div>
+                {:else}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                       fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                       stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
                   </svg>
-                </button>
-                <button
-                  class="action-button delete-button"
-                  onclick={() => deleteConfig(config.id)}
-                  disabled={isDeleting === config.id}
-                  title="Delete configuration"
-                  aria-label="Delete configuration"
-                >
-                  {#if isDeleting === config.id}
-                    <div class="button-spinner"></div>
-                  {:else}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M3 6h18"></path>
-                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                    </svg>
-                  {/if}
-                </button>
-              </td>
-            </tr>
-          {/each}
+                {/if}
+              </button>
+            </td>
+          </tr>
+        {/each}
         </tbody>
       </table>
     </div>
   {/if}
 </div>
+{#if !showCreateForm}
+  <div class="new-chat-config-section">
+    <button class="new-chat-config-button" onclick={showCreateConfigForm}>
+      +
+    </button>
+  </div>
+{/if}
 
 <style>
   .admin-container {
@@ -549,20 +556,28 @@
     padding: 0;
   }
 
-  .create-button {
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 0.1rem .5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s;
-    margin-left: .5rem;
+  .new-chat-config-section {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 10;
   }
 
-  .create-button:hover {
-    background-color: #388e3c;
+  .new-chat-config-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    padding: 0;
   }
 
   .error-message {
@@ -604,8 +619,12 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   .empty-state {

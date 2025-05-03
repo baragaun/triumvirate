@@ -6,7 +6,7 @@
 
   const userRoutes = [
     { path: '/chats', label: 'My Chats' },
-    { path: '/admin/chats', label: 'Chats' },
+    { path: '/admin/chats', label: 'All Chats' },
     { path: '/admin/chat-configs', label: 'Chat Configurations' },
   ];
 
