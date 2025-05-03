@@ -205,11 +205,11 @@ export async function generateBedrockResponse(
       inputTokens = responseBody.usage.input_tokens;
       outputTokens = responseBody.usage.output_tokens;
 
-      if (llm?.inputTokenCost || llm?.tokenCost) {
-        cost = inputTokens * (llm.inputTokenCost || llm.tokenCost);
+      if (llm?.inputTokenCost !== undefined || llm?.tokenCost !== undefined) {
+        cost = inputTokens * (llm.inputTokenCost ?? llm.tokenCost);
       }
-      if (llm?.outputTokenCost || llm?.tokenCost) {
-        cost += outputTokens * (llm.outputTokenCost || llm.tokenCost);
+      if (llm?.outputTokenCost !== undefined || llm?.tokenCost !== undefined) {
+        cost += outputTokens * (llm.outputTokenCost ?? llm.tokenCost);
       }
     }
 
