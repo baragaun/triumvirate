@@ -229,52 +229,54 @@
         {/each}
       </div>
     {/if}
+</div>
 
-    <div class="new-chat-section">
-      {#if !showNewChatForm}
-        <button class="new-chat-button" onclick={toggleNewChatForm}>
-          New Chat
-        </button>
-      {:else}
-        <NewChatForm
-          chatConfigs={chatConfigs}
-          onSubmit={onCreateChat}
-          onCancel={toggleNewChatForm}
-        />
-      {/if}
-    </div>
+<div class="new-chat-section">
+  {#if !showNewChatForm}
+    <button class="new-chat-button" onclick={toggleNewChatForm}>
+      +
+    </button>
+  {:else}
+    <NewChatForm
+      chatConfigs={chatConfigs}
+      onSubmit={onCreateChat}
+      onCancel={toggleNewChatForm}
+    />
+  {/if}
 </div>
 
 <style>
   .chats-container {
     width: 100%;
-    padding: 0;
-    overflow-y: auto; /* Enable vertical scrolling */
     height: 100%;
+    padding: 0;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
   }
 
   .new-chat-section {
-    padding: 1rem;
-    display: flex;
-    justify-content: flex-end;
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 10;
   }
 
   .new-chat-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    width: auto;
-    padding: 0.5rem 1rem;
+    width: 50px;
+    height: 50px;
     background-color: #2196f3;
     color: white;
     border: none;
-    border-radius: 4px;
-    font-size: 0.9rem;
+    border-radius: 50%;
+    font-size: 1.5rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    padding: 0;
   }
 
   .new-chat-button:hover {
@@ -297,9 +299,9 @@
     display: flex;
     flex-direction: column;
     background-color: white;
-    overflow: hidden;
+    overflow-y: scroll;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1rem;
+    height: 100%;
   }
 
   .chat-card-container {

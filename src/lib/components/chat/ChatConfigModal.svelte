@@ -405,12 +405,6 @@
     flex-shrink: 0;
   }
 
-  h3 {
-    margin-top: 0;
-    margin-bottom: 0;
-    color: #333;
-  }
-
   /* Loading styles removed as they're not used */
 
   .form-group {

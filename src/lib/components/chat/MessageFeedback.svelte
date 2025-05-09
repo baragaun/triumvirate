@@ -1,20 +1,22 @@
 <script lang="ts">
-  import type { ChatMessage } from '$lib/server/db/schema';
+  import type { Chat, ChatMessage } from '$lib/server/db/schema'
   import { ChatMessageFeedback } from '$lib/enums';
 
   const {
+    chat,
     message,
     updateChatMessage
   } = $props<{
+    chat: Chat;
     message: ChatMessage;
     updateChatMessage: (changes: Partial<ChatMessage>) => void;
   }>();
 
   // State
-  let feedback = $state<ChatMessageFeedback | null>(message.feedback || null);
+  let feedback = $state<string | null>(message.feedback || null);
   let isFeedbackSubmitted = $state(!!message.feedback);
 
-  const onSaveFeedback = async (selectedFeedback: ChatMessageFeedback) => {
+  const onSaveFeedback = async (selectedFeedback: string) => {
     if (!selectedFeedback) {
       console.log('MessageFeedback.onSaveFeedback: No feedback provided.');
       return;
@@ -40,27 +42,27 @@
     <div class="feedback-buttons">
       <button
         class="feedback-button"
-        onclick={() => onSaveFeedback(ChatMessageFeedback.helpful)}
+        onclick={() => onSaveFeedback(chat.feedbackButtonValue0)}
         title="This response was helpful"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
         </svg>
-        Helpful
+        {chat.feedbackButtonLabel0}
       </button>
       <button
         class="feedback-button"
-        onclick={() => onSaveFeedback(ChatMessageFeedback.unhelpful)}
+        onclick={() => onSaveFeedback(chat.feedbackButtonValue1)}
         title="This response was not helpful"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
         </svg>
-        Not Helpful
+        {chat.feedbackButtonLabel1}
       </button>
       <button
         class="feedback-button"
-        onclick={() => onSaveFeedback(ChatMessageFeedback.wrong)}
+        onclick={() => onSaveFeedback(chat.feedbackButtonValue2)}
         title="This response contains incorrect information"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -68,7 +70,7 @@
           <line x1="15" y1="9" x2="9" y2="15"></line>
           <line x1="9" y1="9" x2="15" y2="15"></line>
         </svg>
-        Wrong
+        {chat.feedbackButtonLabel2}
       </button>
     </div>
   {/if}
