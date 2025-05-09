@@ -19,6 +19,21 @@
     isDefault: false,
     description: '',
     introduction: '',
+    feedbackButtonLabel0: '',
+    feedbackButtonLabel1: '',
+    feedbackButtonLabel2: '',
+    feedbackButtonLabel3: '',
+    feedbackButtonLabel4: '',
+    feedbackButtonValue0: '',
+    feedbackButtonValue1: '',
+    feedbackButtonValue2: '',
+    feedbackButtonValue3: '',
+    feedbackButtonValue4: '',
+    feedbackButtonLlmText0: '',
+    feedbackButtonLlmText1: '',
+    feedbackButtonLlmText2: '',
+    feedbackButtonLlmText3: '',
+    feedbackButtonLlmText4: '',
     feedbackQuestion0: '',
     feedbackQuestion1: '',
     feedbackQuestion2: '',
@@ -87,6 +102,21 @@
       isDefault: false,
       description: '',
       introduction: '',
+      feedbackButtonLabel0: '',
+      feedbackButtonLabel1: '',
+      feedbackButtonLabel2: '',
+      feedbackButtonLabel3: '',
+      feedbackButtonLabel4: '',
+      feedbackButtonValue0: '',
+      feedbackButtonValue1: '',
+      feedbackButtonValue2: '',
+      feedbackButtonValue3: '',
+      feedbackButtonValue4: '',
+      feedbackButtonLlmText0: '',
+      feedbackButtonLlmText1: '',
+      feedbackButtonLlmText2: '',
+      feedbackButtonLlmText3: '',
+      feedbackButtonLlmText4: '',
       feedbackQuestion0: '',
       feedbackQuestion1: '',
       feedbackQuestion2: '',
@@ -147,6 +177,21 @@
         description: formData.description,
         caption: formData.caption,
         introduction: formData.introduction,
+        feedbackButtonLabel0: formData.feedbackButtonLabel0,
+        feedbackButtonLabel1: formData.feedbackButtonLabel1,
+        feedbackButtonLabel2: formData.feedbackButtonLabel2,
+        feedbackButtonLabel3: formData.feedbackButtonLabel3,
+        feedbackButtonLabel4: formData.feedbackButtonLabel4,
+        feedbackButtonValue0: formData.feedbackButtonValue0,
+        feedbackButtonValue1: formData.feedbackButtonValue1,
+        feedbackButtonValue2: formData.feedbackButtonValue2,
+        feedbackButtonValue3: formData.feedbackButtonValue3,
+        feedbackButtonValue4: formData.feedbackButtonValue4,
+        feedbackButtonLlmText0: formData.feedbackButtonLlmText0,
+        feedbackButtonLlmText1: formData.feedbackButtonLlmText1,
+        feedbackButtonLlmText2: formData.feedbackButtonLlmText2,
+        feedbackButtonLlmText3: formData.feedbackButtonLlmText3,
+        feedbackButtonLlmText4: formData.feedbackButtonLlmText4,
         feedbackQuestion0: formData.feedbackQuestion0,
         feedbackQuestion1: formData.feedbackQuestion1,
         feedbackQuestion2: formData.feedbackQuestion2,
@@ -305,105 +350,214 @@
           <small>An introduction shown to the user</small>
         </div>
 
-        <div class="form-group">
-          <label for="description">Feedback Question #1</label>
-          <input
-            type="text"
-            id="feedbackQuestion0"
-            bind:value={formData.feedbackQuestion0}
-            placeholder="Tell us about your experience..."
-          />
-          <small>This question is shown to the user on the feedback form</small>
+        <div class="form-parent-group">
+          <div class="form-parent-group-caption">Feedback Button For AI Assistant Messages</div>
+          <div class="form-parent-group-subcaption">Value/label for the first button shown below each AI assistant message</div>
+          <div class="form-group">
+            <div class="feedback-button-caption">Button #1</div>
+            <div class="feedback-button-row">
+              <div class="feedback-button-col">
+                <label for="feedbackButtonLabel0">Label</label>
+                <input
+                  type="text"
+                  id="feedbackButtonLabel0"
+                  bind:value={formData.feedbackButtonLabel0}
+                  placeholder="Helpful"
+                />
+              </div>
+              <div class="feedback-button-col">
+                <label for="feedbackButtonValue0">Value</label>
+                <input
+                  type="text"
+                  id="feedbackButtonValue0"
+                  bind:value={formData.feedbackButtonValue0}
+                  placeholder="helpful"
+                />
+              </div>
+              <div class="feedback-button-col-last">
+                <label for="feedbackButtonLabel0">Text for LLM</label>
+                <input
+                  type="text"
+                  id="feedbackButtonLabel0"
+                  bind:value={formData.feedbackButtonLlmText0}
+                  placeholder="The user found your response helpful"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="feedback-button-caption">Button #2</div>
+            <div class="feedback-button-row">
+              <div class="feedback-button-col">
+                <label for="feedbackButtonLabel1">Label</label>
+                <input
+                  type="text"
+                  id="feedbackButtonLabel1"
+                  bind:value={formData.feedbackButtonLabel1}
+                  placeholder="Not Helpful"
+                />
+              </div>
+              <div class="feedback-button-col">
+                <label for="feedbackButtonValue1">Value</label>
+                <input
+                  type="text"
+                  id="feedbackButtonValue1"
+                  bind:value={formData.feedbackButtonValue1}
+                  placeholder="not-helpful"
+                />
+              </div>
+              <div class="feedback-button-col-last">
+                <label for="feedbackButtonLabel1">Text for LLM</label>
+                <input
+                  type="text"
+                  id="feedbackButtonLabel1"
+                  bind:value={formData.feedbackButtonLlmText1}
+                  placeholder="The user found your response not helpful"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="feedback-button-caption">Button #3</div>
+            <div class="feedback-button-row">
+              <div class="feedback-button-col">
+                <label for="feedbackButtonLabel2">Label</label>
+                <input
+                  type="text"
+                  id="feedbackButtonLabel2"
+                  bind:value={formData.feedbackButtonLabel2}
+                  placeholder="Wrong"
+                />
+              </div>
+              <div class="feedback-button-col">
+                <label for="feedbackButtonValue2">Value</label>
+                <input
+                  type="text"
+                  id="feedbackButtonValue2"
+                  bind:value={formData.feedbackButtonValue2}
+                  placeholder="wrong"
+                />
+              </div>
+              <div class="feedback-button-col-last">
+                <label for="feedbackButtonLabel2">Text for LLM</label>
+                <input
+                  type="text"
+                  id="feedbackButtonLabel2"
+                  bind:value={formData.feedbackButtonLlmText2}
+                  placeholder="The user felt your response was wrong"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="description">Feedback Question #2</label>
-          <input
-            type="text"
-            id="feedbackQuestion1"
-            bind:value={formData.feedbackQuestion1}
-            placeholder="Tell us about your experience..."
-          />
-        </div>
+        <div class="form-parent-group">
+          <div class="form-parent-group-caption">Feedback Questions</div>
+          <div class="form-parent-group-subcaption">
+            These questions are shown to the user on the feedback form after ending the chat.
+          </div>
+          <div class="form-group">
+            <label for="description">Question #1</label>
+            <input
+              type="text"
+              id="feedbackQuestion0"
+              bind:value={formData.feedbackQuestion0}
+              placeholder="Tell us about your experience..."
+            />
+            <small>This question is shown to the user on the feedback form</small>
+          </div>
 
-        <div class="form-group">
-          <label for="description">Feedback Question #3</label>
-          <input
-            type="text"
-            id="feedbackQuestion2"
-            bind:value={formData.feedbackQuestion2}
-            placeholder="Tell us about your experience..."
-          />
-        </div>
+          <div class="form-group">
+            <label for="description">Question #2</label>
+            <input
+              type="text"
+              id="feedbackQuestion1"
+              bind:value={formData.feedbackQuestion1}
+              placeholder="Tell us about your experience..."
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="description">Feedback Question #4</label>
-          <input
-            type="text"
-            id="feedbackQuestion3"
-            bind:value={formData.feedbackQuestion3}
-            placeholder="Tell us about your experience..."
-          />
-        </div>
+          <div class="form-group">
+            <label for="description">Question #3</label>
+            <input
+              type="text"
+              id="feedbackQuestion2"
+              bind:value={formData.feedbackQuestion2}
+              placeholder="Tell us about your experience..."
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="description">Feedback Question #5</label>
-          <input
-            type="text"
-            id="feedbackQuestion4"
-            bind:value={formData.feedbackQuestion4}
-            placeholder="Tell us about your experience..."
-          />
-        </div>
+          <div class="form-group">
+            <label for="description">Question #4</label>
+            <input
+              type="text"
+              id="feedbackQuestion3"
+              bind:value={formData.feedbackQuestion3}
+              placeholder="Tell us about your experience..."
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="description">Feedback Question #6</label>
-          <input
-            type="text"
-            id="feedbackQuestion5"
-            bind:value={formData.feedbackQuestion5}
-            placeholder="Tell us about your experience..."
-          />
-        </div>
+          <div class="form-group">
+            <label for="description">Question #5</label>
+            <input
+              type="text"
+              id="feedbackQuestion4"
+              bind:value={formData.feedbackQuestion4}
+              placeholder="Tell us about your experience..."
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="description">Feedback Question #7</label>
-          <input
-            type="text"
-            id="feedbackQuestion6"
-            bind:value={formData.feedbackQuestion6}
-            placeholder="Tell us about your experience..."
-          />
-        </div>
+          <div class="form-group">
+            <label for="description">Feedback Question #6</label>
+            <input
+              type="text"
+              id="feedbackQuestion5"
+              bind:value={formData.feedbackQuestion5}
+              placeholder="Tell us about your experience..."
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="description">Feedback Question #8</label>
-          <input
-            type="text"
-            id="feedbackQuestion7"
-            bind:value={formData.feedbackQuestion7}
-            placeholder="Tell us about your experience..."
-          />
-        </div>
+          <div class="form-group">
+            <label for="description">Feedback Question #7</label>
+            <input
+              type="text"
+              id="feedbackQuestion6"
+              bind:value={formData.feedbackQuestion6}
+              placeholder="Tell us about your experience..."
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="description">Feedback Question #9</label>
-          <input
-            type="text"
-            id="feedbackQuestion8"
-            bind:value={formData.feedbackQuestion8}
-            placeholder="Tell us about your experience..."
-          />
-        </div>
+          <div class="form-group">
+            <label for="description">Feedback Question #8</label>
+            <input
+              type="text"
+              id="feedbackQuestion7"
+              bind:value={formData.feedbackQuestion7}
+              placeholder="Tell us about your experience..."
+            />
+          </div>
 
-        <div class="form-group">
-          <label for="description">Feedback Question #10</label>
-          <input
-            type="text"
-            id="feedbackQuestion9"
-            bind:value={formData.feedbackQuestion9}
-            placeholder="Tell us about your experience..."
-          />
+          <div class="form-group">
+            <label for="description">Feedback Question #9</label>
+            <input
+              type="text"
+              id="feedbackQuestion8"
+              bind:value={formData.feedbackQuestion8}
+              placeholder="Tell us about your experience..."
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="description">Feedback Question #10</label>
+            <input
+              type="text"
+              id="feedbackQuestion9"
+              bind:value={formData.feedbackQuestion9}
+              placeholder="Tell us about your experience..."
+            />
+          </div>
         </div>
 
         <div class="form-group">
@@ -473,7 +627,7 @@
         <div class="form-actions">
           <button type="button" class="cancel-button" onclick={hideForm}>Cancel</button>
           <button type="submit" class="submit-button">
-            {editingConfig ? 'Update Configuration' : 'Create Configuration'}
+            {editingConfig ? 'Save' : 'Create'}
           </button>
         </div>
       </form>
@@ -481,7 +635,7 @@
   {:else if chatConfigs.length === 0}
     <div class="empty-state">
       <p>No chat configurations found.</p>
-      <button onclick={showCreateConfigForm}>Create your first configuration</button>
+      <button onclick={showCreateConfigForm}>Create your first chat configuration</button>
     </div>
   {:else}
     <div class="scrollable-table">
@@ -787,5 +941,41 @@
 
   .submit-button:hover {
     background-color: #1976d2;
+  }
+
+  .form-parent-group {
+    border: 1px solid #e8e8e8;
+    padding: 1rem 1rem 0 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .form-parent-group-caption {
+    font-weight: 500;
+    color: #333;
+  }
+
+  .form-parent-group-subcaption {
+    color: #797979;
+    font-size: .8rem;
+    margin-bottom: 1rem;
+  }
+
+  .feedback-button-caption {
+    font-weight: 500;
+    color: #333;
+  }
+
+  .feedback-button-row {
+    display: flex;
+  }
+
+  .feedback-button-col {
+    margin-right: 2rem;
+  }
+
+  .feedback-button-col-last {
+    flex-grow: 1;
+    margin-right: 2rem;
   }
 </style>

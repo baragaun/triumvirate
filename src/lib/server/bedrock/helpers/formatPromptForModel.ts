@@ -12,29 +12,33 @@ export function formatPromptForModel(
   if (llmId.includes('anthropic.claude')) {
     // Format for Claude models
     // { role: 'user' | 'assistant'; content: string }
-    return messages.map((m) => ({
+    return messages.map((m, index) => ({
       role: m.role,
-      content: compileMessageForAi(chat, m, m.id === latestUserMessageId)
+      content: compileMessageForAi(chat, messages, m, index, m.id === latestUserMessageId)
     }));
   } else if (llmId.includes('amazon.titan')) {
     // Format for Titan models
     return {
-      inputText: messages.map((m) => `${m.role}: ${compileMessageForAi(chat, m, m.id === latestUserMessageId)}`)
+      inputText: messages
+        .map((m, index) =>
+          `${m.role}: ${compileMessageForAi(chat, messages, m, index, m.id === latestUserMessageId)}`)
         .join('\n')
     };
   } else if (llmId.includes('amazon.nova')) {
     // Format for Nova models (both Pro and Lite)
-    return messages.map((m) => ({
+    return messages.map((m, index) => ({
       role: m.role,
-      content: [{ text: compileMessageForAi(chat, m, m.id === latestUserMessageId) }]
+      content: [{ text: compileMessageForAi(chat, messages, m, index, m.id === latestUserMessageId) }]
     }));
   } else if (llmId.includes('meta.llama')) {
     // Format for Llama models
-    return messages.map((m) => `${m.role}: ${compileMessageForAi(chat, m, m.id === latestUserMessageId)}`)
+    return messages.map((m, index) =>
+      `${m.role}: ${compileMessageForAi(chat, messages, m, index, m.id === latestUserMessageId)}`)
       .join('\n');
   } else {
     // Default format
-    return messages.map((m) => `${m.role}: ${compileMessageForAi(chat, m, m.id === latestUserMessageId)}`)
+    return messages.map((m, index) =>
+      `${m.role}: ${compileMessageForAi(chat, messages, m, index, m.id === latestUserMessageId)}`)
       .join('\n');
   }
 }

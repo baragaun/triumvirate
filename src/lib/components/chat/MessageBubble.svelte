@@ -87,7 +87,7 @@
     {/if}
     {#if message.role === MessageRole.assistant}
       <!-- Feedback UI for assistant messages -->
-      <MessageFeedback message={message} {updateChatMessage} />
+      <MessageFeedback {chat} {message} {updateChatMessage} />
     {/if}
 
     {#if showInfoLine}
