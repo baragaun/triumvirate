@@ -4,19 +4,19 @@
   import AppFooter from '$lib/components/AppFooter.svelte'
   import AppHeader from '$lib/components/AppHeader.svelte'
   import AppSidebar from '$lib/components/AppSidebar.svelte'
+  import { setContext } from 'svelte';
 
   let { children, data } = $props<{ children: any, data: LayoutData }>()
 
-  let isSignedIn = $derived(!!data.user?.id)
-  let isAdmin = $derived(!!data.user?.isAdmin)
+  setContext('user', data.user);
 </script>
 
 <div class="app-container">
   <AppHeader/>
 
   <div class="content-container">
-    {#if isSignedIn}
-      <AppSidebar isAdmin={isAdmin}/>
+    {#if data.user}
+      <AppSidebar isAdmin={data.user?.isAdmin}/>
     {/if}
 
     <main class="app-main">
@@ -25,7 +25,7 @@
   </div>
 
   <footer class="app-footer">
-    <AppFooter {isSignedIn} username={data.user?.username}/>
+    <AppFooter user={data.user}/>
   </footer>
 </div>
 
@@ -49,7 +49,6 @@
 
   .app-main {
     flex: 1;
-    height: 100%;
     overflow: hidden; /* Prevent scrolling at this level */
     position: relative; /* For absolute positioning of children if needed */
     display: block;

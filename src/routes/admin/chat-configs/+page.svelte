@@ -1,17 +1,22 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import type { ChatConfig, Llm } from '$lib/server/db/schema'
-  import { encryptString } from '$lib/helpers/encryptString'
-  import '$lib/styles/actionButtons.css'
+  import { onMount } from 'svelte';
+  import { tick } from 'svelte';
+
+  import type { ChatConfig, Llm } from '$lib/server/db/schema';
+  import { encryptString } from '$lib/helpers/encryptString';
+  import '$lib/styles/actionButtons.css';
+  import FeedbackButtonConfig from '$lib/components/FeedbackButtonConfig.svelte';
+  import FeedbackButton from '$lib/components/chat/FeedbackButton.svelte'
 
   // State
-  let chatConfigs = $state<ChatConfig[]>([])
-  let llms = $state<Llm[]>([])
-  let isLoading = $state(true)
-  let error = $state<string | null>(null)
-  let showCreateForm = $state(false)
-  let editingConfig = $state<ChatConfig | null>(null)
-  let isDeleting = $state<string | null>(null)
+  let chatConfigs = $state<ChatConfig[]>([]);
+  let llms = $state<Llm[]>([]);
+  let isLoading = $state(true);
+  let error = $state<string | null>(null);
+  let showCreateForm = $state(false);
+  let editingConfig = $state<ChatConfig | null>(null);
+  let isDeleting = $state<string | null>(null);
+  let pulse = $state(false);
 
   // Form state
   let formData = $state<Partial<ChatConfig>>({
@@ -19,16 +24,26 @@
     isDefault: false,
     description: '',
     introduction: '',
-    feedbackButtonLabel0: '',
-    feedbackButtonLabel1: '',
-    feedbackButtonLabel2: '',
-    feedbackButtonLabel3: '',
-    feedbackButtonLabel4: '',
     feedbackButtonValue0: '',
     feedbackButtonValue1: '',
     feedbackButtonValue2: '',
     feedbackButtonValue3: '',
     feedbackButtonValue4: '',
+    feedbackButtonLabel0: '',
+    feedbackButtonLabel1: '',
+    feedbackButtonLabel2: '',
+    feedbackButtonLabel3: '',
+    feedbackButtonLabel4: '',
+    feedbackButtonTitle0: '',
+    feedbackButtonTitle1: '',
+    feedbackButtonTitle2: '',
+    feedbackButtonTitle3: '',
+    feedbackButtonTitle4: '',
+    feedbackButtonIcon0: '',
+    feedbackButtonIcon1: '',
+    feedbackButtonIcon2: '',
+    feedbackButtonIcon3: '',
+    feedbackButtonIcon4: '',
     feedbackButtonLlmText0: '',
     feedbackButtonLlmText1: '',
     feedbackButtonLlmText2: '',
@@ -48,51 +63,59 @@
     llmId: '',
     llmInstructions: '',
     llmTemperature: 0.7,
-    llmMaxTokens: 1000
-  })
+    llmMaxTokens: 1000,
+  });
 
   onMount(async () => {
     try {
-      await fetchChatConfigs()
-      await fetchLlms()
+      await fetchChatConfigs();
+      await fetchLlms();
     } catch (err) {
-      error = err instanceof Error ? err.message : 'An error occurred'
+      error = err instanceof Error ? err.message : 'An error occurred';
     } finally {
-      isLoading = false
+      isLoading = false;
     }
-  })
+  });
+
+  let feedbackButtons = $derived([
+    { value: formData.feedbackButtonValue0, label: formData.feedbackButtonLabel0, title: formData.feedbackButtonTitle0, icon: formData.feedbackButtonIcon0 },
+    { value: formData.feedbackButtonValue1, label: formData.feedbackButtonLabel1, title: formData.feedbackButtonTitle1, icon: formData.feedbackButtonIcon1 },
+    { value: formData.feedbackButtonValue2, label: formData.feedbackButtonLabel2, title: formData.feedbackButtonTitle2, icon: formData.feedbackButtonIcon2 },
+    { value: formData.feedbackButtonValue3, label: formData.feedbackButtonLabel3, title: formData.feedbackButtonTitle3, icon: formData.feedbackButtonIcon3 },
+    { value: formData.feedbackButtonValue4, label: formData.feedbackButtonLabel4, title: formData.feedbackButtonTitle4, icon: formData.feedbackButtonIcon4 },
+  ].filter(b => b.value))
 
   async function fetchChatConfigs() {
     try {
-      const response = await fetch('/api/chat-configs')
-      const data = await response.json()
+      const response = await fetch('/api/chat-configs');
+      const data = await response.json();
 
       if (data.error) {
-        error = data.error
-        return
+        error = data.error;
+        return;
       }
 
-      chatConfigs = data.chatConfigs || []
+      chatConfigs = data.chatConfigs || [];
     } catch (err) {
-      console.error('Error fetching chat configs:', err)
-      error = err instanceof Error ? err.message : 'Failed to fetch chat configurations'
+      console.error('Error fetching chat configs:', err);
+      error = err instanceof Error ? err.message : 'Failed to fetch chat configurations';
     }
   }
 
   async function fetchLlms() {
     try {
-      const response = await fetch('/api/llms')
-      const data = await response.json()
+      const response = await fetch('/api/llms');
+      const data = await response.json();
 
       if (data.error) {
-        error = data.error
-        return
+        error = data.error;
+        return;
       }
 
-      llms = data.llms || []
+      llms = data.llms || [];
     } catch (err) {
-      console.error('Error fetching LLMs:', err)
-      error = err instanceof Error ? err.message : 'Failed to fetch LLM models'
+      console.error('Error fetching LLMs:', err);
+      error = err instanceof Error ? err.message : 'Failed to fetch LLM models';
     }
   }
 
@@ -102,16 +125,26 @@
       isDefault: false,
       description: '',
       introduction: '',
-      feedbackButtonLabel0: '',
-      feedbackButtonLabel1: '',
-      feedbackButtonLabel2: '',
-      feedbackButtonLabel3: '',
-      feedbackButtonLabel4: '',
       feedbackButtonValue0: '',
       feedbackButtonValue1: '',
       feedbackButtonValue2: '',
       feedbackButtonValue3: '',
       feedbackButtonValue4: '',
+      feedbackButtonLabel0: '',
+      feedbackButtonLabel1: '',
+      feedbackButtonLabel2: '',
+      feedbackButtonLabel3: '',
+      feedbackButtonLabel4: '',
+      feedbackButtonTitle0: '',
+      feedbackButtonTitle1: '',
+      feedbackButtonTitle2: '',
+      feedbackButtonTitle3: '',
+      feedbackButtonTitle4: '',
+      feedbackButtonIcon0: '',
+      feedbackButtonIcon1: '',
+      feedbackButtonIcon2: '',
+      feedbackButtonIcon3: '',
+      feedbackButtonIcon4: '',
       feedbackButtonLlmText0: '',
       feedbackButtonLlmText1: '',
       feedbackButtonLlmText2: '',
@@ -132,43 +165,43 @@
       llmInstructions: '',
       llmTemperature: 0.7,
       llmMaxTokens: 1000
-    }
-    editingConfig = null
+    };
+    editingConfig = null;
   }
 
   function showCreateConfigForm() {
-    resetForm()
-    showCreateForm = true
+    resetForm();
+    showCreateForm = true;
   }
 
   function hideForm() {
-    showCreateForm = false
-    editingConfig = null
+    showCreateForm = false;
+    editingConfig = null;
   }
 
   function editConfig(config: ChatConfig) {
-    editingConfig = config
-    formData = { ...config }
-    showCreateForm = true
+    editingConfig = config;
+    formData = { ...config };
+    showCreateForm = true;
   }
 
   const onSubmit = async (event: Event) => {
-    event.preventDefault()
+    event.preventDefault();
 
     try {
       if (!formData.id) {
-        error = 'ID is required'
-        return
+        error = 'ID is required';
+        return;
       }
 
       if (!formData.llmId) {
-        error = 'LLM model is required'
-        return
+        error = 'LLM model is required';
+        return;
       }
 
       if (!formData.llmInstructions) {
-        error = 'Instructions are required'
-        return
+        error = 'Instructions are required';
+        return;
       }
 
       const changes: Partial<ChatConfig> = {
@@ -177,16 +210,26 @@
         description: formData.description,
         caption: formData.caption,
         introduction: formData.introduction,
-        feedbackButtonLabel0: formData.feedbackButtonLabel0,
-        feedbackButtonLabel1: formData.feedbackButtonLabel1,
-        feedbackButtonLabel2: formData.feedbackButtonLabel2,
-        feedbackButtonLabel3: formData.feedbackButtonLabel3,
-        feedbackButtonLabel4: formData.feedbackButtonLabel4,
         feedbackButtonValue0: formData.feedbackButtonValue0,
         feedbackButtonValue1: formData.feedbackButtonValue1,
         feedbackButtonValue2: formData.feedbackButtonValue2,
         feedbackButtonValue3: formData.feedbackButtonValue3,
         feedbackButtonValue4: formData.feedbackButtonValue4,
+        feedbackButtonLabel0: formData.feedbackButtonLabel0,
+        feedbackButtonLabel1: formData.feedbackButtonLabel1,
+        feedbackButtonLabel2: formData.feedbackButtonLabel2,
+        feedbackButtonLabel3: formData.feedbackButtonLabel3,
+        feedbackButtonLabel4: formData.feedbackButtonLabel4,
+        feedbackButtonTitle0: formData.feedbackButtonTitle0,
+        feedbackButtonTitle1: formData.feedbackButtonTitle1,
+        feedbackButtonTitle2: formData.feedbackButtonTitle2,
+        feedbackButtonTitle3: formData.feedbackButtonTitle3,
+        feedbackButtonTitle4: formData.feedbackButtonTitle4,
+        feedbackButtonIcon0: formData.feedbackButtonIcon0,
+        feedbackButtonIcon1: formData.feedbackButtonIcon1,
+        feedbackButtonIcon2: formData.feedbackButtonIcon2,
+        feedbackButtonIcon3: formData.feedbackButtonIcon3,
+        feedbackButtonIcon4: formData.feedbackButtonIcon4,
         feedbackButtonLlmText0: formData.feedbackButtonLlmText0,
         feedbackButtonLlmText1: formData.feedbackButtonLlmText1,
         feedbackButtonLlmText2: formData.feedbackButtonLlmText2,
@@ -211,16 +254,16 @@
           : '',
         llmTemperature: formData.llmTemperature,
         llmMaxTokens: formData.llmMaxTokens,
-      }
+      };
 
       // console.log('Form data at submission:', changes);
 
-      const isEditing = !!editingConfig
+      const isEditing = !!editingConfig;
       const url = isEditing && editingConfig
         ? `/api/chat-configs/${editingConfig.id}`
-        : '/api/chat-configs'
+        : '/api/chat-configs';
 
-      const method = isEditing ? 'PUT' : 'POST'
+      const method = isEditing ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
@@ -228,64 +271,73 @@
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(changes)
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.error) {
-        error = data.error
-        return
+        error = data.error;
+        return;
       }
 
       // Refresh the list
-      await fetchChatConfigs()
+      await fetchChatConfigs();
 
       // Hide the form
-      hideForm()
+      hideForm();
 
       // Show success message
-      error = null
+      error = null;
     } catch (err) {
-      console.error('Error saving chat config:', err)
-      error = err instanceof Error ? err.message : 'Failed to save chat configuration'
+      console.error('Error saving chat config:', err);
+      error = err instanceof Error ? err.message : 'Failed to save chat configuration';
     }
-  }
+  };
 
   async function deleteConfig(id: string) {
     if (!confirm(`Are you sure you want to delete the configuration "${id}"? This action cannot be undone.`)) {
-      return
+      return;
     }
 
     try {
-      isDeleting = id
+      isDeleting = id;
 
       const response = await fetch(`/api/chat-configs/${id}`, {
         method: 'DELETE'
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.error) {
-        error = data.error
-        return
+        error = data.error;
+        return;
       }
 
       // Refresh the list
-      await fetchChatConfigs()
+      await fetchChatConfigs();
 
       // Show success message
-      error = null
+      error = null;
     } catch (err) {
-      console.error('Error deleting chat config:', err)
-      error = err instanceof Error ? err.message : 'Failed to delete chat configuration'
+      console.error('Error deleting chat config:', err);
+      error = err instanceof Error ? err.message : 'Failed to delete chat configuration';
     } finally {
-      isDeleting = null
+      isDeleting = null;
     }
   }
 
   function formatDate(dateString: string | Date) {
-    const date = new Date(dateString)
-    return date.toLocaleString()
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  }
+
+  const onChange = async () => {
+    formData = { ...formData };
+    pulse = false;
+    await tick();
+    const el = document.querySelector('.feedback-button-preview') as HTMLElement;
+    if (el) el.offsetWidth;
+    pulse = true;
   }
 </script>
 
@@ -322,7 +374,7 @@
 
         <div class="form-group checkbox">
           <label>
-            <input type="checkbox" bind:checked={formData.isDefault}/>
+            <input type="checkbox" bind:checked={formData.isDefault} />
             Set as default configuration
           </label>
           <small>If checked, this will be the default configuration for new chats</small>
@@ -351,105 +403,38 @@
         </div>
 
         <div class="form-parent-group">
-          <div class="form-parent-group-caption">Feedback Button For AI Assistant Messages</div>
-          <div class="form-parent-group-subcaption">Value/label for the first button shown below each AI assistant message</div>
-          <div class="form-group">
-            <div class="feedback-button-caption">Button #1</div>
-            <div class="feedback-button-row">
-              <div class="feedback-button-col">
-                <label for="feedbackButtonLabel0">Label</label>
-                <input
-                  type="text"
-                  id="feedbackButtonLabel0"
-                  bind:value={formData.feedbackButtonLabel0}
-                  placeholder="Helpful"
-                />
-              </div>
-              <div class="feedback-button-col">
-                <label for="feedbackButtonValue0">Value</label>
-                <input
-                  type="text"
-                  id="feedbackButtonValue0"
-                  bind:value={formData.feedbackButtonValue0}
-                  placeholder="helpful"
-                />
-              </div>
-              <div class="feedback-button-col-last">
-                <label for="feedbackButtonLabel0">Text for LLM</label>
-                <input
-                  type="text"
-                  id="feedbackButtonLabel0"
-                  bind:value={formData.feedbackButtonLlmText0}
-                  placeholder="The user found your response helpful"
-                />
-              </div>
-            </div>
+          <div class="form-parent-group-caption">
+            Feedback Button For AI Assistant Messages
           </div>
-
-          <div class="form-group">
-            <div class="feedback-button-caption">Button #2</div>
-            <div class="feedback-button-row">
-              <div class="feedback-button-col">
-                <label for="feedbackButtonLabel1">Label</label>
-                <input
-                  type="text"
-                  id="feedbackButtonLabel1"
-                  bind:value={formData.feedbackButtonLabel1}
-                  placeholder="Not Helpful"
-                />
-              </div>
-              <div class="feedback-button-col">
-                <label for="feedbackButtonValue1">Value</label>
-                <input
-                  type="text"
-                  id="feedbackButtonValue1"
-                  bind:value={formData.feedbackButtonValue1}
-                  placeholder="not-helpful"
-                />
-              </div>
-              <div class="feedback-button-col-last">
-                <label for="feedbackButtonLabel1">Text for LLM</label>
-                <input
-                  type="text"
-                  id="feedbackButtonLabel1"
-                  bind:value={formData.feedbackButtonLlmText1}
-                  placeholder="The user found your response not helpful"
-                />
-              </div>
-            </div>
+          <div class="form-parent-group-subcaption">
+            Value/label for the first button shown below each AI assistant message
           </div>
-
+          <div class="feedback-button-preview-caption">Preview:</div>
+          <div class="feedback-button-preview {pulse ? 'pulse' : ''}">
+            {#each feedbackButtons as feedbackButton}
+              <FeedbackButton
+                value={feedbackButton.value}
+                label={feedbackButton.label}
+                title={feedbackButton.title}
+                icon={feedbackButton.icon}
+                onClick={() => {}}
+              />
+            {/each}
+          </div>
           <div class="form-group">
-            <div class="feedback-button-caption">Button #3</div>
-            <div class="feedback-button-row">
-              <div class="feedback-button-col">
-                <label for="feedbackButtonLabel2">Label</label>
-                <input
-                  type="text"
-                  id="feedbackButtonLabel2"
-                  bind:value={formData.feedbackButtonLabel2}
-                  placeholder="Wrong"
-                />
-              </div>
-              <div class="feedback-button-col">
-                <label for="feedbackButtonValue2">Value</label>
-                <input
-                  type="text"
-                  id="feedbackButtonValue2"
-                  bind:value={formData.feedbackButtonValue2}
-                  placeholder="wrong"
-                />
-              </div>
-              <div class="feedback-button-col-last">
-                <label for="feedbackButtonLabel2">Text for LLM</label>
-                <input
-                  type="text"
-                  id="feedbackButtonLabel2"
-                  bind:value={formData.feedbackButtonLlmText2}
-                  placeholder="The user felt your response was wrong"
-                />
-              </div>
-            </div>
+            <FeedbackButtonConfig buttonNumber={0} formData={formData} {onChange} />
+          </div>
+          <div class="form-group">
+            <FeedbackButtonConfig buttonNumber={1} formData={formData} {onChange} />
+          </div>
+          <div class="form-group">
+            <FeedbackButtonConfig buttonNumber={2} formData={formData} {onChange} />
+          </div>
+          <div class="form-group">
+            <FeedbackButtonConfig buttonNumber={3} formData={formData} {onChange} />
+          </div>
+          <div class="form-group">
+            <FeedbackButtonConfig buttonNumber={4} formData={formData} {onChange} />
           </div>
         </div>
 
@@ -457,106 +442,6 @@
           <div class="form-parent-group-caption">Feedback Questions</div>
           <div class="form-parent-group-subcaption">
             These questions are shown to the user on the feedback form after ending the chat.
-          </div>
-          <div class="form-group">
-            <label for="description">Question #1</label>
-            <input
-              type="text"
-              id="feedbackQuestion0"
-              bind:value={formData.feedbackQuestion0}
-              placeholder="Tell us about your experience..."
-            />
-            <small>This question is shown to the user on the feedback form</small>
-          </div>
-
-          <div class="form-group">
-            <label for="description">Question #2</label>
-            <input
-              type="text"
-              id="feedbackQuestion1"
-              bind:value={formData.feedbackQuestion1}
-              placeholder="Tell us about your experience..."
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="description">Question #3</label>
-            <input
-              type="text"
-              id="feedbackQuestion2"
-              bind:value={formData.feedbackQuestion2}
-              placeholder="Tell us about your experience..."
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="description">Question #4</label>
-            <input
-              type="text"
-              id="feedbackQuestion3"
-              bind:value={formData.feedbackQuestion3}
-              placeholder="Tell us about your experience..."
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="description">Question #5</label>
-            <input
-              type="text"
-              id="feedbackQuestion4"
-              bind:value={formData.feedbackQuestion4}
-              placeholder="Tell us about your experience..."
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="description">Feedback Question #6</label>
-            <input
-              type="text"
-              id="feedbackQuestion5"
-              bind:value={formData.feedbackQuestion5}
-              placeholder="Tell us about your experience..."
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="description">Feedback Question #7</label>
-            <input
-              type="text"
-              id="feedbackQuestion6"
-              bind:value={formData.feedbackQuestion6}
-              placeholder="Tell us about your experience..."
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="description">Feedback Question #8</label>
-            <input
-              type="text"
-              id="feedbackQuestion7"
-              bind:value={formData.feedbackQuestion7}
-              placeholder="Tell us about your experience..."
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="description">Feedback Question #9</label>
-            <input
-              type="text"
-              id="feedbackQuestion8"
-              bind:value={formData.feedbackQuestion8}
-              placeholder="Tell us about your experience..."
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="description">Feedback Question #10</label>
-            <input
-              type="text"
-              id="feedbackQuestion9"
-              bind:value={formData.feedbackQuestion9}
-              placeholder="Tell us about your experience..."
-            />
           </div>
         </div>
 
@@ -641,56 +526,56 @@
     <div class="scrollable-table">
       <table class="configs-table">
         <thead>
-        <tr>
-          <th>ID</th>
-          <th>LLM Model</th>
-          <th>Default</th>
-          <th>Last Updated</th>
-        </tr>
+          <tr>
+            <th>ID</th>
+            <th>LLM Model</th>
+            <th>Default</th>
+            <th>Last Updated</th>
+          </tr>
         </thead>
         <tbody>
-        {#each chatConfigs as config}
-          <tr>
-            <td>{config.id}</td>
-            <td>{config.llmId}</td>
-            <td>{config.isDefault ? '✓' : ''}</td>
-            <td>{formatDate(config.updatedAt)}</td>
-            <td class="action-buttons">
-              <button
-                class="action-button edit-button"
-                onclick={() => editConfig(config)}
-                title="Edit configuration"
-                aria-label="Edit configuration"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                     stroke-linejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
-              </button>
-              <button
-                class="action-button delete-button"
-                onclick={() => deleteConfig(config.id)}
-                disabled={isDeleting === config.id}
-                title="Delete configuration"
-                aria-label="Delete configuration"
-              >
-                {#if isDeleting === config.id}
-                  <div class="button-spinner"></div>
-                {:else}
+          {#each chatConfigs as config}
+            <tr>
+              <td>{config.id}</td>
+              <td>{config.llmId}</td>
+              <td>{config.isDefault ? '✓' : ''}</td>
+              <td>{formatDate(config.updatedAt)}</td>
+              <td class="action-buttons">
+                <button
+                  class="action-button edit-button"
+                  onclick={() => editConfig(config)}
+                  title="Edit configuration"
+                  aria-label="Edit configuration"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                       fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                       stroke-linejoin="round">
-                    <path d="M3 6h18"></path>
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                   </svg>
-                {/if}
-              </button>
-            </td>
-          </tr>
-        {/each}
+                </button>
+                <button
+                  class="action-button delete-button"
+                  onclick={() => deleteConfig(config.id)}
+                  disabled={isDeleting === config.id}
+                  title="Delete configuration"
+                  aria-label="Delete configuration"
+                >
+                  {#if isDeleting === config.id}
+                    <div class="button-spinner"></div>
+                  {:else}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <path d="M3 6h18"></path>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    </svg>
+                  {/if}
+                </button>
+              </td>
+            </tr>
+          {/each}
         </tbody>
       </table>
     </div>
@@ -961,21 +846,25 @@
     margin-bottom: 1rem;
   }
 
-  .feedback-button-caption {
+  .feedback-button-preview-caption {
     font-weight: 500;
     color: #333;
+    margin-bottom: .2rem;
   }
 
-  .feedback-button-row {
+  .feedback-button-preview {
     display: flex;
+    margin-bottom: 1rem;
+    gap: .8rem;
   }
 
-  .feedback-button-col {
-    margin-right: 2rem;
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 #2196f366; }
+    70% { box-shadow: 0 0 0 10px #2196f300; }
+    100% { box-shadow: 0 0 0 0 #2196f300; }
   }
 
-  .feedback-button-col-last {
-    flex-grow: 1;
-    margin-right: 2rem;
+  .feedback-button-preview.pulse {
+    animation: pulse 1.5s;
   }
 </style>

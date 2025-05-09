@@ -1,11 +1,7 @@
 <script lang="ts">
-  let {
-    isSignedIn,
-    username,
-  } = $props<{
-    isSignedIn: boolean;
-    username: string;
-  }>();
+  import type { User } from '$lib/server/db/schema'
+
+  let { user } = $props<{ user?: User }>();
 </script>
 
 <footer class="app-footer">
@@ -14,12 +10,12 @@
     &nbsp;|&nbsp; <a href="https://resources.micromentor.org/privacy-policy/">Privacy Policy</a>
     &nbsp;|&nbsp; <a href="https://resources.micromentor.org/terms-of-use/">Terms Of Use</a>
     &nbsp;|&nbsp; <a href="https://micromentor.org/contact">Contact</a>
-    {#if !isSignedIn}
+    {#if user}
+      &nbsp;|&nbsp; Signed in as {user?.username}
+      &nbsp;|&nbsp; Built with Svelte 5
+    {:else}
       &nbsp;|&nbsp; <a href="/login">Login</a>
       &nbsp;|&nbsp; <a href="/register">Register</a>
-    {:else}
-      &nbsp;|&nbsp; Signed in as {username}
-      &nbsp;|&nbsp; Built with Svelte 5
     {/if}
   </div>
 </footer>
