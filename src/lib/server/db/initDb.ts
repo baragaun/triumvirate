@@ -75,7 +75,7 @@ export const initDb = async (recreate = false) => {
           feedback_button_title_1 VARCHAR(255),
           feedback_button_title_2 VARCHAR(255),
           feedback_button_title_3 VARCHAR(255),
-          feedback_button_title_4 VARCHAR(20),
+          feedback_button_title_4 VARCHAR(255),
           feedback_button_icon_0 VARCHAR(255),
           feedback_button_icon_1 VARCHAR(255),
           feedback_button_icon_2 VARCHAR(255),
