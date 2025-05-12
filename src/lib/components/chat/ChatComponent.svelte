@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import type { Chat, ChatConfig, ChatMessage, Llm } from '$lib/server/db/schema';
+  import { onMount, getContext } from 'svelte';
+  import type { Chat, ChatConfig, ChatMessage, Llm, User } from '$lib/server/db/schema';
   import type {
     ChangeChatMessageResponse,
     GenerateChatMessageResponse,
@@ -32,6 +32,8 @@
     updateChatConfig: (changes: Partial<ChatConfig>) => Promise<string>;
     onEndChat: () => void;
   }>();
+
+  const user = getContext<User | null>('user');
 
   // Wrapper for deleteChat that adds confirmation
   const onDeleteChat = (): void => {
@@ -449,7 +451,7 @@
         cost: ${chat.cost}
       </span>
       <span>
-        {#if chat.mode === ChatMode.tuning}
+        {#if chat.mode === ChatMode.tuning || user}
           <button class="edit-settings-button" onclick={() => openLlmSettings()} title="Edit settings" aria-label="Edit settings">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>

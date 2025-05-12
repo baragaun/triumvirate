@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Chat, ChatMessage } from '$lib/server/db/schema'
-  import { ChatMessageFeedback } from '$lib/enums';
+  import FeedbackButton from '$lib/components/chat/FeedbackButton.svelte'
 
   const {
     chat,
@@ -11,6 +11,14 @@
     message: ChatMessage;
     updateChatMessage: (changes: Partial<ChatMessage>) => void;
   }>();
+
+  const feedbackButtons = [
+    { value: chat.feedbackButtonValue0, label: chat.feedbackButtonLabel0, title: chat.feedbackButtonTitle0, icon: chat.feedbackButtonIcon0 },
+    { value: chat.feedbackButtonValue1, label: chat.feedbackButtonLabel1, title: chat.feedbackButtonTitle1, icon: chat.feedbackButtonIcon1 },
+    { value: chat.feedbackButtonValue2, label: chat.feedbackButtonLabel2, title: chat.feedbackButtonTitle2, icon: chat.feedbackButtonIcon2 },
+    { value: chat.feedbackButtonValue3, label: chat.feedbackButtonLabel3, title: chat.feedbackButtonTitle3, icon: chat.feedbackButtonIcon3 },
+    { value: chat.feedbackButtonValue4, label: chat.feedbackButtonLabel4, title: chat.feedbackButtonTitle4, icon: chat.feedbackButtonIcon4 },
+  ].filter(b => b.value)
 
   // State
   let feedback = $state<string | null>(message.feedback || null);
@@ -40,38 +48,15 @@
     </div>
   {:else}
     <div class="feedback-buttons">
-      <button
-        class="feedback-button"
-        onclick={() => onSaveFeedback(chat.feedbackButtonValue0)}
-        title="This response was helpful"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-        </svg>
-        {chat.feedbackButtonLabel0}
-      </button>
-      <button
-        class="feedback-button"
-        onclick={() => onSaveFeedback(chat.feedbackButtonValue1)}
-        title="This response was not helpful"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
-        </svg>
-        {chat.feedbackButtonLabel1}
-      </button>
-      <button
-        class="feedback-button"
-        onclick={() => onSaveFeedback(chat.feedbackButtonValue2)}
-        title="This response contains incorrect information"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="15" y1="9" x2="9" y2="15"></line>
-          <line x1="9" y1="9" x2="15" y2="15"></line>
-        </svg>
-        {chat.feedbackButtonLabel2}
-      </button>
+      {#each feedbackButtons as feedbackButton}
+        <FeedbackButton
+          value={feedbackButton.value}
+          label={feedbackButton.label}
+          title={feedbackButton.title}
+          icon={feedbackButton.icon}
+          onClick={onSaveFeedback}
+        />
+      {/each}
     </div>
   {/if}
 </div>
@@ -93,30 +78,6 @@
     gap: 0.3rem;
     flex-wrap: wrap;
     margin-bottom: 0;
-  }
-
-  .feedback-button {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.15rem 0.4rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-    color: #555;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .feedback-button:hover {
-    background-color: #e9e9e9;
-    border-color: #ccc;
-  }
-
-  .feedback-button svg {
-    width: 14px;
-    height: 14px;
   }
 
   .feedback-submitted {
