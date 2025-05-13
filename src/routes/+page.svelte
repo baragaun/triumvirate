@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import type { PageData } from './$types';
+  import EditorContentRenderer from '$lib/components/EditorContentRenderer.svelte'
 
   // Get data from props
   let { data } = $props<{ data: PageData }>();
@@ -9,6 +10,7 @@
   let username = $state('');
   let isLoading = $state(false);
   let error = $state<string | null>(null);
+  let introduction = data.defaultChatConfig?.introduction || 'Thank you for helping us optimize the new mentoring assistant experience!';
 
   // Computed property to check if form is valid
   let isFormValid = $derived(username.trim() !== '');
@@ -57,11 +59,6 @@
 
 <div class="landing-page">
 <div class="container">
-  <header>
-    <h1>Welcome to Micromentor&apos;s Assistant Test</h1>
-    <p class="subtitle">Thank you for helping us optimize the new mentoring assistant experience!</p>
-  </header>
-
   <main>
     {#if isLoading}
       <div class="loading-container">
@@ -71,6 +68,9 @@
     {:else}
       <div class="welcome-container">
         <div class="welcome-content">
+          <div class="introduction">
+            <EditorContentRenderer contentData={introduction} />
+          </div>
 
           <div class="form-group">
             <label for="username">What is your name?</label>
@@ -128,21 +128,6 @@
     z-index: 1;
   }
 
-  header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding-top: 2rem;
-    animation: fadeIn 1s ease-in-out;
-  }
-
-  h1 {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    font-weight: 700;
-  }
-
   .subtitle {
     color: white;
     font-size: 1.2rem;
@@ -194,8 +179,8 @@
     background-color: white;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    padding: 3rem;
-    max-width: 500px;
+    padding: 2rem;
+    max-width: 1000px;
     width: 100%;
     text-align: center;
     animation: slideUp 0.8s ease-out;
@@ -208,6 +193,15 @@
     margin-bottom: 2rem;
     font-size: 1.1rem;
     line-height: 1.6;
+  }
+
+  .introduction {
+    text-align: left;
+    margin-bottom: 2rem;
+  }
+
+  .editor-content-display h2 {
+    margin-top: 0;
   }
 
   .form-group {
@@ -323,10 +317,6 @@
     .welcome-content {
       padding: 2rem;
       margin: 0 1rem;
-    }
-
-    h1 {
-      font-size: 2.5rem;
     }
   }
 </style>

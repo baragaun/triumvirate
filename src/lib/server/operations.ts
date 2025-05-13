@@ -39,6 +39,7 @@ import { upsertChatMessage } from '$lib/server/chatMessage/upsertChatMessage'
 import { upsertLlm } from '$lib/server/llm/upsertLlm'
 import { upsertUser } from '$lib/server/user/upsertUser'
 import dataStore from '$lib/server/dataStore';
+import { findDefaultChatConfig } from '$lib/server/chatConfig/findDefaultChatConfig'
 
 const operations = {
   startServer,
@@ -81,6 +82,7 @@ const operations = {
     create: createChatConfig,
     delete: deleteChatConfig,
     find: findChatConfigs,
+    findDefault: findDefaultChatConfig,
     findOne: findChatConfig,
     import: importChatConfigs,
     update: updateChatConfig,
