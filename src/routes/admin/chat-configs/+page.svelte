@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { tick } from 'svelte';
+  import EditorJS, { type OutputData } from '@editorjs/editorjs'
 
   import type { ChatConfig, Llm } from '$lib/server/db/schema';
   import { encryptString } from '$lib/helpers/encryptString';
@@ -17,6 +18,7 @@
   let editingConfig = $state<ChatConfig | null>(null);
   let isDeleting = $state<string | null>(null);
   let pulse = $state(false);
+  let editor: EditorJS | null = null;
 
   // Form state
   let formData = $state<Partial<ChatConfig>>({
@@ -66,8 +68,15 @@
     llmMaxTokens: 1000,
   });
 
+  let introductionData = $state<OutputData | null>(null);
+
   onMount(async () => {
     try {
+      if (editor) {
+        // Clean up editor when component is destroyed
+        editor.destroy();
+        editor = null;
+      }
       await fetchChatConfigs();
       await fetchLlms();
     } catch (err) {
@@ -119,6 +128,101 @@
     }
   }
 
+  // Initialize EditorJS
+  async function initializeEditor() {
+    if (editor) {
+      await editor.isReady;
+      editor.destroy();
+    }
+
+    try {
+      // Import required EditorJS tools
+      const Header = (await import('@editorjs/header')).default;
+      const List = (await import('@editorjs/list')).default;
+      const Paragraph = (await import('@editorjs/paragraph')).default;
+
+      // Parse introductionData if it exists
+      let initialData = { blocks: [] };
+      if (introductionData) {
+        try {
+          initialData = typeof introductionData === 'string'
+            ? JSON.parse(introductionData)
+            : introductionData;
+
+          // Find any list blocks
+          const listBlocks = introductionData.blocks.filter(block => block.type === 'list');
+          if (listBlocks.length > 0) {
+            console.log('List blocks to be saved:', JSON.stringify(listBlocks, null, 2));
+          }
+        } catch (e) {
+          console.error('Error parsing editor data:', e);
+          // If parsing fails, create a paragraph from the introduction text
+          if (formData.introduction) {
+            initialData = {
+              blocks: [{
+                type: 'paragraph',
+                data: {
+                  text: formData.introduction
+                }
+              }]
+            };
+          }
+        }
+      } else if (formData.introduction) {
+        // If only plain text is available, convert it to EditorJS format
+        initialData = {
+          blocks: [{
+            type: 'paragraph',
+            data: {
+              text: formData.introduction
+            }
+          }]
+        };
+      }
+
+      // Initialize the editor
+      editor = new EditorJS({
+        holder: 'editorjs',
+        tools: {
+          header: {
+            class: Header,
+            inlineToolbar: true,
+            config: {
+              levels: [2, 3, 4],
+              defaultLevel: 2
+            }
+          },
+          list: {
+            class: List,
+            inlineToolbar: true
+          },
+          paragraph: {
+            class: Paragraph,
+            inlineToolbar: true
+          }
+        },
+        data: initialData,
+        placeholder: 'Type your introduction here...',
+        onChange: async () => {
+          // Get data from editor when it changes
+          if (editor) {
+            const data: OutputData = await editor.save();
+            introductionData = data;
+
+            // Update the plain text version for backward compatibility
+            const plainText = data.blocks
+              .map(block => block.data.text || '')
+              .join('\n\n');
+            formData.introduction = plainText;
+          }
+        }
+      });
+    } catch (err) {
+      console.error('Error initializing EditorJS:', err);
+      error = err instanceof Error ? err.message : 'Failed to initialize editor';
+    }
+  }
+
   function resetForm() {
     formData = {
       id: '',
@@ -166,29 +270,96 @@
       llmTemperature: 0.7,
       llmMaxTokens: 1000
     };
+    introductionData = null;
     editingConfig = null;
+
+    // Reset editor if it exists
+    if (editor) {
+      editor.blocks.clear();
+    }
   }
 
-  function showCreateConfigForm() {
+  async function showCreateConfigForm() {
     resetForm();
     showCreateForm = true;
+
+    // Initialize editor after DOM update
+    await tick();
+    await initializeEditor();
   }
 
-  function hideForm() {
+  async function hideForm() {
+    // Clean up editor
+    if (editor) {
+      await editor.isReady;
+      editor.destroy();
+      editor = null;
+    }
+
     showCreateForm = false;
     editingConfig = null;
   }
 
-  function editConfig(config: ChatConfig) {
+  async function editConfig(config: ChatConfig) {
     editingConfig = config;
+
+    // Make a deep copy of the config
     formData = { ...config };
+
+    try {
+      // Parse the introduction data if it exists
+      if (config.introduction) {
+        introductionData = JSON.parse(config.introduction);
+      } else {
+        introductionData = null;
+      }
+    } catch (e) {
+      console.error('Error parsing introduction data:', e);
+      introductionData = null;
+    }
+
+    // Show the form
     showCreateForm = true;
+
+    // Wait for the DOM to update
+    await tick();
+
+    // Initialize editor with the config's data
+    await initializeEditor();
   }
 
   const onSubmit = async (event: Event) => {
     event.preventDefault();
 
     try {
+      // Get the final editor data before submitting
+      if (editor) {
+        introductionData = await editor.save();
+        if (introductionData && introductionData.blocks) {
+          // Normalize list blocks before saving
+          introductionData.blocks = introductionData.blocks.map(block => {
+            if (block.type === 'list') {
+              // Create a deep copy to avoid modifying the original
+              const normalizedBlock = JSON.parse(JSON.stringify(block));
+
+              // Convert complex items to simple strings if needed
+              if (normalizedBlock.data && normalizedBlock.data.items && Array.isArray(normalizedBlock.data.items)) {
+                normalizedBlock.data.items = normalizedBlock.data.items.map(item =>
+                  typeof item === 'object' && item.content !== undefined ?
+                    item.content :
+                    String(item)
+                );
+              }
+
+              return normalizedBlock;
+            }
+            return block;
+          });
+
+          console.log('Normalized blocks for saving:', JSON.stringify(introductionData.blocks, null, 2));
+        }
+      }
+
       if (!formData.id) {
         error = 'ID is required';
         return;
@@ -209,7 +380,9 @@
         isDefault: formData.isDefault,
         description: formData.description,
         caption: formData.caption,
-        introduction: formData.introduction,
+        introduction: introductionData
+          ? JSON.stringify(introductionData)
+          : null,
         feedbackButtonValue0: formData.feedbackButtonValue0,
         feedbackButtonValue1: formData.feedbackButtonValue1,
         feedbackButtonValue2: formData.feedbackButtonValue2,
@@ -283,8 +456,8 @@
       // Refresh the list
       await fetchChatConfigs();
 
-      // Hide the form
-      hideForm();
+      // Hide the form and clean up
+      await hideForm();
 
       // Show success message
       error = null;
@@ -392,14 +565,11 @@
         </div>
 
         <div class="form-group">
-          <label for="description">Introduction</label>
-          <textarea
-            id="introduction"
-            bind:value={formData.introduction}
-            rows="3"
-            placeholder="Introduction for the user..."
-          ></textarea>
-          <small>An introduction shown to the user</small>
+          <label for="introduction">Introduction</label>
+          <div class="editor-container">
+            <div id="editorjs" class="editor-content"></div>
+          </div>
+          <small>An introduction shown to the user with rich formatting</small>
         </div>
 
         <div class="form-parent-group">
@@ -526,56 +696,57 @@
     <div class="scrollable-table">
       <table class="configs-table">
         <thead>
-          <tr>
-            <th>ID</th>
-            <th>LLM Model</th>
-            <th>Default</th>
-            <th>Last Updated</th>
-          </tr>
+        <tr>
+          <th>ID</th>
+          <th>LLM Model</th>
+          <th>Default</th>
+          <th>Last Updated</th>
+          <th>Actions</th>
+        </tr>
         </thead>
         <tbody>
-          {#each chatConfigs as config}
-            <tr>
-              <td>{config.id}</td>
-              <td>{config.llmId}</td>
-              <td>{config.isDefault ? '✓' : ''}</td>
-              <td>{formatDate(config.updatedAt)}</td>
-              <td class="action-buttons">
-                <button
-                  class="action-button edit-button"
-                  onclick={() => editConfig(config)}
-                  title="Edit configuration"
-                  aria-label="Edit configuration"
-                >
+        {#each chatConfigs as config}
+          <tr>
+            <td>{config.id}</td>
+            <td>{config.llmId}</td>
+            <td>{config.isDefault ? '✓' : ''}</td>
+            <td>{formatDate(config.updatedAt)}</td>
+            <td class="action-buttons">
+              <button
+                class="action-button edit-button"
+                onclick={() => editConfig(config)}
+                title="Edit configuration"
+                aria-label="Edit configuration"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button
+                class="action-button delete-button"
+                onclick={() => deleteConfig(config.id)}
+                disabled={isDeleting === config.id}
+                title="Delete configuration"
+                aria-label="Delete configuration"
+              >
+                {#if isDeleting === config.id}
+                  <div class="button-spinner"></div>
+                {:else}
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                       fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                       stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
                   </svg>
-                </button>
-                <button
-                  class="action-button delete-button"
-                  onclick={() => deleteConfig(config.id)}
-                  disabled={isDeleting === config.id}
-                  title="Delete configuration"
-                  aria-label="Delete configuration"
-                >
-                  {#if isDeleting === config.id}
-                    <div class="button-spinner"></div>
-                  {:else}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                      stroke-linejoin="round">
-                      <path d="M3 6h18"></path>
-                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                    </svg>
-                  {/if}
-                </button>
-              </td>
-            </tr>
-          {/each}
+                {/if}
+              </button>
+            </td>
+          </tr>
+        {/each}
         </tbody>
       </table>
     </div>
@@ -866,5 +1037,48 @@
 
   .feedback-button-preview.pulse {
     animation: pulse 1.5s;
+  }
+
+  /* EditorJS Specific Styles */
+  .editor-container {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-height: 200px;
+    margin-bottom: 0.5rem;
+    background-color: white;
+  }
+
+  .editor-content {
+    padding: 0.5rem;
+    min-height: 180px;
+  }
+
+  /* Global styles for EditorJS */
+  :global(.ce-block__content) {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  :global(.ce-toolbar__content) {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  :global(.cdx-block) {
+    padding: 0.5rem 0;
+  }
+
+  :global(.ce-header) {
+    padding: 0.5rem 0;
+  }
+
+  /* Button spinner for delete action */
+  .button-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
   }
 </style>

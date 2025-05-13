@@ -1,7 +1,7 @@
 {
 	"name": "ai-playground",
 	"private": true,
-	"version": "0.0.16",
+	"version": "0.0.17",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -47,6 +47,10 @@
 		"@aws-sdk/client-bedrock-runtime": "^3.787.0",
 		"@aws-sdk/credential-provider-node": "^3.787.0",
 		"@aws-sdk/credential-providers": "^3.787.0",
+		"@editorjs/editorjs": "^2.30.8",
+		"@editorjs/header": "^2.8.8",
+		"@editorjs/list": "^2.0.8",
+		"@editorjs/paragraph": "^2.11.7",
 		"@libsql/client": "^0.14.0",
 		"@node-rs/argon2": "^2.0.2",
 		"@oslojs/crypto": "^1.0.1",
