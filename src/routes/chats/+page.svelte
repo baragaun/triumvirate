@@ -2,11 +2,11 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import type { PageData } from './$types';
-  import type { ChatInfo } from '$lib/types';
+  import type { ChatCreationRequestData, ChatInfo } from '$lib/types'
   import type { Chat, ChatConfig } from '$lib/server/db/schema';
-  import NewChatForm from './NewChatForm.svelte';
   import { ChatMode } from '$lib/enums';
   import { encryptString } from '$lib/helpers/encryptString'
+  import NewChatForm from '$lib/components/chats/NewChatForm.svelte'
 
   let { data } = $props<{ data: PageData }>();
 
@@ -124,9 +124,8 @@
       return;
     }
 
-    isLoading = true;
-    try {
-      const chatProps: Partial<Chat> = {
+    const requestData: ChatCreationRequestData = {
+      props: {
         username: user?.username || getUserName(),
         title: title || undefined,
         caption: selectedChatConfig.caption || undefined,
@@ -142,13 +141,17 @@
           : null,
         llmMaxTokens: selectedChatConfig.llmMaxTokens || 1000,
         // Note: The server will use the logged-in user's ID from the session if available
-      };
+      },
+      user,
+    };
 
+    isLoading = true;
+    try {
       // Send the request to the API
       const response = await fetch('/api/chats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(chatProps)
+        body: JSON.stringify(requestData)
       });
 
       const data: ChatInfo = await response.json();

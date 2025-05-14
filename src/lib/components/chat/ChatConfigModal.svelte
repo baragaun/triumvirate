@@ -222,7 +222,7 @@
           <select id="configId" bind:value={configId}>
             <option value="">None</option>
             {#each chatConfigs as config (config.id)}
-              <option value={config.id}>{config.id} - {config.description || 'No description'}</option>
+              <option value={config.id}>{config.name}{config.description ? ` - ${config.description}` : ''}</option>
             {/each}
           </select>
           <div class="save-config-help">

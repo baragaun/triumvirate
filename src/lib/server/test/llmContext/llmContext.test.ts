@@ -16,6 +16,7 @@ describe('ChatConfig CRUD Operations', () => {
       // Create a new chat config
       const result = await createChatConfig({
         id: 'config-id-123',
+        name: 'config-id-123',
         isDefault: false,
         description: 'Test Config',
         caption: 'Test Caption',

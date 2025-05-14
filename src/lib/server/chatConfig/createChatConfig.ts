@@ -9,8 +9,8 @@ export async function createChatConfig(props: ChatConfig): Promise<ChangeObjectR
   try {
     const db = dataStore.db.get();
 
-    if (!props.id) {
-      return { error: 'ID is required.' };
+    if (!props.name) {
+      return { error: 'Name is required.' };
     }
 
     if (!props.llmId) {
@@ -21,8 +21,10 @@ export async function createChatConfig(props: ChatConfig): Promise<ChangeObjectR
       await db.update(table.chatConfig).set({ isDefault: false });
     }
 
+    const id = generateId();
     const values: ChatConfig = {
-      id: props.id || generateId(),
+      id: props.id || id,
+      name: props.name,
       isDefault: props.isDefault ?? false,
       description: props.description || null,
       caption: props.caption || null,

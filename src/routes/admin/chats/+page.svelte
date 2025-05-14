@@ -204,7 +204,7 @@
   function getChatConfigName(configId: string | null) {
     if (!configId) return '-';
     const config = chatConfigs.find(c => c.id === configId);
-    return config ? (config.caption || config.id) : configId;
+    return config ? (config.name || config.id) : configId;
   }
 </script>
 
@@ -271,7 +271,7 @@
           <select id="config-id" bind:value={formData.configId}>
             <option value="">None</option>
             {#each chatConfigs as config}
-              <option value={config.id}>{config.caption || config.id}</option>
+              <option value={config.id}>{config.name || config.id}</option>
             {/each}
           </select>
         </div>

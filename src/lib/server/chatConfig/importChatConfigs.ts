@@ -52,6 +52,7 @@ export const importChatConfigs = async (): Promise<ChatConfig[]> => {
 
       const config: ChatConfig = {
         id: configDir,
+        name: configJson.name || configDir,
         isDefault: configJson.isDefault ?? configDir === 'default',
         description,
         caption: configJson.caption || null,

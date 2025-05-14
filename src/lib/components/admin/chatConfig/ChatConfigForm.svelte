@@ -31,6 +31,7 @@
   let editor: EditorJS | null = null;
   let formData = $state<Partial<ChatConfig>>({
     id: chatConfig.id || '',
+    name: chatConfig.name || '',
     isDefault: chatConfig.isDefault,
     description: chatConfig.description || '',
     introduction: chatConfig.introduction || '',
@@ -182,8 +183,8 @@
         }
       }
 
-      if (!formData.id) {
-        error = 'ID is required';
+      if (!formData.name) {
+        error = 'Name is required';
         return;
       }
 
@@ -199,6 +200,7 @@
 
       const changes: Partial<ChatConfig> = {
         id: formData.id,
+        name: formData.name,
         isDefault: formData.isDefault,
         description: formData.description,
         caption: formData.caption,
@@ -284,14 +286,13 @@
 
     <form onsubmit={handleSubmit} class="full-height-form">
       <div class="form-group">
-        <label for="id">ID</label>
+        <label for="id">Name</label>
         <input
           type="text"
-          id="id"
-          bind:value={formData.id}
+          name="name"
+          bind:value={formData.name}
           required
-          disabled={!chatConfig.id}
-          placeholder="unique-config-id"
+          placeholder="unique-name"
         />
         <small>A unique identifier for this configuration</small>
       </div>

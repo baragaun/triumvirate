@@ -69,6 +69,7 @@ export const initDb = async (recreate = false) => {
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS chat_configs (
           id varchar(255) PRIMARY KEY NOT NULL,
+          name varchar(50) NOT NULL,
           description TEXT,
           is_default BOOLEAN NOT NULL DEFAULT FALSE,
           caption varchar(255),
@@ -118,6 +119,7 @@ export const initDb = async (recreate = false) => {
           FOREIGN KEY (llm_id) REFERENCES llms(id) ON UPDATE NO ACTION ON DELETE NO ACTION
         );
         create index if not exists chat_configs_is_default_index on chat_configs (is_default);
+        create unique index chat_configs_name_index on chat_configs (name);
       `);
 
       await db.execute(sql`

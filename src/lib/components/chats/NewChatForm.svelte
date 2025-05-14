@@ -17,8 +17,8 @@
   $effect(() => {
     if (chatConfigs.length > 0) {
       selectedConfigId = chatConfigs.find((config: ChatConfig) => config.isDefault)?.id ||
-                        chatConfigs.find((config: ChatConfig) => config.id === 'default')?.id ||
-                        chatConfigs[0]?.id || '';
+        chatConfigs.find((config: ChatConfig) => config.isDefault)?.id ||
+        chatConfigs[0]?.id || '';
     }
   });
 
@@ -75,7 +75,7 @@
       <option value="" disabled>Select a configuration</option>
       {#each chatConfigs as config}
         <option value={config.id}>
-          [{config.id}] - {config.description} {config.isDefault ? '(Default)' : ''}
+          [{config.name}] - {config.description} {config.isDefault ? '(Default)' : ''}
         </option>
       {/each}
     </select>
