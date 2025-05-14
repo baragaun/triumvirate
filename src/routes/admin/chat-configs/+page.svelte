@@ -10,6 +10,7 @@
   let llms = $state<Llm[]>([]);
   let isLoading = $state(true);
   let error = $state<string | null>(null);
+  let success = $state<string | null>(null);
   let editingConfig = $state<Partial<ChatConfig> | null>(null);
   let isDeleting = $state<string | null>(null);
 
@@ -104,6 +105,12 @@
 
       // Show success message
       error = null;
+      success = isEditing ? 'Configuration updated successfully!' : 'Configuration created successfully!';
+      
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => {
+        success = null;
+      }, 3000);
     } catch (err) {
       console.error('Error saving chat config:', err);
       error = err instanceof Error ? err.message : 'Failed to save chat configuration';
@@ -134,6 +141,12 @@
 
       // Show success message
       error = null;
+      success = 'Configuration deleted successfully!';
+      
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => {
+        success = null;
+      }, 3000);
     } catch (err) {
       console.error('Error deleting chat config:', err);
       error = err instanceof Error ? err.message : 'Failed to delete chat configuration';
@@ -146,6 +159,11 @@
     const date = new Date(dateString);
     return date.toLocaleString();
   }
+  
+  function getLlmName(llmId: string): string {
+    const llm = llms.find(l => l.id === llmId);
+    return llm ? `${llm.name} (${llm.provider})` : llmId;
+  }
 </script>
 
 <div class="admin-container">
@@ -153,6 +171,13 @@
     <div class="error-message">
       <p>{error}</p>
       <button onclick={() => error = null}>Dismiss</button>
+    </div>
+  {/if}
+  
+  {#if success}
+    <div class="success-message">
+      <p>{success}</p>
+      <button onclick={() => success = null}>Dismiss</button>
     </div>
   {/if}
 
@@ -168,9 +193,6 @@
       onCancel={hideForm}
       onSubmit={onSubmit}
     />
-    <div class="form-container">
-      <h2>{editingConfig ? 'Edit Chat Configuration' : 'Create Chat Configuration'}</h2>
-    </div>
   {:else if chatConfigs.length === 0}
     <div class="empty-state">
       <p>No chat configurations found.</p>
@@ -192,7 +214,7 @@
         {#each chatConfigs as config}
           <tr>
             <td>{config.id}</td>
-            <td>{config.llmId}</td>
+            <td>{getLlmName(config.llmId)}</td>
             <td>{config.isDefault ? '✓' : ''}</td>
             <td>{formatDate(config.updatedAt)}</td>
             <td class="action-buttons">
@@ -289,6 +311,25 @@
     background: none;
     border: none;
     color: #c62828;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .success-message {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .success-message button {
+    background: none;
+    border: none;
+    color: #2e7d32;
     cursor: pointer;
     font-weight: 500;
   }
