@@ -17,6 +17,10 @@ export const initDb = async (recreate = false) => {
       console.log('Initializing database...');
 
       await db.execute(sql`
+        create database if not exists triumvirate;
+      `);
+
+      await db.execute(sql`
         drop table if exists chat_messages;
         drop table if exists chats;
         drop table if exists chat_configs;
@@ -31,10 +35,16 @@ export const initDb = async (recreate = false) => {
           username varchar(255) NOT NULL UNIQUE,
           password_hash varchar(255),
           is_admin BOOLEAN NOT NULL DEFAULT FALSE,
-          metadata JSON,
+          is_staff BOOLEAN NOT NULL DEFAULT FALSE,
+          metadata JSONB,
+          track_id varchar(255),
+          client_info JSONB,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL
-        )
+        );
+        
+        create index if not exists users_username_index on users (username);
+        create index if not exists users_is_admin_index on users (is_admin);
       `);
 
       await db.execute(sql`
@@ -51,7 +61,9 @@ export const initDb = async (recreate = false) => {
           is_available BOOLEAN NOT NULL DEFAULT TRUE,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL
-        )
+        );
+        create index if not exists llms_name_index on llms (name);
+        create index if not exists llms_provider_index on llms (provider);
       `);
 
       await db.execute(sql`
@@ -104,7 +116,8 @@ export const initDb = async (recreate = false) => {
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
           FOREIGN KEY (llm_id) REFERENCES llms(id) ON UPDATE NO ACTION ON DELETE NO ACTION
-        )
+        );
+        create index if not exists chat_configs_is_default_index on chat_configs (is_default);
       `);
 
       await db.execute(sql`
@@ -124,7 +137,7 @@ export const initDb = async (recreate = false) => {
           input_tokens INTEGER NOT NULL DEFAULT 0,
           output_tokens INTEGER NOT NULL DEFAULT 0,
           cost REAL NOT NULL DEFAULT 0,
-          metadata JSON,
+          metadata JSONB,
           feedback TEXT,
           rating INTEGER,
           feedback_button_value_0 VARCHAR(20),
@@ -178,7 +191,11 @@ export const initDb = async (recreate = false) => {
           FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE NO ACTION ON DELETE NO ACTION,
           FOREIGN KEY (config_id) REFERENCES chat_configs(id) ON UPDATE NO ACTION ON DELETE NO ACTION,
           FOREIGN KEY (llm_id) REFERENCES llms(id) ON UPDATE NO ACTION ON DELETE NO ACTION
-        )
+        );
+        create index if not exists chats_config_id_index on chats (config_id);
+        create index if not exists chats_user_id_index on chats (user_id);
+        create index if not exists chats_user_name_index on chats (user_name);
+        create index if not exists chats_llm_id_index on chats (llm_id);
       `);
 
       await db.execute(sql`
@@ -199,14 +216,17 @@ export const initDb = async (recreate = false) => {
           input_tokens INTEGER NOT NULL DEFAULT 0,
           output_tokens INTEGER NOT NULL DEFAULT 0,
           cost REAL NOT NULL DEFAULT 0,
-          metadata JSON,
+          metadata JSONB,
           feedback TEXT,
           rating INTEGER,
           response_time INTEGER NOT NULL DEFAULT 0,
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
           FOREIGN KEY (chat_id) REFERENCES chats(id) ON UPDATE NO ACTION ON DELETE NO ACTION
-        )
+        );
+        create index if not exists chat_messages_chat_id_index on chat_messages (chat_id);
+        create index if not exists chat_messages_role_index on chat_messages (role);
+        create index if not exists chat_messages_iteration_index on chat_messages (iteration);
       `);
 
       await db.execute(sql`
@@ -217,7 +237,8 @@ export const initDb = async (recreate = false) => {
           created_at TIMESTAMP DEFAULT NOW() NOT NULL,
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL,
           FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE NO ACTION ON DELETE NO ACTION
-        )
+        );
+        create index if not exists sessions_user_id_index on sessions (user_id);
       `);
     }
 

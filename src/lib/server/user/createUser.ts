@@ -21,6 +21,9 @@ export async function createUser(props: Partial<User>, password?: string): Promi
       username: props.username || 'guest',
       passwordHash,
       isAdmin: props.isAdmin !== undefined ? props.isAdmin : false,
+      isStaff: props.isStaff !== undefined ? props.isStaff : false,
+      trackId: props.trackId || null,
+      clientInfo: props.clientInfo ? JSON.stringify(props.clientInfo) : null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

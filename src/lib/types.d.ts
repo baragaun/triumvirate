@@ -1,4 +1,4 @@
-import type { ChatMessage } from '$lib/server/db/schema'
+import type { Chat, ChatMessage } from '$lib/server/db/schema'
 
 export interface ChatInfo {
   error?: string;
@@ -63,4 +63,13 @@ export interface ChatMetadata {
     info?: string[];
     instructions?: string[];
   }
+}
+
+export interface ClientInfo {
+  httpHeaders?: Record<string, string>;
+}
+
+export interface ChatCreationRequestData {
+  props: Partial<Chat>;
+  user: Partial<User>;
 }

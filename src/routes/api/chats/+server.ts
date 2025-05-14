@@ -1,7 +1,7 @@
 import { json, type RequestEvent } from '@sveltejs/kit'
 import operations from '$lib/server/operations';
-import type { Chat } from '$lib/server/db/schema';
 import { decryptString } from '$lib/helpers/decryptString'
+import type { ChatCreationRequestData } from '$lib/types'
 
 export async function GET({ locals }: RequestEvent) {
   try {
@@ -25,24 +25,23 @@ export async function GET({ locals }: RequestEvent) {
 // Create a new chat
 export async function POST({ request, locals }: RequestEvent) {
   try {
-    const props: Partial<Chat> = await request.json();
+    const requestData: ChatCreationRequestData = await request.json();
+    console.log('api/chats POST request received', { requestData });
 
-    if (props.llmInstructions) {
+    if (requestData.props.llmInstructions) {
       // The app is sending this encrypted, to prevent security alarms.
-      props.llmInstructions = decryptString(props.llmInstructions);
+      requestData.props.llmInstructions = decryptString(requestData.props.llmInstructions);
     }
 
-    console.log('api/chats POST request received', { locals, props });
-
-    if (!props.username && locals.user?.username) {
-      props.username = locals.user.username;
+    if (!requestData.props.username && locals.user?.username) {
+      requestData.props.username = locals.user.username;
     }
 
-    if (!props.userId && locals.user?.id) {
-      props.userId = locals.user.id;
+    if (!requestData.props.userId && locals.user?.id) {
+      requestData.props.userId = locals.user.id;
     }
 
-    const response = await operations.chat.create(props);
+    const response = await operations.chat.create(requestData.props, requestData.user);
 
     if (response.error) {
       console.error('Failed to create chat:', response.error);

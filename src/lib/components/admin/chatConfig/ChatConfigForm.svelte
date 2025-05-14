@@ -117,6 +117,7 @@
         holder: 'editorjs',
         tools: {
           header: {
+            // @ts-ignore
             class: Header,
             config: {
               placeholder: 'Enter a header',
@@ -126,6 +127,7 @@
           },
           list: List,
           paragraph: {
+            // @ts-ignore
             class: Paragraph,
             inlineToolbar: true
           }
@@ -165,7 +167,7 @@
                 normalizedBlock.data.items &&
                 Array.isArray(normalizedBlock.data.items)
               ) {
-                normalizedBlock.data.items = normalizedBlock.data.items.map(item =>
+                normalizedBlock.data.items = normalizedBlock.data.items.map((item: any) =>
                   typeof item === 'object' && item.content !== undefined
                     ? item.content
                     : String(item)

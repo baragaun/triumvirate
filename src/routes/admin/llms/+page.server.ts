@@ -1,7 +1,6 @@
-import { redirect } from '@sveltejs/kit';
-import type { LocalsData } from '$lib/types';
+import { redirect, type RequestEvent } from '@sveltejs/kit'
 
-export const load = async ({ locals }: { locals: LocalsData }) => {
+export const load = async ({ locals }: RequestEvent) => {
   if (!locals.user || !locals.user?.isAdmin) {
     throw redirect(302, '/login?redirectTo=/admin/chat-configs');
   }
