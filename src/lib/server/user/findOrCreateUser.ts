@@ -28,7 +28,7 @@ export async function findOrCreateUser(
 
   const props: Partial<User> = {
     username: username || 'guest',
-    clientInfo: clientInfo ? JSON.stringify(clientInfo) : null,
+    clientInfo: clientInfo || null,
     trackId,
   };
 
