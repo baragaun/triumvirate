@@ -116,8 +116,9 @@ export const chatMessage = pgTable('chat_messages', {
 
 export const chatConfig = pgTable('chat_configs', {
 	id: text('id').primaryKey(),
+	name: text('name'),
 	isDefault: boolean('is_default').notNull().default(false),
-	description: text('description'), // Description of the chat config
+	description: text('description'),
 	caption: text('caption'),
 	introduction: text('introduction'),
 	feedbackButtonValue0: text('feedback_button_value_0'),

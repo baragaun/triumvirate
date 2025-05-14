@@ -231,28 +231,36 @@
     }
   };
 
-  const onSubmit = (event: Event): void => {
+  const onSubmit = async (event: Event): Promise<void> => {
     event.preventDefault();
-    upsertChatMessage(
+    await upsertChatMessage(
       editingMessageId
         ? { id: editingMessageId, content: inputText }
         : undefined
     );
     // Clear the editing state
     editingMessageId = null;
+    const textarea = document.getElementById('message-input') as HTMLTextAreaElement | null;
+    if (textarea) {
+      textarea.focus()
+    }
   }
 
-  const handleKeydown = (event: KeyboardEvent): void => {
+  const handleKeydown = async (event: KeyboardEvent): Promise<void> => {
     // Send message on Enter (without Shift)
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
-      upsertChatMessage(
+      await upsertChatMessage(
         editingMessageId
           ? { id: editingMessageId, content: inputText }
           : undefined
       );
       // Clear the editing state
       editingMessageId = null;
+      const textarea = document.getElementById('message-input') as HTMLTextAreaElement | null;
+      if (textarea) {
+        textarea.focus()
+      }
     }
   }
 
@@ -408,6 +416,7 @@
       {/if}
       <div class="input-container">
         <textarea
+          id="message-input"
           placeholder={editingMessageId ? "Edit your message..." : "Type your message..."}
           bind:value={inputText}
           onkeydown={handleKeydown}

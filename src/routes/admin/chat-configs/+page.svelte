@@ -10,6 +10,7 @@
   let llms = $state<Llm[]>([]);
   let isLoading = $state(true);
   let error = $state<string | null>(null);
+  let success = $state<string | null>(null);
   let editingConfig = $state<Partial<ChatConfig> | null>(null);
   let isDeleting = $state<string | null>(null);
 
@@ -74,12 +75,11 @@
     try {
       // console.log('Form data at submission:', changes);
 
-      const isEditing = !!editingConfig;
-      const url = isEditing && editingConfig
-        ? `/api/chat-configs/${editingConfig.id}`
+      const url = changes.id && editingConfig
+        ? `/api/chat-configs/${changes.id}`
         : '/api/chat-configs';
 
-      const method = isEditing ? 'PUT' : 'POST';
+      const method = changes.id ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
@@ -104,6 +104,12 @@
 
       // Show success message
       error = null;
+      success = changes.id ? 'Configuration updated successfully!' : 'Configuration created successfully!';
+
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => {
+        success = null;
+      }, 3000);
     } catch (err) {
       console.error('Error saving chat config:', err);
       error = err instanceof Error ? err.message : 'Failed to save chat configuration';
@@ -134,6 +140,12 @@
 
       // Show success message
       error = null;
+      success = 'Configuration deleted successfully!';
+
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => {
+        success = null;
+      }, 3000);
     } catch (err) {
       console.error('Error deleting chat config:', err);
       error = err instanceof Error ? err.message : 'Failed to delete chat configuration';
@@ -146,6 +158,15 @@
     const date = new Date(dateString);
     return date.toLocaleString();
   }
+
+  function getLlmName(llmId: string): string {
+    const llm = llms.find(l => l.id === llmId);
+    return llm ? `${llm.name} (${llm.provider})` : llmId;
+  }
+
+  async function duplicateConfig(config: ChatConfig) {
+    editingConfig = { ...config, id: undefined };
+  }
 </script>
 
 <div class="admin-container">
@@ -153,6 +174,13 @@
     <div class="error-message">
       <p>{error}</p>
       <button onclick={() => error = null}>Dismiss</button>
+    </div>
+  {/if}
+
+  {#if success}
+    <div class="success-message">
+      <p>{success}</p>
+      <button onclick={() => success = null}>Dismiss</button>
     </div>
   {/if}
 
@@ -168,9 +196,6 @@
       onCancel={hideForm}
       onSubmit={onSubmit}
     />
-    <div class="form-container">
-      <h2>{editingConfig ? 'Edit Chat Configuration' : 'Create Chat Configuration'}</h2>
-    </div>
   {:else if chatConfigs.length === 0}
     <div class="empty-state">
       <p>No chat configurations found.</p>
@@ -181,7 +206,7 @@
       <table class="configs-table">
         <thead>
         <tr>
-          <th>ID</th>
+          <th>Name</th>
           <th>LLM Model</th>
           <th>Default</th>
           <th>Last Updated</th>
@@ -191,8 +216,8 @@
         <tbody>
         {#each chatConfigs as config}
           <tr>
-            <td>{config.id}</td>
-            <td>{config.llmId}</td>
+            <td>{config.name}</td>
+            <td>{getLlmName(config.llmId)}</td>
             <td>{config.isDefault ? '✓' : ''}</td>
             <td>{formatDate(config.updatedAt)}</td>
             <td class="action-buttons">
@@ -227,6 +252,14 @@
                     <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
                   </svg>
                 {/if}
+              </button>
+              <button
+                class="action-button duplicate-button"
+                onclick={() => duplicateConfig(config)}
+                title="Duplicate configuration"
+                aria-label="Duplicate configuration"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M19,2H8A3,3,0,0,0,5,5V19a3,3,0,0,0,3,3H19a3,3,0,0,0,3-3V5A3,3,0,0,0,19,2Zm1,17a1,1,0,0,1-1,1H8a1,1,0,0,1-1-1V5A1,1,0,0,1,8,4H19a1,1,0,0,1,1,1ZM14,5V7H11V5H7V17h7V15h3v2a1,1,0,0,1-1,1H11a1,1,0,0,1-1-1V13H9v4a1,1,0,0,1-1,1H8a1,1,0,0,1-1-1V5A1,1,0,0,1,8,4h2V7h4V5Z"/></svg>
               </button>
             </td>
           </tr>
@@ -289,6 +322,25 @@
     background: none;
     border: none;
     color: #c62828;
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .success-message {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .success-message button {
+    background: none;
+    border: none;
+    color: #2e7d32;
     cursor: pointer;
     font-weight: 500;
   }

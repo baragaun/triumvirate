@@ -19,9 +19,9 @@ export async function load({ params, request, locals }: RequestEvent): Promise<T
       httpHeaders[key] = value;
     }
 
-    const chatConfigId = params.chatConfigId;
+    const name = params.name;
 
-    const chatConfig = await operations.chatConfig.findOne(chatConfigId);
+    const chatConfig = await operations.chatConfig.findByName(name);
     const user: Partial<User> = { ...locals.user }
     if (httpHeaders) {
       user.clientInfo = {
@@ -30,7 +30,7 @@ export async function load({ params, request, locals }: RequestEvent): Promise<T
     }
     return { chatConfig, user };
   } catch (err) {
-    console.error('routes/start/[chatConfigId]: error', err);
+    console.error('routes/start/[name]: error', err);
     throw error(500, 'System error');
   }
 }

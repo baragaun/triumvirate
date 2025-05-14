@@ -30,7 +30,7 @@ export async function POST({ request }: RequestEvent) {
     const props: ChatConfig = await request.json();
 
     // Validate required fields
-    if (!props.id || !props.llmInstructions) {
+    if (!props.name || !props.llmInstructions) {
       return json({
         error: 'Missing required fields: id and instructions are required'
       }, { status: 400 });
