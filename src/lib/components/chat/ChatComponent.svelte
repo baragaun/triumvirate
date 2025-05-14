@@ -66,11 +66,11 @@
   });
 
   const scrollToBottom = () => {
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       if (chatContainer) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
       }
-    }, 0);
+    });
   }
 
   const upsertChatMessage = async (messageProps?: Partial<ChatMessage>): Promise<void> => {
@@ -119,6 +119,7 @@
 
       // Set loading state to show the typing indicator
       isLoading = true;
+      scrollToBottom();
 
       if (messageProps.id && role === MessageRole.user) {
         // The use is editing an existing message. We are deleting all AI generated messages
