@@ -37,7 +37,7 @@
               }]
             };
           }
-        } else if (contentData.blocks && Array.isArray(contentData.blocks)) {
+        } else if ((contentData as any).blocks && Array.isArray((contentData as any).blocks)) {
           // Already an object with the correct structure
           content = contentData;
         } else {

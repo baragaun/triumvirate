@@ -1,11 +1,13 @@
 import { pgTable, text, timestamp, boolean, real, integer, json } from 'drizzle-orm/pg-core';
-
 export const user = pgTable('users', {
 	id: text('id').primaryKey(),
 	username: text('username').notNull().unique(),
 	passwordHash: text('password_hash'),
 	isAdmin: boolean('is_admin').notNull().default(false),
+	isStaff: boolean('is_staff').notNull().default(false),
 	metadata: json('metadata'),
+	trackId: text('track_id'),
+	clientInfo: json('client_info'),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });

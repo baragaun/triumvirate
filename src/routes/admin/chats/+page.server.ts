@@ -1,6 +1,6 @@
-import { redirect } from '@sveltejs/kit';
+import { redirect, type RequestEvent } from '@sveltejs/kit'
 
-export const load = async ({ locals }: { locals: { user?: { id: string, isAdmin: boolean } } }) => {
+export const load = async ({ locals }: RequestEvent) => {
   // Check if the user is logged in and is an admin
   if (!locals.user) {
     throw redirect(302, '/login?redirectTo=/admin/chats');

@@ -1,30 +1,73 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { page } from '$app/state';
   import { goto } from '$app/navigation';
+  import { page } from '$app/state';
   import type { PageData } from './$types';
   import EditorContentRenderer from '$lib/components/EditorContentRenderer.svelte'
+  import type { ChatCreationRequestData } from '$lib/types'
 
   // Props
   let { data } = $props<{ data: PageData }>();
 
   // State
-  let username = $state('');
+  let username = $state(data.user?.username || '');
   let isLoading = $state(false);
   let error = $state<string | null>(null);
-  let introduction = data.defaultChatConfig?.introduction || 'Thank you for helping us optimize the new mentoring assistant experience!';
+  let introduction = data.chatConfig?.introduction || 'Thank you for helping us optimize the new mentoring assistant experience!';
 
   // Computed property to check if form is valid
   let isFormValid = $derived(username.trim() !== '');
 
-  onMount(() => {
-    const trackId = page.url.searchParams.get('t')
-    if (trackId) {
-      goto(`/start/default?t=${trackId}`);
-    } else {
-      goto('/start/default');
+  const startAssistant = async (): Promise<void> => {
+    // Clear any previous error
+    error = null;
+
+    if (!isFormValid) {
+      error = 'Please enter your name to continue.';
+      return;
     }
-  });
+
+    isLoading = true;
+    const requestData: ChatCreationRequestData = {
+      props: {
+        userId: data.user?.id,
+        configId: data.chatConfig.id,
+        username: username.trim(),
+      },
+      user: {
+        ...data.user,
+        username: username.trim(),
+        trackId: page.url.searchParams.get('t'),
+      }
+    };
+
+    try {
+      const response = await fetch('/api/chats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+      });
+
+      const responseData = await response.json();
+
+      if (responseData.error) {
+        error = responseData.error;
+        return;
+      }
+
+      if (!responseData.chat) {
+        error = responseData.error || 'Failed to create chat';
+        return;
+      }
+
+      // Navigate to the chat with the username as a parameter
+      await goto(`/chats/${responseData.chat.id}?username=${encodeURIComponent(username)}`);
+    } catch (err) {
+      console.error('Error creating chat:', err);
+      error = err instanceof Error ? err.message : 'An unknown error occurred';
+    } finally {
+      isLoading = false;
+    }
+  };
 </script>
 
 <div class="landing-page">
@@ -98,16 +141,6 @@
     z-index: 1;
   }
 
-  .subtitle {
-    color: white;
-    font-size: 1.2rem;
-    max-width: 600px;
-    margin: 0 auto;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  }
-
-  /* h2 styles removed */
-
   main {
     flex: 1;
     display: flex;
@@ -168,10 +201,6 @@
   .introduction {
     text-align: left;
     margin-bottom: 2rem;
-  }
-
-  .editor-content-display h2 {
-    margin-top: 0;
   }
 
   .form-group {

@@ -180,6 +180,7 @@ export async function generateBedrockResponse(
     let metadata: ChatMetadata | undefined = undefined;
 
     if (MOCK) {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       generatedText = `This is a mock generated from the assistant #${iteration || '1'}.`;
     } else {
       const start = Date.now();

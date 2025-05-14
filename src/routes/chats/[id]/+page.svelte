@@ -34,6 +34,11 @@
 
   const updateChat = async (changes: Partial<Chat>, endChat = false): Promise<string> => {
     try {
+      if (!chat) {
+        console.error('updateChat: Chat is not defined');
+        return 'Chat is not defined';
+      }
+
       console.log('updateChat: changes:', changes);
       if (!changes.id) {
         changes.id = chat.id;
@@ -75,8 +80,13 @@
 
   const updateChatMessage = async (changes: Partial<ChatMessage>): Promise<string> => {
     try {
+      if (!chat) {
+        console.error('updateChatMessage: Chat is not defined');
+        return 'Chat is not defined';
+      }
+
       console.log('updateChatMessage: changes:', changes);
-      if (!changes.id) {
+      if (!changes.id && chat.id) {
         changes.id = chat.id;
       }
 
@@ -144,6 +154,11 @@
 
   const deleteChat = async (): Promise<void> => {
     try {
+      if (!chat) {
+        console.error('deleteChat: Chat is not defined');
+        return;
+      }
+
       console.log('deleteChat called.');
 
       const response = await fetch(`/api/chats/${chat.id}`, {
@@ -174,7 +189,7 @@
 
 <div class="container">
   <main>
-    {#if isLoading}
+    {#if !chat || isLoading}
       <div class="loading-container">
         <div class="loading-spinner"></div>
         <p>Loading...</p>

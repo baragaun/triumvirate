@@ -113,6 +113,10 @@
         inputText = '';
       }
 
+      if (!messageProps.id) {
+        chatMessages.push({ ...messageProps, id: '__NEW__' });
+      }
+
       // Set loading state to show the typing indicator
       isLoading = true;
 
@@ -155,11 +159,17 @@
 
       // console.log('Received messages', responseData.chatMessages);
 
+      const indexOfNewMessage = chatMessages.findIndex((m: ChatMessage) => m.id === '__NEW__');
       for (const msg of responseData.chatMessages) {
         if (msg.id === messageProps.id) {
           editingMessage.content = msg.content;
         } else {
-          chatMessages.push(msg);
+          if (indexOfNewMessage >= 0 && msg.role === MessageRole.user) {
+            chatMessages[indexOfNewMessage] = msg;
+          } else {
+            // If this is a new message, we need to add it to the array
+            chatMessages.push(msg);
+          }
 
           // If this is an AI response message, turn off the loading indicator
           if (msg.role === MessageRole.assistant) {

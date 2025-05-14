@@ -1,5 +1,5 @@
 import * as table from '$lib/server/db/schema';
-import { type Chat, type ChatMessage } from '$lib/server/db/schema';
+import { type Chat, type ChatMessage, type User } from '$lib/server/db/schema'
 
 import { generateId } from '$lib/server/helpers';
 import { findOrCreateUser } from '$lib/server/user/findOrCreateUser';
@@ -7,16 +7,23 @@ import { findChat } from '$lib/server/chat/findChat';
 import dataStore from '$lib/server/dataStore';
 import { ChatMode, MessageRole } from '$lib/enums'
 import { createChatMessage } from '$lib/server/chatMessage/createChatMessage';
-import type { ChatInfo } from '$lib/types';
+import type { ChatInfo, ClientInfo } from '$lib/types'
 import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
 
-export async function createChat(props: Partial<Chat>): Promise<ChatInfo> {
-  console.log('operations.chat.createChat called.', { props });
+export async function createChat(props: Partial<Chat>, userInfo?: Partial<User>): Promise<ChatInfo> {
+  console.log('operations.chat.createChat called.', { props, userInfo });
 
   const db = dataStore.db.get();
   const chatId = props.id || generateId();
   const chatConfig = await findChatConfig(props.configId || 'default');
-  const user = await findOrCreateUser(props.userId, props.username);
+  const userId = userInfo?.id || props.userId;
+  const username = userInfo?.username || props.username;
+  const user = await findOrCreateUser(
+    userId,
+    username,
+    userInfo?.clientInfo as ClientInfo | null,
+    userInfo?.trackId,
+  );
 
   if (!chatConfig) {
     console.error('Error creating chat: Chat config not found', { props });
