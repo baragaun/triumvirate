@@ -16,8 +16,8 @@ describe('compileLlmInstructions', () => {
     const textStageA = compileLlmInstructions(llmContext, 'A');
     const textStageB = compileLlmInstructions(llmContext, 'B');
 
-    expect(textStageA.replaceAll('\n', '').startsWith('## Core Purpose')).toBeTruthy;
-    expect(textStageB.replaceAll('\n', '').startsWith('## Core Purpose')).toBeTruthy;
+    expect(textStageA.replaceAll('\n', '').startsWith('## Core Purpose')).toBeTruthy();
+    expect(textStageB.replaceAll('\n', '').startsWith('## Core Purpose')).toBeTruthy();
   });
 
   test('compileLlmInstructions compiles the context text from the LlmContext object', async () => {
