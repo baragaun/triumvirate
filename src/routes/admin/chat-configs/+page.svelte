@@ -165,7 +165,7 @@
   }
 
   async function duplicateConfig(config: ChatConfig) {
-    editingConfig = { ...config, id: undefined };
+    editingConfig = { ...config, id: undefined, isDefault: false };
   }
 </script>
 

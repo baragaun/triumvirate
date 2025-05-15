@@ -37,6 +37,7 @@ export const chat = pgTable('chats', {
 	outputTokens: integer('output_tokens').notNull().default(0),
 	cost: real('cost').notNull().default(0),
 	metadata: json('metadata'),
+	stage: text('stage'),
 	feedback: text('feedback'), // User feedback on the chat
 	feedbackButtonValue0: text('feedback_button_value_0'),
 	feedbackButtonValue1: text('feedback_button_value_1'),
@@ -93,6 +94,7 @@ export const chatMessage = pgTable('chat_messages', {
 	id: text('id').primaryKey(),
 	chatId: text('chat_id').notNull().references(() => chat.id),
 	role: text('role').notNull(), // 'user', 'assistant', or 'platform'
+	stage: text('stage'),
 	content: text('content').notNull(),
 	iteration: integer('iteration'),
 	sendToLlm: boolean('send_to_llm').notNull().default(true),

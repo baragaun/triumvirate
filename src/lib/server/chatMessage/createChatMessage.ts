@@ -8,8 +8,9 @@ import dataStore from '$lib/server/dataStore'
 import { ChatMode, MessageRole } from '$lib/enums'
 import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
 import { findChat } from '$lib/server/chat/findChat'
-import type { ChangeChatMessageResponse } from '$lib/types'
+import type { ChangeChatMessageResponse, ChatMetadata } from '$lib/types'
 import { generateBedrockResponse } from '$lib/server/bedrock/generateBedrockResponse'
+import { updateUserMetadata } from '$lib/server/user/updateUserMetadata'
 
 export async function createChatMessage(
   props: Partial<ChatMessage>,
@@ -38,10 +39,21 @@ export async function createChatMessage(
       return { error: 'Chat config not found' };
     }
 
+    // The LLM may have changed the stage of the chat with this response.
+    let stage = props.stage || chat.stage || null;
+    if (
+      props.role === MessageRole.assistant &&
+      props.metadata &&
+      (props.metadata as ChatMetadata).chat_stage
+    ) {
+      stage = (props.metadata as ChatMetadata).chat_stage || null
+    }
+
     const values: ChatMessage = {
       id: messageId,
       chatId: props.chatId,
       role: props.role || MessageRole.user,
+      stage,
       content: props.content,
       iteration: null,
       sendToLlm: props.sendToLlm ?? true,
@@ -104,22 +116,31 @@ export async function createChatMessage(
       if (!isNaN(chatMessage.cost) && chatMessage.cost > 0) {
         chatChanges.cost = (chat.cost || 0) + chatMessage.cost;
       }
-      if (chatMessage.metadata) {
-        chatChanges.metadata = chatMessage.metadata;
+      if (props.metadata) {
+        if (chat.metadata) {
+          chatChanges.metadata = {
+            ...chat.metadata,
+            ...props.metadata,
+            updatedAt: new Date(),
+          };
+        } else {
+          chatChanges.metadata = props.metadata;
+        }
       }
+    }
+
+    if (stage && stage !== chat.stage) {
+      chatChanges.stage = stage;
     }
 
     await db.update(table.chat)
       .set(chatChanges)
       .where(eq(table.chat.id, props.chatId));
 
-    if (props.metadata && chat.userId) {
-      await db.update(table.user)
-        .set({
-          metadata: props.metadata,
-          updatedAt: new Date(),
-        })
-        .where(eq(table.user.id, chat.userId));
+    if (props.metadata) {
+      if (chat.userId) {
+        await updateUserMetadata(chat.userId, props.metadata);
+      }
     }
 
     return { chatMessages };

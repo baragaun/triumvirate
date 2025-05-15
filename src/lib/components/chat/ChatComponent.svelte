@@ -49,13 +49,17 @@
   let chatContainer: HTMLElement;
   let showReplacedResponses = $state(false); // show/hide AI responses that were replaced later
   let showMetadata = $state(false); // show/hide AI responses that were replaced later
-  let showMetadataToggle = $derived(!!chat.metadata);
   let showSettingsModal = $state(false);
   let editingMessageId = $state<string | null>(null);
   let listRevision = $state(0);
   let lastMessageId = $derived(chatMessages[chatMessages.length - 1]?.id);
   let userMessages = $derived(chatMessages.filter((m: ChatMessage) => m.role === MessageRole.user));
   let lastUserMessageId = $derived(userMessages[userMessages.length - 1]?.id);
+  let showMetadataToggle = $derived(
+    chatMessages &&
+    chatMessages.length > 0 &&
+    chatMessages.some((m: ChatMessage) => m.metadata)
+  );
 
   onMount(() => {
     if (!chat) {
@@ -66,11 +70,11 @@
   });
 
   const scrollToBottom = () => {
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       if (chatContainer) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
       }
-    }, 0);
+    });
   }
 
   const upsertChatMessage = async (messageProps?: Partial<ChatMessage>): Promise<void> => {
@@ -119,6 +123,7 @@
 
       // Set loading state to show the typing indicator
       isLoading = true;
+      scrollToBottom();
 
       if (messageProps.id && role === MessageRole.user) {
         // The use is editing an existing message. We are deleting all AI generated messages

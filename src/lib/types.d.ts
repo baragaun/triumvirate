@@ -40,29 +40,11 @@ export interface LocalsData {
   }
 }
 
-export interface AdviceData {
-  value: string;
-  confidence: number;
-  specificity: number;
-  approved?: boolean;
-}
-
 export interface ChatMetadata {
-  from_ai: {
-    chat_quality?: number;
-    user_willingness?: number;
-    is_bad_actor?: number;
-    goal_reached?: number;
-    messages_to_goal?: number;
-    notes_from_ai?: string;
-    concerns?: string[];
-    advice?: AdviceData[];
-    data?: Record<string, any>;
-  }
-  from_platform?: {
-    info?: string[];
-    instructions?: string[];
-  }
+  chat_stage?: string;
+  is_bad_actor?: number;
+  notes_from_ai?: string;
+  data?: Record<string, any>;
 }
 
 export interface ClientInfo {
@@ -72,4 +54,35 @@ export interface ClientInfo {
 export interface ChatCreationRequestData {
   props: Partial<Chat>;
   user: Partial<User>;
+}
+
+export interface LlmContextVariable {
+  name: string;
+  type: string;
+  value: string | number | boolean;
+}
+
+export interface LlmContextInfo {
+  version: string;
+  date: string;
+  description: string;
+}
+
+export interface LlmContextChatStage {
+  key: string;
+  description: string;
+  blocks: string[];
+  enabled: boolean;
+}
+
+export interface LlmContextBlock {
+  key: string;
+  content: string;
+}
+
+export interface LlmContext {
+  info: LlmContextInfo;
+  stages: LlmContextChatStage[];
+  variables: LlmContextVariable[];
+  blocks: LlmContextBlock[];
 }
