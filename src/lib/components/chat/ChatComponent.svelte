@@ -55,6 +55,11 @@
   let lastMessageId = $derived(chatMessages[chatMessages.length - 1]?.id);
   let userMessages = $derived(chatMessages.filter((m: ChatMessage) => m.role === MessageRole.user));
   let lastUserMessageId = $derived(userMessages[userMessages.length - 1]?.id);
+  let showMetadataToggle = $derived(
+    chatMessages &&
+    chatMessages.length > 0 &&
+    chatMessages.some((m: ChatMessage) => m.metadata)
+  );
 
   onMount(() => {
     if (!chat) {
@@ -500,7 +505,7 @@
           </label>
           <span class="toggle-label">Show replaced responses</span>
         </div>
-        {#if chat.metadata}
+        {#if showMetadataToggle}
           <div class="toggle-container">
             <label class="toggle-switch">
               <input

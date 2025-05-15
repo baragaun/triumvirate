@@ -8,7 +8,7 @@ import dataStore from '$lib/server/dataStore'
 import { ChatMode, MessageRole } from '$lib/enums'
 import { findChatConfig } from '$lib/server/chatConfig/findChatConfig'
 import { findChat } from '$lib/server/chat/findChat'
-import type { ChangeChatMessageResponse } from '$lib/types'
+import type { ChangeChatMessageResponse, ChatMetadata } from '$lib/types'
 import { generateBedrockResponse } from '$lib/server/bedrock/generateBedrockResponse'
 import { updateUserMetadata } from '$lib/server/user/updateUserMetadata'
 
@@ -44,9 +44,9 @@ export async function createChatMessage(
     if (
       props.role === MessageRole.assistant &&
       props.metadata &&
-      (props.metadata as any).chat_stage
+      (props.metadata as ChatMetadata).chat_stage
     ) {
-      stage = (props.metadata as any).chat_stage
+      stage = (props.metadata as ChatMetadata).chat_stage || null
     }
 
     const values: ChatMessage = {
@@ -121,6 +121,7 @@ export async function createChatMessage(
           chatChanges.metadata = {
             ...chat.metadata,
             ...props.metadata,
+            updatedAt: new Date(),
           };
         } else {
           chatChanges.metadata = props.metadata;

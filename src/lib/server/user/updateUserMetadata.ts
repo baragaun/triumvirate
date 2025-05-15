@@ -29,6 +29,7 @@ export async function updateUserMetadata(
       metadata: user.metadata
         ? { ...user.metadata, ...metadata }
         : metadata,
+      updatedAt: new Date(),
     };
 
     // Filter out undefined or null values from the changes object

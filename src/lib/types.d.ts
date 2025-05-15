@@ -41,12 +41,10 @@ export interface LocalsData {
 }
 
 export interface ChatMetadata {
-  from_ai: {
-    chat_stage?: string;
-    is_bad_actor?: number;
-    notes_from_ai?: string;
-    data?: Record<string, any>;
-  }
+  chat_stage?: string;
+  is_bad_actor?: number;
+  notes_from_ai?: string;
+  data?: Record<string, any>;
 }
 
 export interface ClientInfo {
