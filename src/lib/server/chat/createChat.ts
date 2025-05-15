@@ -58,6 +58,7 @@ export async function createChat(props: Partial<Chat>, userInfo?: Partial<User>)
       outputTokens: props.outputTokens ?? 0,
       cost: props.cost ?? 0,
       metadata: props.metadata || null,
+      stage: props.stage || null,
       feedback: null,
       rating: null,
       feedbackButtonValue0: props.feedbackButtonValue0 || chatConfig.feedbackButtonValue0 || null,

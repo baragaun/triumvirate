@@ -15,6 +15,8 @@ import type { ChatMetadata, GenerateChatMessageResponse } from '$lib/types'
 import { updateChatMessage } from '$lib/server/chatMessage/updateChatMessage'
 import { env } from '$env/dynamic/private';
 import { findLlm } from '$lib/server/llm/findLlm'
+import { getCompiledLlmInstructionsForChat } from '$lib/server/chat/getCompiledLlmInstructionsForChat'
+import { getLlmContextObjectForChat } from '$lib/server/chat/getLlmContextObjectForChat'
 
 const MOCK = env.MOCK_AI_RESPONSES === 'true';
 
@@ -45,7 +47,6 @@ export async function generateBedrockResponse(
 
     let messages = await findChatMessages(chatId);
     let iteration: number | null = null;
-    let llmInstructions = chat.llmInstructions;
 
     if (messages.length > 0) {
       const previousMessage = messages[messages.length - 1];
@@ -88,9 +89,13 @@ export async function generateBedrockResponse(
       ? await findChatConfig(chat.configId || 'default')
       : null;
 
-    if (!llmInstructions && chatConfig?.llmInstructions) {
-      llmInstructions = chatConfig.llmInstructions;
+    const contextObject = await getLlmContextObjectForChat(chatId, chat, chatConfig);
+    const llmInstructions = await getCompiledLlmInstructionsForChat(chatId, chat, chatConfig);
+    if (!llmInstructions) {
+      console.error('Error generating response from Bedrock: LLM instructions not found');
+      return { error: 'LLM instructions not found' };
     }
+    console.log('LLM instructions:', llmInstructions);
 
     const llmId = chat.llmId || chatConfig?.llmId;
     const llmTemperature = chat.llmTemperature || chatConfig?.llmTemperature || 0.7;
@@ -102,6 +107,7 @@ export async function generateBedrockResponse(
     }
 
     const llm = await findLlm(llmId);
+    let stage = chat.stage || contextObject?.stages?.[0]?.key;
 
     if (llmInstructions) {
       if (chat.welcomeMessage || chatConfig?.welcomeMessage) {
@@ -109,6 +115,7 @@ export async function generateBedrockResponse(
           id: 'welcome',
           chatId: chat.id,
           role: MessageRole.assistant,
+          stage: '',
           content: chat.welcomeMessage || chatConfig?.welcomeMessage || '',
           iteration: null,
           sendToLlm: true,
@@ -134,6 +141,7 @@ export async function generateBedrockResponse(
         id: 'instructions',
         chatId: chat.id,
         role: MessageRole.user,
+        stage: '',
         content: llmInstructions,
         iteration: null,
         sendToLlm: true,
@@ -218,6 +226,7 @@ export async function generateBedrockResponse(
     const props: Partial<ChatMessage> = {
       chatId,
       role: 'assistant',
+      stage,
       content: generatedText,
       iteration,
       sendToUser: true,

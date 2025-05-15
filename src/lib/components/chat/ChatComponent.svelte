@@ -49,7 +49,6 @@
   let chatContainer: HTMLElement;
   let showReplacedResponses = $state(false); // show/hide AI responses that were replaced later
   let showMetadata = $state(false); // show/hide AI responses that were replaced later
-  let showMetadataToggle = $derived(!!chat.metadata);
   let showSettingsModal = $state(false);
   let editingMessageId = $state<string | null>(null);
   let listRevision = $state(0);
@@ -501,7 +500,7 @@
           </label>
           <span class="toggle-label">Show replaced responses</span>
         </div>
-        {#if showMetadataToggle}
+        {#if chat.metadata}
           <div class="toggle-container">
             <label class="toggle-switch">
               <input
