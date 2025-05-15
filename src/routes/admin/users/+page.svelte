@@ -299,7 +299,7 @@
   /* Simplified scrollable table */
   .scrollable-table {
     width: 100%;
-    max-height: 100vh;
+    max-height: 85vh;
     overflow: auto;
     margin-bottom: 1rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

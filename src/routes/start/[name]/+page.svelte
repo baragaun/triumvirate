@@ -70,81 +70,92 @@
   };
 </script>
 
-<div class="landing-page">
-<div class="container">
+<div class="page">
   <main>
-    {#if isLoading}
-      <div class="loading-container">
-        <div class="loading-spinner"></div>
-        <p>Loading assistant...</p>
-      </div>
-    {:else}
-      <div class="welcome-container">
-        <div class="welcome-content">
-          <div class="introduction">
-            <EditorContentRenderer contentData={introduction} />
+    <div class="content">
+      <div class="content-inner">
+        {#if isLoading}
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Loading assistant...</p>
           </div>
-
-          <div class="form-group">
-            <label for="username">What is your name?</label>
-            <input
-              type="text"
-              id="username"
-              bind:value={username}
-              placeholder="Enter your name"
-              required
-              oninput={() => error = null}
-            />
-          </div>
-
-          {#if error}
-            <div class="error-message">
-              <p>{error}</p>
+        {:else}
+          <div>
+            <div class="introduction">
+              <EditorContentRenderer contentData={introduction} />
             </div>
-          {/if}
 
-          <button
-            class="start-button"
-            onclick={startAssistant}
-            disabled={!isFormValid || isLoading}
-          >
-            {isLoading ? 'Starting...' : 'Let\'s Start!'}
-          </button>
-        </div>
+            <div class="form-group">
+              <label for="username">What is your name?</label>
+              <input
+                type="text"
+                id="username"
+                bind:value={username}
+                placeholder="Enter your name"
+                required
+                oninput={() => error = null}
+              />
+            </div>
+
+            {#if error}
+              <div class="error-message">
+                <p>{error}</p>
+              </div>
+            {/if}
+
+            <button
+              class="start-button"
+              onclick={startAssistant}
+              disabled={!isFormValid || isLoading}
+            >
+              {isLoading ? 'Starting...' : "Let's Start!"}
+            </button>
+          </div>
+        {/if}
       </div>
-    {/if}
+    </div>
   </main>
-</div>
 </div>
 
 <style>
-  .landing-page {
+  .page {
     min-height: 100vh;
     width: 100%;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    position: relative;
     display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding: 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    z-index: 1;
   }
 
   main {
     flex: 1;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    height: 100vh; /* Ensure main takes full viewport height */
+  }
+
+  .content {
+    width: 80%;
+    max-width: 800px;
+    height: 100%; /* Take full height of parent */
+    padding: 0 3rem 3rem 3rem;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* Enable vertical scrolling */
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+  }
+
+  /* Add this new style to create a wrapper for the scrollable content */
+  .content-inner {
+    padding: 2rem 0;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  @media (max-width: 768px) {
+    .content {
+      padding: .5rem .5rem 3rem;
+      width: 95%;
+    }
   }
 
   .loading-container {
@@ -169,33 +180,6 @@
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-  }
-
-  .welcome-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem 1rem;
-  }
-
-  .welcome-content {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    padding: 2rem;
-    max-width: 1000px;
-    width: 100%;
-    text-align: center;
-    animation: slideUp 0.8s ease-out;
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .welcome-content p {
-    color: #555;
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
-    line-height: 1.6;
   }
 
   .introduction {
@@ -312,10 +296,4 @@
     }
   }
 
-  @media (max-width: 768px) {
-    .welcome-content {
-      padding: 2rem;
-      margin: 0 1rem;
-    }
-  }
 </style>

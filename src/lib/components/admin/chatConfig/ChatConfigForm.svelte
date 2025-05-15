@@ -365,6 +365,106 @@
         <div class="form-parent-group-subcaption">
           These questions are shown to the user on the feedback form after ending the chat.
         </div>
+        <div class="form-group">
+          <label for="description">Question #1</label>
+          <input
+            type="text"
+            id="feedbackQuestion0"
+            bind:value={formData.feedbackQuestion0}
+            placeholder="Tell us about your experience..."
+          />
+          <small>This question is shown to the user on the feedback form</small>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Question #2</label>
+          <input
+            type="text"
+            id="feedbackQuestion1"
+            bind:value={formData.feedbackQuestion1}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Question #3</label>
+          <input
+            type="text"
+            id="feedbackQuestion2"
+            bind:value={formData.feedbackQuestion2}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Question #4</label>
+          <input
+            type="text"
+            id="feedbackQuestion3"
+            bind:value={formData.feedbackQuestion3}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Question #5</label>
+          <input
+            type="text"
+            id="feedbackQuestion4"
+            bind:value={formData.feedbackQuestion4}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #6</label>
+          <input
+            type="text"
+            id="feedbackQuestion5"
+            bind:value={formData.feedbackQuestion5}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #7</label>
+          <input
+            type="text"
+            id="feedbackQuestion6"
+            bind:value={formData.feedbackQuestion6}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #8</label>
+          <input
+            type="text"
+            id="feedbackQuestion7"
+            bind:value={formData.feedbackQuestion7}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #9</label>
+          <input
+            type="text"
+            id="feedbackQuestion8"
+            bind:value={formData.feedbackQuestion8}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Feedback Question #10</label>
+          <input
+            type="text"
+            id="feedbackQuestion9"
+            bind:value={formData.feedbackQuestion9}
+            placeholder="Tell us about your experience..."
+          />
+        </div>
       </div>
 
       <div class="form-group">

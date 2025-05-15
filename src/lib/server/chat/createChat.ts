@@ -119,7 +119,9 @@ export async function createChat(props: Partial<Chat>, userInfo?: Partial<User>)
 
     // Adding welcome message:
     let content = chatConfig?.welcomeMessage ||
-      'Hello! I\'m your assistant. How can I help you today?';
+      'Hello {{username}}! I\'m your assistant. How can I help you today?';
+
+    content = content.replaceAll('{{username}}', user.username || chat?.username || '');
 
     const messageProps: Partial<ChatMessage> = {
       chatId: chatId,

@@ -204,7 +204,7 @@ export async function generateBedrockResponse(
 
       if (generatedText.includes('<metadata>')) {
         const parsedMessage = parseAiMessage(generatedText);
-        console.error('generateBedrockResponse: metadata found.', parsedMessage);
+        console.log('generateBedrockResponse: metadata found.', parsedMessage);
         generatedText = parsedMessage.content;
         if (parsedMessage.metadata) {
           metadata = parsedMessage.metadata;
