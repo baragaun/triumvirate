@@ -35,7 +35,7 @@
     flex-direction: column;
     height: 100vh; /* Use exact viewport height */
     overflow: hidden; /* Prevent scrolling at the body level */
-    background-color: #9d9d9d;
+    background-color: #f9f9f9;
   }
 
   .content-container {

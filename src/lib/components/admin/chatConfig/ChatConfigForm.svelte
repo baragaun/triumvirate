@@ -271,6 +271,12 @@
     if (el) el.offsetWidth;
     pulse = true;
   }
+
+  const questions = Array(10).fill(0).map((_, i) => ({
+    id: `feedbackQuestion${i}` as keyof typeof formData,
+    label: `Question #${i + 1}`,
+    placeholder: 'Tell us about your experience...',
+  }));
 </script>
 
 <div class="admin-container">
@@ -343,21 +349,11 @@
             />
           {/each}
         </div>
-        <div class="form-group">
-          <FeedbackButtonConfig buttonNumber={0} formData={formData} {onChange} />
-        </div>
-        <div class="form-group">
-          <FeedbackButtonConfig buttonNumber={1} formData={formData} {onChange} />
-        </div>
-        <div class="form-group">
-          <FeedbackButtonConfig buttonNumber={2} formData={formData} {onChange} />
-        </div>
-        <div class="form-group">
-          <FeedbackButtonConfig buttonNumber={3} formData={formData} {onChange} />
-        </div>
-        <div class="form-group">
-          <FeedbackButtonConfig buttonNumber={4} formData={formData} {onChange} />
-        </div>
+        {#each Array(5).fill(0) as _, i}
+          <div class="form-group">
+            <FeedbackButtonConfig buttonNumber={i} formData={formData} {onChange} />
+          </div>
+        {/each}
       </div>
 
       <div class="form-parent-group">
@@ -365,7 +361,22 @@
         <div class="form-parent-group-subcaption">
           These questions are shown to the user on the feedback form after ending the chat.
         </div>
-      </div>
+
+        {#each questions as question, i}
+          <div class="form-group">
+            <label for={question.id}>{question.label}</label>
+            <input
+              type="text"
+              id={question.id}
+              bind:value={formData[question.id]}
+              placeholder={question.placeholder}
+            />
+            {#if i === 0}
+              <small>This question is shown to the user on the feedback form</small>
+            {/if}
+          </div>
+        {/each}
+     </div>
 
       <div class="form-group">
         <label for="llmId">LLM Model</label>

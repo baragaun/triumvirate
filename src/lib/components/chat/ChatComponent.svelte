@@ -461,7 +461,7 @@
               title="Provide feedback"
               aria-label="End this chat"
             >
-              I am ready for a mentor - end chat
+              Open survey
             </button>
           </div>
         </div>
@@ -526,11 +526,13 @@
 <style>
   .end-chat-section {
     color: #797979;
-    margin-top: 1.5rem;
+    margin-top: .5rem;
     display: flex;
     flex-direction: row;
+    justify-content: flex-end;
     align-items: center;
     gap: 1rem;
+    font-size: 0.8rem;
   }
 
   .info-text {
@@ -550,11 +552,17 @@
   }
 
   .end-chat-button {
+    color: #466876;
     padding: 6px 12px;
     font-weight: normal;
-    background-color: #797979;
+    background-color: #cae0fe;
     text-wrap: nowrap !important;
     white-space: nowrap;
+  }
+
+  .end-chat-button:hover {
+    background-color: #1976d2;
+    color: white;
   }
 
   .chat-container {
@@ -570,6 +578,7 @@
     left: 0;
     right: 0;
     bottom: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
 
   .chat-title {
@@ -669,8 +678,8 @@
   .chat-input {
     display: flex;
     flex-direction: column;
-    padding: 1rem;
-    border-top: 1px solid #e0e0e0;
+    padding: .5rem;
+    /*border-top: 1px solid #e0e0e0;*/
     background-color: #f9f9f9;
   }
 
@@ -787,11 +796,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem;
+    padding: 0.2rem;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     font-size: 0.7rem;
     color: #666;
     background-color: #f9f9f9;
+    text-wrap: nowrap;
   }
 
   .chat-llm-info span {
@@ -900,5 +910,11 @@
   .toggle-label {
     font-size: 0.9rem;
     color: #555;
+  }
+
+  @media (max-width: 768px) {
+    .info-text {
+      display: none;
+    }
   }
 </style>

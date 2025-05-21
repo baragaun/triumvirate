@@ -65,69 +65,72 @@
 <div class="feedback-overlay">
   <div class="feedback-container" role="dialog" aria-labelledby="feedback-title">
     <div class="feedback-content">
-      <h2 id="feedback-title"><span class="heart-icon">❤️</span> Thank you!</h2>
-      <div class="feedback-help">
-        We truly appreciate your time testing our new assistant. Your feedback helps us
-        improve the experience for new entrepreneurs, like you.
-      </div>
-
-      {#if questions.length > 0}
-        <div class="feedback-questions">
-          <div class="feedback-questions-legend">
-            1 = Bad, 5 = Great
-          </div>
-          <div class="questions-grid">
-            <div class="question-row">
-              <div class="question-text">How was your overall experience?</div>
-              <div class="question-rating-wrapper" role="radiogroup"
-                   aria-label="Rating from 1 to 5">
-                {#each [1, 2, 3, 4, 5] as value}
-                  <button
-                    class="rating-button {rating === value ? 'selected' : ''}"
-                    onclick={() => rating = value}
-                    role="radio"
-                    aria-checked={rating === value}
-                    aria-label="Rating {value}"
-                  >
-                    {value}
-                  </button>
-                {/each}
-              </div>
-            </div>
-            {#each questions as question, index}
-              {#if question}
-                <div class="question-row">
-                  <div class="question-text">{question}</div>
-                  <div class="question-rating-wrapper" role="radiogroup"
-                       aria-label="Rating from 1 to 5">
-                    {#each [1, 2, 3, 4, 5] as value}
-                      <button
-                        class="rating-button {feedbackAnswers[index] === value ? 'selected' : ''}"
-                        onclick={() => setAnswer(index, value)}
-                        role="radio"
-                        aria-checked={feedbackAnswers[index] === value}
-                        aria-label="Rating {value}"
-                      >
-                        {value}
-                      </button>
-                    {/each}
-                  </div>
-                </div>
-              {/if}
-            {/each}
-          </div>
+      <div class="feedback-header">
+        <h2 id="feedback-title"><span class="heart-icon">❤️</span> Thank you!</h2>
+        <div class="feedback-help">
+          We truly appreciate your time testing our new assistant. Your feedback helps us
+          improve the experience for new entrepreneurs, like you.
         </div>
-      {/if}
+      </div>
+      <div class="feedback-questions-legend">
+        1 = Bad, 5 = Great
+      </div>
+      <div class="scroll-container">
+        {#if questions.length > 0}
+          <div class="feedback-questions">
+            <div class="questions-grid">
+              <div class="question-row">
+                <div class="question-text">How was your overall experience?</div>
+                <div class="question-rating-wrapper" role="radiogroup"
+                     aria-label="Rating from 1 to 5">
+                  {#each [1, 2, 3, 4, 5] as value}
+                    <button
+                      class="rating-button {rating === value ? 'selected' : ''}"
+                      onclick={() => rating = value}
+                      role="radio"
+                      aria-checked={rating === value}
+                      aria-label="Rating {value}"
+                    >
+                      {value}
+                    </button>
+                  {/each}
+                </div>
+              </div>
+              {#each questions as question, index}
+                {#if question}
+                  <div class="question-row">
+                    <div class="question-text">{question}</div>
+                    <div class="question-rating-wrapper" role="radiogroup"
+                         aria-label="Rating from 1 to 5">
+                      {#each [1, 2, 3, 4, 5] as value}
+                        <button
+                          class="rating-button {feedbackAnswers[index] === value ? 'selected' : ''}"
+                          onclick={() => setAnswer(index, value)}
+                          role="radio"
+                          aria-checked={feedbackAnswers[index] === value}
+                          aria-label="Rating {value}"
+                        >
+                          {value}
+                        </button>
+                      {/each}
+                    </div>
+                  </div>
+                {/if}
+              {/each}
+            </div>
+          </div>
+        {/if}
 
-      <div class="feedback-form">
-        <label for="feedback-text">Additional comments:</label>
-        <textarea
-          id="feedback-text"
-          placeholder="Please share any additional thoughts about your chat experience..."
-          bind:value={feedbackText}
-          rows="4"
-          aria-label="Feedback comments"
-        ></textarea>
+        <div class="feedback-form">
+          <label for="feedback-text">Additional comments:</label>
+          <textarea
+            id="feedback-text"
+            placeholder="Please share any additional thoughts about your chat experience..."
+            bind:value={feedbackText}
+            rows="4"
+            aria-label="Feedback comments"
+          ></textarea>
+        </div>
       </div>
     </div>
 
@@ -178,7 +181,20 @@
 
   .feedback-content {
     flex: 1;
+    display: flex;
+    flex-direction: column;
     padding: 2rem 2rem 1rem;
+    min-height: 0; /* Important for flex children to shrink */
+  }
+
+  .feedback-header {
+    padding-bottom: 1rem;
+  }
+
+  .scroll-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 100%;
     overflow-y: auto;
   }
 
@@ -263,7 +279,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
   }
 
   .question-text {

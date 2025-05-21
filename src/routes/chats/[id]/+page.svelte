@@ -273,6 +273,7 @@
     margin: 1rem auto 0;
     height: 100%;
     overflow: auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
 
   .feedback-page {

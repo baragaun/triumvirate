@@ -28,7 +28,7 @@ export async function getCompiledLlmInstructionsForChat(
   const vars: LlmContextVariable[] = []
   if (chat.username) {
     vars.push({
-      name: 'userId',
+      name: 'username',
       type: 'string',
       value: chat.username,
     });

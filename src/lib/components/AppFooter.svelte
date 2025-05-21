@@ -41,5 +41,6 @@
     display: flex;
     justify-content: space-around;
     align-items: center; /* Center items vertically */
+    text-wrap: nowrap;
   }
 </style>
