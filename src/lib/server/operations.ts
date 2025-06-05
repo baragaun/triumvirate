@@ -42,8 +42,6 @@ import dataStore from '$lib/server/dataStore';
 import { findDefaultChatConfig } from '$lib/server/chatConfig/findDefaultChatConfig'
 import { deleteUser } from '$lib/server/user/deleteUser'
 import { findChatConfigByName } from '$lib/server/chatConfig/findChatConfigByName'
-import { getCompiledLlmInstructionsForChat } from '$lib/server/chat/getCompiledLlmInstructionsForChat'
-import { getLlmContextObjectForChat } from '$lib/server/chat/getLlmContextObjectForChat'
 import { updateUserMetadata } from '$lib/server/user/updateUserMetadata'
 
 const operations = {
@@ -63,8 +61,6 @@ const operations = {
     findInfo: findChatInfo,
     findOne: findChat,
     getLatestUserMessageIdForChat,
-    getLlmContextObjectForChat,
-    getCompiledLlmInstructionsForChat,
     update: updateChat,
     upsert: upsertChat,
   },

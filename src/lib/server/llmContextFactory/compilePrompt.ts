@@ -1,3 +1,5 @@
+import Handlebars from 'handlebars';
+
 import type { LlmContext, LlmContextVariable } from '$lib/types'
 
 const getVariableValue = (variable: LlmContextVariable): string => {
@@ -20,10 +22,9 @@ const getVariableValue = (variable: LlmContextVariable): string => {
   return '';
 }
 
-export function compileLlmInstructions(
+export function compilePrompt(
   context: LlmContext,
   stageKey: string | null | undefined,
-  variables: LlmContextVariable[] = [],
 ): string {
   if (!stageKey) {
     stageKey = context.stages[0]?.key;
@@ -47,37 +48,56 @@ export function compileLlmInstructions(
       return '';
     }).join('\n');
 
-  // Replace variables that were passed in:
-  if (Array.isArray(variables) && variables.length > 0) {
-    for (const variable of variables) {
-      text = text.replaceAll(`{{${variable.name}}}`, getVariableValue(variable) || '');
-    }
+  for (const block of context.blocks) {
+    text = text.replaceAll(`{{block-${block.key}}}`, block.content);
   }
 
-  // Replace variables from the context:
-  for (const variable of context.variables) {
-    text = text.replaceAll(`{{${variable.name}}}`, getVariableValue(variable) || '');
+  const stageVariable = {
+    name: 'stage',
+    type: 'string',
+    value: stageKey,
+  };
+
+  if (Array.isArray(context.variables)) {
+    const variable = context.variables.find((v) => v.name === 'stage');
+    if (variable) {
+      variable.value = stageKey;
+    } else {
+      context.variables.push(stageVariable);
+    }
+  } else {
+    context.variables = [stageVariable];
   }
+
+  const handlebarVariables = (context.variables || []).reduce<any>((acc, variable) => {
+    acc[variable.name] = getVariableValue(variable) || '';
+    return acc;
+  }, {});
 
   // Place content from stages:
-  const stagesText = context.stages
+  handlebarVariables.stages = context.stages
     .filter((stage) => stage.enabled && stage.description)
     .map((stage) => `${stage.key}: ${stage.description}`)
     .join('\n');
-  text = text.replaceAll(`{{stages}}`, stagesText);
+
+  for (const block of context.blocks) {
+    handlebarVariables[`block-${block.key}`] = block.content || '';
+  }
 
   // Stages listing variable:
   for (const stage of context.stages) {
     const stageContent= stage.key === stageKey
       ? '\n\n' + stage.description
       : '';
-    text = text.replaceAll(`{{stage-${stage.key}}}`, stageContent || '');
+    handlebarVariables[`stage-${stage.key}`] = stageContent || '';
   }
 
   // Stages range variable:
   const firstStage = context.stages[0];
   const lastStage = context.stages[context.stages.length - 1];
-  text = text.replaceAll('{{STAGES-RANGE}}', `${firstStage?.key}-${lastStage?.key}`);
+  handlebarVariables['stage-range'] = `${firstStage?.key}-${lastStage?.key}`;
+
+  text = Handlebars.compile(text)(handlebarVariables);
 
   return text
 }

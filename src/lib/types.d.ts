@@ -62,12 +62,6 @@ export interface LlmContextVariable {
   value: string | number | boolean;
 }
 
-export interface LlmContextInfo {
-  version: string;
-  date: string;
-  description: string;
-}
-
 export interface LlmContextChatStage {
   key: string;
   description: string;
@@ -81,8 +75,11 @@ export interface LlmContextBlock {
 }
 
 export interface LlmContext {
-  info: LlmContextInfo;
+  version: string;
+  date: string;
+  description: string;
   stages: LlmContextChatStage[];
   variables: LlmContextVariable[];
   blocks: LlmContextBlock[];
+  prompt: string;
 }

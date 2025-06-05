@@ -125,13 +125,12 @@ export function parseXmlLlmInstructions(xmlContent: string): LlmContext {
   }
 
   return {
-    info: {
-      version: xmlInfo.version,
-      date: xmlInfo.date,
-      description: xmlInfo.description,
-    },
+    version: xmlInfo.version,
+    date: xmlInfo.date,
+    description: xmlInfo.description,
     variables,
     stages,
     blocks,
+    prompt: '',
   };
 }
