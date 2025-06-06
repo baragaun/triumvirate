@@ -1,7 +1,8 @@
 import { pgTable, text, timestamp, boolean, real, integer, json } from 'drizzle-orm/pg-core';
 export const user = pgTable('users', {
 	id: text('id').primaryKey(),
-	username: text('username').notNull().unique(),
+	name: text('name'),
+	email: text('email').unique(),
 	passwordHash: text('password_hash'),
 	isAdmin: boolean('is_admin').notNull().default(false),
 	isStaff: boolean('is_staff').notNull().default(false),
@@ -26,7 +27,7 @@ export const chat = pgTable('chats', {
 	title: text('title'),
 	mode: text('mode'),
 	userId: text('user_id').references(() => user.id),
-	username: text('user_name'), // Name of the test user
+	userName: text('user_name'), // Name of the test user
 	llmId: text('llm_id').notNull(), // The model used (e.g., amazon.nova-lite-v1:0)
 	configId: text('config_id'), // Reference to the chat config used
 	welcomeMessage: text('welcome_message'), // The first message to send to the user

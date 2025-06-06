@@ -2,9 +2,10 @@ import { fail, redirect } from '@sveltejs/kit';
 import * as auth from '$lib/server/auth';
 import type { Actions, PageServerLoad } from './$types';
 import { createUser } from '$lib/server/user/createUser';
-import { validateUsername } from '$lib/helpers/validateUsername'
-import { validatePassword } from '$lib/helpers/validatePassword'
-import operations from '$lib/server/operations'
+import { validatePersonName } from '$lib/helpers/validatePersonName';
+import { validatePassword } from '$lib/helpers/validatePassword';
+import operations from '$lib/server/operations';
+import { validateEmail } from '$lib/helpers/validateEmail';
 
 export const load: PageServerLoad = async (event) => {
   // If user is already logged in, redirect to home page
@@ -17,7 +18,8 @@ export const load: PageServerLoad = async (event) => {
 export const actions: Actions = {
   register: async (event) => {
     const formData = await event.request.formData();
-    const username = formData.get('username') as string | null;
+    const name = formData.get('name') as string | null;
+    const email = formData.get('email') as string | null;
     const password = formData.get('password') as string | null;
     const confirmPassword = formData.get('confirmPassword');
     const secret = formData.get('secret') as string | null;
@@ -27,8 +29,11 @@ export const actions: Actions = {
     }
 
     // Validate input
-    if (!username || !validateUsername(username)) {
-      return fail(400, { message: 'Invalid username (min 3, max 31 characters, alphanumeric only)' });
+    if (!name || !validatePersonName(name)) {
+      return fail(400, { message: 'Invalid name (min 3, max 31 characters, alphanumeric only)' });
+    }
+    if (!email || !validateEmail(email)) {
+      return fail(400, { message: 'Invalid email' });
     }
     if (!password || !validatePassword(password)) {
       return fail(400, { message: 'Invalid password (min 6, max 255 characters)' });
@@ -37,18 +42,19 @@ export const actions: Actions = {
       return fail(400, { message: 'Passwords do not match' });
     }
 
-    // Check if username already exists
-    const existingUser = await operations.user.findByUsername(username);
+    // Check if name already exists
+    const existingUser = await operations.user.findByEmail(email);
 
     if (existingUser) {
-      return fail(400, { message: 'Username already taken' });
+      return fail(400, { message: 'An account with this email already exists' });
     }
 
     try {
-      console.log('Creating user with username:', username);
+      console.log('Creating user with name:', name);
 
       const user = await createUser({
-        username: username as string,
+        name: name.trim(),
+        email: email.trim(),
       }, password as string);
 
       if (!user) {

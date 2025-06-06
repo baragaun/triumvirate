@@ -20,7 +20,7 @@ import { findLlm } from '$lib/server/llm/findLlm'
 import { findLlms } from '$lib/server/llm/findLlms'
 import { findOrCreateUser } from '$lib/server/user/findOrCreateUser'
 import { findUser } from '$lib/server/user/findUser'
-import { findUserByUsername } from '$lib/server/user/findUserByUsername'
+import { findUserByEmail } from '$lib/server/user/findUserByEmail'
 import { findUsers } from '$lib/server/user/findUsers'
 import { generateBedrockResponse } from '$lib/server/bedrock/generateBedrockResponse'
 import { getLatestUserMessageIdForChat } from '$lib/server/chat/getLatestUserMessageIdForChat'
@@ -97,7 +97,7 @@ const operations = {
     delete: deleteUser,
     find: findUsers,
     findOne: findUser,
-    findByUsername: findUserByUsername,
+    findByEmail: findUserByEmail,
     findOrCreate: findOrCreateUser,
     update: updateUser,
     updateUserMetadata,

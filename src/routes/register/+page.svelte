@@ -11,15 +11,25 @@
 
     <form method="post" action="?/register" use:enhance>
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="name">Your name</label>
         <input
-          id="username"
-          name="username"
+          id="name"
+          name="name"
           type="text"
           required
-          autocomplete="username"
+          autocomplete="name"
         />
-        <small>3-31 characters, lowercase letters, numbers, underscore, and hyphen only</small>
+      </div>
+
+      <div class="form-group">
+        <label for="name">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="text"
+          required
+          autocomplete="email"
+        />
       </div>
 
       <div class="form-group">

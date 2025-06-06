@@ -105,7 +105,7 @@
         title: formData.title,
         mode: formData.mode,
         userId: formData.userId,
-        username: formData.username,
+        userName: formData.userName,
         llmId: formData.llmId,
         configId: formData.configId,
         welcomeMessage: formData.welcomeMessage,
@@ -344,7 +344,7 @@
           {#each chats as chat}
             <tr>
               <td>{chat.title || 'Untitled'}</td>
-              <td>{chat.username || '-'}</td>
+              <td>{chat.userName || '-'}</td>
               <td>{getChatConfigName(chat.configId)}</td>
               <td>{chat.mode}</td>
               <td>{formatCost(chat.cost || 0)}</td>

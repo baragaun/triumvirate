@@ -1,10 +1,12 @@
-import type { Chat, ChatConfig } from '$lib/server/db/schema'
-import type { LlmContext, LlmContextVariable } from '$lib/types'
+import type { Chat, ChatConfig, User } from '$lib/server/db/schema'
+import type { LlmContextVariable } from '$lib/types'
 import { findChat } from '$lib/server/chat/findChat'
+import { findUser } from '$lib/server/user/findUser'
 
 export async function getVariables(
   chatId: string,
   variables: LlmContextVariable[],
+  user?: User | null,
   chat?: Chat | null,
   _chatConfig?: ChatConfig | null,
 ): Promise<LlmContextVariable[]> {
@@ -12,7 +14,16 @@ export async function getVariables(
     chat = await findChat(chatId);
 
     if (!chat) {
-      console.error('llmContextFactory.getVariables: Error getting LLM context: Chat not found', { chatId });
+      console.error('llmContextFactory.getVariables: Chat not found', { chatId });
+      return [];
+    }
+  }
+
+  if (!user && chat.userId) {
+    user = await findUser(chat.userId);
+
+    if (!user) {
+      console.error('llmContextFactory.getVariables: User not found', { userId: chat.userId });
       return [];
     }
   }
@@ -27,11 +38,19 @@ export async function getVariables(
     });
   }
 
-  if (chat.username) {
+  if (user) {
+    vars.push({
+      name: 'user',
+      type: 'string',
+      value: user,
+    });
+  }
+
+  if (chat.userName) {
     vars.push({
       name: 'username',
       type: 'string',
-      value: chat.username,
+      value: chat.userName,
     });
   }
 

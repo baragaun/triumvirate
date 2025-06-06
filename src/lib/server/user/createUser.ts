@@ -18,7 +18,8 @@ export async function createUser(props: Partial<User>, password?: string): Promi
 
     await db.insert(table.user).values({
       id,
-      username: props.username || 'guest',
+      name: props.name,
+      email: props.email,
       passwordHash,
       isAdmin: props.isAdmin !== undefined ? props.isAdmin : false,
       isStaff: props.isStaff !== undefined ? props.isStaff : false,

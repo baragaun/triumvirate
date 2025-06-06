@@ -2,7 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import * as auth from '$lib/server/auth';
 import type { Actions, PageServerLoad } from './$types';
 import { verifyPassword } from '$lib/server/auth/password';
-import { validateUsername } from '$lib/helpers/validateUsername'
+import { validateEmail } from '$lib/helpers/validateEmail'
 import { validatePassword } from '$lib/helpers/validatePassword'
 import operations from '$lib/server/operations';
 
@@ -23,21 +23,21 @@ export const load: PageServerLoad = async (event) => {
 export const actions: Actions = {
   login: async (event) => {
     const formData = await event.request.formData();
-    const username = formData.get('username') as string | null;
+    const email = formData.get('email') as string | null;
     const password = formData.get('password') as string | null;
 
     // Validate input
-    if (!username || !validateUsername(username)) {
-      return fail(400, { message: 'Invalid username (min 3, max 31 characters, alphanumeric only)' });
+    if (!email || !validateEmail(email)) {
+      return fail(400, { message: 'Invalid email' });
     }
     if (!password || !validatePassword(password)) {
       return fail(400, { message: 'Invalid password (min 6, max 255 characters)' });
     }
 
-    const existingUser = await operations.user.findByUsername(username);
+    const existingUser = await operations.user.findByEmail(email);
 
     if (!existingUser) {
-      return fail(400, { message: 'Incorrect username or password' });
+      return fail(400, { message: 'Incorrect email or password' });
     }
 
     // Verify password
@@ -48,7 +48,7 @@ export const actions: Actions = {
         await verifyPassword(existingUser.passwordHash, password as string);
 
       if (!passwordMatches) {
-        return fail(400, { message: 'Incorrect username or password' });
+        return fail(400, { message: 'Incorrect email or password' });
       }
     } catch (error) {
       console.error('Password verification error:', error);

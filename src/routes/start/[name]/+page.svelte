@@ -9,7 +9,7 @@
   let { data } = $props<{ data: PageData }>();
 
   // State
-  let username = $state(data.user?.username || '');
+  let username = $state(data.user?.name || '');
   let isLoading = $state(false);
   let error = $state<string | null>(null);
   let introduction = data.chatConfig?.introduction || 'Thank you for helping us optimize the new mentoring assistant experience!';
@@ -31,11 +31,11 @@
       props: {
         userId: data.user?.id,
         configId: data.chatConfig.id,
-        username: username.trim(),
+        userName: username.trim(),
       },
       user: {
         ...data.user,
-        username: username.trim(),
+        name: username.trim(),
         trackId: page.url.searchParams.get('t'),
       }
     };

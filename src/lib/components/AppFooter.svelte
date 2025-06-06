@@ -11,7 +11,7 @@
     &nbsp;|&nbsp; <a href="https://resources.micromentor.org/terms-of-use/">Terms Of Use</a>
     &nbsp;|&nbsp; <a href="https://micromentor.org/contact">Contact</a>
     {#if user}
-      &nbsp;|&nbsp; Signed in as {user?.username}
+      &nbsp;|&nbsp; Signed in as {user?.name}
       &nbsp;|&nbsp; Built with Svelte 5
     {:else}
       &nbsp;|&nbsp; <a href="/login">Login</a>

@@ -5,11 +5,11 @@ import { describe, expect, test } from 'vitest'
 import { parseXmlLlmInstructions } from '$lib/server/llmContextFactory/xml/parseXmlLlmInstructions'
 import { compilePrompt } from '$lib/server/llmContextFactory/compilePrompt'
 
-describe('compileLlmInstructions', () => {
-  test('compileLlmInstructions compiles the context text from the LlmContext object', async () => {
+describe('compilePrompt', () => {
+  test('compiles the prompt from the LlmContext object (template file)', async () => {
     const filename = fileURLToPath(import.meta.url);
     const dirname = path.dirname(filename);
-    const xmlPath = path.join(dirname, '../../../../../_hs_local/llm-instructions-v0.0.14.xml');
+    const xmlPath = path.join(dirname, '../../../../../_hs_local/llm-instructions-v0.0.15.xml');
     const xml = readFileSync(xmlPath, 'utf-8');
 
     const llmContext = parseXmlLlmInstructions(xml);
@@ -26,7 +26,7 @@ describe('compileLlmInstructions', () => {
     }
   });
 
-  test.skip('compileLlmInstructions compiles the context text from the LlmContext object', async () => {
+  test.skip('compiles the prompt from the LlmContext object', async () => {
     const xml = `
         <context>
           <info>

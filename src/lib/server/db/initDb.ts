@@ -32,7 +32,8 @@ export const initDb = async (recreate = false) => {
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS users (
           id varchar(255) PRIMARY KEY NOT NULL,
-          username varchar(255) NOT NULL UNIQUE,
+          name varchar(255) NOT NULL,
+          email varchar(255) NOT NULL UNIQUE,
           password_hash varchar(255),
           is_admin BOOLEAN NOT NULL DEFAULT FALSE,
           is_staff BOOLEAN NOT NULL DEFAULT FALSE,
@@ -43,7 +44,8 @@ export const initDb = async (recreate = false) => {
           updated_at TIMESTAMP DEFAULT NOW() NOT NULL
         );
         
-        create index if not exists users_username_index on users (username);
+        create index if not exists users_name_index on users (name);
+        create index if not exists users_email_index on users (email);
         create index if not exists users_is_admin_index on users (is_admin);
       `);
 

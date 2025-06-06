@@ -16,8 +16,8 @@
 
   // Get the user's name (either a signed-in user or guest)
   const getUserName = (): string => {
-    if (user?.username) {
-      return user.username;
+    if (user?.name) {
+      return user.name;
     } else if (guestUserName) {
       return guestUserName;
     } else {
@@ -126,7 +126,7 @@
 
     const requestData: ChatCreationRequestData = {
       props: {
-        username: user?.username || getUserName(),
+        userName: user?.name || getUserName(),
         title: title || undefined,
         caption: selectedChatConfig.caption || undefined,
         mode: ChatMode.tuning,

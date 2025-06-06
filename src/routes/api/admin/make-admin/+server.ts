@@ -4,19 +4,19 @@ import operations from '$lib/server/operations';
 // This endpoint makes a user an admin
 // It should only be accessible in development mode
 export async function GET({ url }: RequestEvent) {
-  // Get the username from the query string
-  const username = url.searchParams.get('username');
+  // Get the id from the query string
+  const userId = url.searchParams.get('id');
 
-  if (!username) {
-    return json({ error: 'Username is required' }, { status: 400 });
+  if (!userId) {
+    return json({ error: 'ID is required' }, { status: 400 });
   }
 
   try {
     // Find the user
-    const user = await operations.user.findByUsername(username);
+    const user = await operations.user.findOne(userId);
 
     if (!user) {
-      return json({ error: `User '${username}' not found` }, { status: 404 });
+      return json({ error: `User '${userId}' not found` }, { status: 404 });
     }
 
     // Update the user to be an admin
@@ -30,7 +30,7 @@ export async function GET({ url }: RequestEvent) {
     }
 
     return json({
-      message: `User '${username}' is now an admin`,
+      message: `User '${userId}' is now an admin`,
       user: result.object
     });
   } catch (error) {

@@ -1,6 +1,6 @@
 import { InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 
-import type { Chat, ChatMessage } from '$lib/server/db/schema'
+import type { Chat, ChatMessage, User } from '$lib/server/db/schema'
 import { formatPromptForModel } from '$lib/server/bedrock/helpers/formatPromptForModel'
 import bedrockClient from '$lib/server/bedrock/bedrockClient'
 import { createRequestBody } from '$lib/server/bedrock/helpers/createRequestBody'
@@ -16,11 +16,13 @@ import { updateChatMessage } from '$lib/server/chatMessage/updateChatMessage'
 import { env } from '$env/dynamic/private';
 import { findLlm } from '$lib/server/llm/findLlm'
 import { llmContextFactory } from '$lib/server/llmContextFactory/llmContextFactory'
+import { findUser } from '$lib/server/user/findUser'
 
 const MOCK = env.MOCK_AI_RESPONSES === 'true';
 
 export async function generateBedrockResponse(
   chatId: string,
+  user?: User | null,
   chat?: Chat | null,
 ): Promise<GenerateChatMessageResponse> {
   console.log('generateBedrockResponse called.', { chatId });
@@ -41,6 +43,14 @@ export async function generateBedrockResponse(
 
       if (!chat) {
         return { error: 'chat not found' };
+      }
+    }
+
+    if (!user && chat.userId) {
+      user = await findUser(chat.userId);
+
+      if (!user) {
+        return { error: 'user not found' };
       }
     }
 
@@ -93,6 +103,7 @@ export async function generateBedrockResponse(
       llmContext = await llmContextFactory.getLlmContext(
         chatId,
         [],
+        user,
         chat,
         chatConfig,
       );
@@ -241,6 +252,7 @@ export async function generateBedrockResponse(
       sendToUser: true,
       sendToLlm: true,
       llmId,
+      llmInstructions: llmContext.prompt,
       llmTemperature,
       metadata,
       inputTokens,

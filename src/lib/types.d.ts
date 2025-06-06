@@ -1,4 +1,4 @@
-import type { Chat, ChatMessage } from '$lib/server/db/schema'
+import type { Chat, ChatMessage, User } from '$lib/server/db/schema'
 
 export interface ChatInfo {
   error?: string;
@@ -33,11 +33,7 @@ export interface GenerateChatMessageResponse {
 }
 
 export interface LocalsData {
-  user?: {
-    id: string;
-    username: string;
-    isAdmin: boolean;
-  }
+  user?: User
 }
 
 export interface ChatMetadata {
@@ -59,7 +55,7 @@ export interface ChatCreationRequestData {
 export interface LlmContextVariable {
   name: string;
   type: string;
-  value: string | number | boolean;
+  value: string | number | boolean | User;
 }
 
 export interface LlmContextChatStage {

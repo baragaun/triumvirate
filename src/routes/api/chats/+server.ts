@@ -33,8 +33,8 @@ export async function POST({ request, locals }: RequestEvent) {
       requestData.props.llmInstructions = decryptString(requestData.props.llmInstructions);
     }
 
-    if (!requestData.props.username && locals.user?.username) {
-      requestData.props.username = locals.user.username;
+    if (!requestData.props.userName && locals.user?.name) {
+      requestData.props.userName = locals.user.name;
     }
 
     if (!requestData.props.userId && locals.user?.id) {

@@ -17,10 +17,11 @@ export async function createChat(props: Partial<Chat>, userInfo?: Partial<User>)
   const chatId = props.id || generateId();
   const chatConfig = await findChatConfig(props.configId || 'default');
   const userId = userInfo?.id || props.userId;
-  const username = userInfo?.username || props.username;
+  const userName = userInfo?.name || props.userName;
   const user = await findOrCreateUser(
     userId,
-    username,
+    userName,
+    userInfo?.email,
     userInfo?.clientInfo as ClientInfo | null,
     userInfo?.trackId,
   );
@@ -47,7 +48,7 @@ export async function createChat(props: Partial<Chat>, userInfo?: Partial<User>)
       title: props.title || null,
       mode: props.mode || ChatMode.experiment,
       userId: user.id,
-      username: user.username || 'guest',
+      userName: user.name,
       configId: props.configId || chatConfig.id,
       welcomeMessage: props.welcomeMessage || chatConfig?.welcomeMessage || null,
       llmId: props.llmId || chatConfig?.llmId,
@@ -121,7 +122,7 @@ export async function createChat(props: Partial<Chat>, userInfo?: Partial<User>)
     let content = chatConfig?.welcomeMessage ||
       'Hello {{username}}! I\'m your assistant. How can I help you today?';
 
-    content = content.replaceAll('{{username}}', user.username || chat?.username || '');
+    content = content.replaceAll('{{username}}', user.name || chat?.userName || '');
 
     const messageProps: Partial<ChatMessage> = {
       chatId: chatId,

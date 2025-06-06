@@ -5,17 +5,17 @@
   let { form, data } = $props<{ form: ActionData, data: PageData }>();
 
   // Form state
-  let username = $state('');
+  let email = $state('');
   let password = $state('');
 
   // Computed property to check if form is valid
-  let isLoginFormValid = $derived(username.trim() !== '' && password.trim() !== '');
+  let isLoginFormValid = $derived(email.trim() !== '' && password.trim() !== '');
 
   // Handle form submission
   const onSubmit = () => {
     // The form will be submitted to the server-side action
     // This function can be used for any client-side validation or processing
-    console.log('Form submitted with username:', username);
+    console.log('Form submitted with email:', email);
     // The actual form submission is handled by the enhance action
   };
 
@@ -30,14 +30,14 @@
 
     <form method="post" action="?/login" use:enhance onsubmit={onSubmit}>
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="email">Email</label>
         <input
-          id="username"
-          name="username"
+          id="email"
+          name="email"
           type="text"
           required
-          autocomplete="username"
-          bind:value={username}
+          autocomplete="email"
+          bind:value={email}
         />
       </div>
 

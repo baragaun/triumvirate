@@ -12,7 +12,8 @@
 
   // Form state
   let formData = $state<Partial<User>>({
-    username: '',
+    name: '',
+    email: '',
     isAdmin: false
   });
 
@@ -45,7 +46,8 @@
 
   function resetForm() {
     formData = {
-      username: '',
+      name: '',
+      email: '',
       isAdmin: false
     };
     editingUser = null;
@@ -59,7 +61,8 @@
   function editUser(user: User) {
     editingUser = user;
     formData = {
-      username: user.username,
+      name: user.name,
+      email: user.email,
       isAdmin: user.isAdmin || false
     };
     showEditForm = true;
@@ -162,16 +165,24 @@
 
       <form onsubmit={onSubmit}>
         <div class="form-group">
-          <label for="username">Username</label>
+          <label for="name">Name</label>
           <input
             type="text"
-            id="username"
-            bind:value={formData.username}
+            id="name"
+            bind:value={formData.name}
             required
           />
         </div>
 
-
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="text"
+            id="email"
+            bind:value={formData.email}
+            required
+          />
+        </div>
 
         <div class="form-group checkbox">
           <label>
@@ -196,7 +207,8 @@
       <table class="users-table">
         <thead>
           <tr>
-            <th>Username</th>
+            <th>Name</th>
+            <th>Email</th>
             <th>Admin</th>
             <th>Last Updated</th>
             <th>&nbsp;</th>
@@ -205,7 +217,8 @@
         <tbody>
           {#each users as user}
             <tr>
-              <td>{user.username}</td>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
               <td>{user.isAdmin ? '✓' : ''}</td>
               <td>{user.updatedAt ? formatDate(user.updatedAt) : '-'}</td>
               <td class="action-buttons">

@@ -97,7 +97,7 @@ export function compilePrompt(
   const lastStage = context.stages[context.stages.length - 1];
   handlebarVariables['stage-range'] = `${firstStage?.key}-${lastStage?.key}`;
 
-  text = Handlebars.compile(text)(handlebarVariables);
+  text = Handlebars.compile(text)(handlebarVariables).trim();
 
   return text
 }

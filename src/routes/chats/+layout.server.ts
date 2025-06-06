@@ -7,12 +7,12 @@ export const load: LayoutServerLoad = async (event) => {
 
   // For the chats index page, if user is not logged in, redirect to home page
   // This prevents the redirect loop when clicking on Home in the navigation
-  if (event.url.pathname === '/chats' && !event.locals.user && !username) {
+  if (event.url.pathname === '/chats' && !event.locals.user?.email && !username) {
     return redirect(302, '/');
   }
 
   // For other chat pages, if user is not logged in and no username is provided, redirect to login page
-  if (event.url.pathname !== '/chats' && !event.locals.user && !username) {
+  if (event.url.pathname !== '/chats' && !event.locals.user?.email && !username) {
     return redirect(302, '/login?redirectTo=' + event.url.pathname);
   }
 
