@@ -1,8 +1,8 @@
-import { parseXmlLlmInstructions } from '$lib/server/chatConfig/parseXmlLlmInstructions';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import { describe, expect, test } from 'vitest'
+import { parseXmlLlmInstructions } from '$lib/server/llmContextFactory/xml/parseXmlLlmInstructions'
 
 describe('parseXmlLlmInstructions', () => {
   test('parseXmlLlmInstructions parses XML file correctly', async () => {
@@ -14,8 +14,8 @@ describe('parseXmlLlmInstructions', () => {
     const llmContext = parseXmlLlmInstructions(xmlContent);
 
     // Info:
-    expect(llmContext.info.version).toEqual('0.0.12');
-    expect(llmContext.info.description).toEqual('First to use XML');
+    expect(llmContext.version).toEqual('0.0.12');
+    expect(llmContext.description).toEqual('First to use XML');
 
     // Variables:
     expect(llmContext.variables.length).toEqual(4);
@@ -76,8 +76,8 @@ describe('parseXmlLlmInstructions', () => {
     const llmContext = parseXmlLlmInstructions(xmlString);
 
     // Info:
-    expect(llmContext.info.version).toEqual('1.0.0');
-    expect(llmContext.info.description).toEqual('Sample XML');
+    expect(llmContext.version).toEqual('1.0.0');
+    expect(llmContext.description).toEqual('Sample XML');
 
     // Variables:
     expect(llmContext.variables.length).toEqual(3);

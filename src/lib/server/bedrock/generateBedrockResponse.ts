@@ -15,8 +15,7 @@ import type { ChatMetadata, GenerateChatMessageResponse } from '$lib/types'
 import { updateChatMessage } from '$lib/server/chatMessage/updateChatMessage'
 import { env } from '$env/dynamic/private';
 import { findLlm } from '$lib/server/llm/findLlm'
-import { getCompiledLlmInstructionsForChat } from '$lib/server/chat/getCompiledLlmInstructionsForChat'
-import { getLlmContextObjectForChat } from '$lib/server/chat/getLlmContextObjectForChat'
+import { llmContextFactory } from '$lib/server/llmContextFactory/llmContextFactory'
 
 const MOCK = env.MOCK_AI_RESPONSES === 'true';
 
@@ -89,13 +88,23 @@ export async function generateBedrockResponse(
       ? await findChatConfig(chat.configId || 'default')
       : null;
 
-    const contextObject = await getLlmContextObjectForChat(chatId, chat, chatConfig);
-    const llmInstructions = await getCompiledLlmInstructionsForChat(chatId, chat, chatConfig);
-    if (!llmInstructions) {
+    let llmContext;
+    try {
+      llmContext = await llmContextFactory.getLlmContext(
+        chatId,
+        [],
+        chat,
+        chatConfig,
+      );
+    } catch (error) {
+      console.error('Error getting LLM context:', error);
+      return { error: 'Failed to retrieve LLM context' };
+    }
+    if (!llmContext || !llmContext.prompt) {
       console.error('Error generating response from Bedrock: LLM instructions not found');
       return { error: 'LLM instructions not found' };
     }
-    console.log('LLM instructions:', llmInstructions);
+    console.log('LLM context:', llmContext.prompt);
 
     const llmId = chat.llmId || chatConfig?.llmId;
     const llmTemperature = chat.llmTemperature || chatConfig?.llmTemperature || 0.7;
@@ -107,9 +116,9 @@ export async function generateBedrockResponse(
     }
 
     const llm = await findLlm(llmId);
-    let stage = chat.stage || contextObject?.stages?.[0]?.key;
+    const stage = chat.stage || llmContext?.stages?.[0]?.key;
 
-    if (llmInstructions) {
+    if (llmContext.prompt) {
       if (chat.welcomeMessage || chatConfig?.welcomeMessage) {
         messages.unshift({
           id: 'welcome',
@@ -142,7 +151,7 @@ export async function generateBedrockResponse(
         chatId: chat.id,
         role: MessageRole.user,
         stage: '',
-        content: llmInstructions,
+        content: llmContext.prompt,
         iteration: null,
         sendToLlm: true,
         sendToUser: false,
