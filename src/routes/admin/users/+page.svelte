@@ -180,10 +180,10 @@
             type="text"
             id="email"
             bind:value={formData.email}
-            required
           />
         </div>
 
+        {#if editingUser?.passwordHash}
         <div class="form-group checkbox">
           <label>
             <input type="checkbox" bind:checked={formData.isAdmin} />
@@ -191,6 +191,11 @@
           </label>
           <small>If checked, this user will have access to the admin interface</small>
         </div>
+        {:else}
+        <div>
+          <small>This user has not created an account, so they cannot be granted admin privileges.</small>
+        </div>
+        {/if}
 
         <div class="form-actions">
           <button type="button" class="cancel-button" onclick={hideForm}>Cancel</button>
