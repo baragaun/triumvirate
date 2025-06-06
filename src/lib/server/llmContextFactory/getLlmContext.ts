@@ -29,21 +29,24 @@ export async function getLlmContext(
   }
 
   if (!template.startsWith('<context>')) {
-    return null;
+    return {
+      version: '',
+      description: '',
+      date: '',
+      stages: [],
+      variables: [],
+      blocks: [],
+      prompt: template,
+    };
   }
 
   const context = parseXmlLlmInstructions(template)
   context.variables = await getVariables(chatId, variables, chat, chatConfig);
 
-  if (!template.startsWith('<context>')) {
-    // The template is not an XML document, so we use it as-is
-    context.prompt = template;
-  } else {
-    context.prompt = compilePrompt(
-      context,
-      chat.stage,
-    )
-  }
+  context.prompt = compilePrompt(
+    context,
+    chat.stage,
+  )
 
   return context;
 }
