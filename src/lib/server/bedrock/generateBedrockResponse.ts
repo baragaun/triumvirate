@@ -88,12 +88,18 @@ export async function generateBedrockResponse(
       ? await findChatConfig(chat.configId || 'default')
       : null;
 
-    const llmContext = await llmContextFactory.getLlmContext(
-      chatId,
-      [],
-      chat,
-      chatConfig,
-    );
+    let llmContext;
+    try {
+      llmContext = await llmContextFactory.getLlmContext(
+        chatId,
+        [],
+        chat,
+        chatConfig,
+      );
+    } catch (error) {
+      console.error('Error getting LLM context:', error);
+      return { error: 'Failed to retrieve LLM context' };
+    }
     if (!llmContext || !llmContext.prompt) {
       console.error('Error generating response from Bedrock: LLM instructions not found');
       return { error: 'LLM instructions not found' };
