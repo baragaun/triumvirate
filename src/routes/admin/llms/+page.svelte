@@ -2,11 +2,13 @@
   import { onMount } from 'svelte';
   import type { Llm } from '$lib/server/db/schema';
   import '$lib/styles/actionButtons.css';
+  import { enhance } from '$app/forms';
 
   // State
   let llms = $state<Llm[]>([]);
   let isLoading = $state(true);
   let error = $state<string | null>(null);
+  let infoMessage = $state<string | null>(null);
   let editingLlm = $state<Llm | null>(null);
   let showEditForm = $state(false);
 
@@ -130,6 +132,12 @@
 </script>
 
 <div class="admin-container">
+  {#if infoMessage}
+    <div class="info-message">
+      <p>{infoMessage}</p>
+      <button onclick={() => infoMessage = null}>Dismiss</button>
+    </div>
+  {/if}
   {#if error}
     <div class="error-message">
       <p>{error}</p>
@@ -233,7 +241,19 @@
           <th>Output Token Cost</th>
           <th>Token Cost</th>
           <th>Available</th>
-          <th>&nbsp;</th>
+          <th class="import-button-th">
+            <form method="POST" action="?/importModels" use:enhance={() => {
+              infoMessage = 'The models will be re-imported from AWS';
+              setTimeout(() => {
+                infoMessage = null;
+              }, 3000);
+            }}
+            >
+              <button type="submit" class="import-button">
+                Import
+              </button>
+            </form>
+          </th>
         </tr>
         </thead>
         <tbody>
@@ -292,6 +312,28 @@
     padding: 0;
   }
 
+  .info-message {
+    background-color: #a8d49a;
+    color: #3b5134;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .info-message button {
+    color: #3b5134;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.8rem;
+    background: none;
+    border-radius: 4px;
+    padding: 0.1rem 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
   .error-message {
     background-color: #ffebee;
     color: #c62828;
@@ -304,11 +346,14 @@
   }
 
   .error-message button {
-    background: none;
-    border: none;
     color: #c62828;
     cursor: pointer;
     font-weight: 500;
+    font-size: 0.8rem;
+    background: none;
+    border-radius: 4px;
+    padding: 0.1rem 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .loading-state {
@@ -381,6 +426,22 @@
   .action-buttons {
     display: flex;
     gap: 0.5rem;
+  }
+
+  .import-button-th {
+    text-align: right;
+  }
+
+  .import-button {
+    background-color: #afccf4;
+    color: #333;
+    border: none;
+    padding: 0.2rem .5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-size: .8rem;
+    /*font-weight: 500;*/
   }
 
   /* Form styles */
