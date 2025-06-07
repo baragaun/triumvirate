@@ -10,6 +10,7 @@ export async function updateLlm(changes: Partial<Llm>): Promise<ChangeObjectResp
     const db = dataStore.db.get();
 
     if (!changes.id) {
+      console.error('updateLlm: Error updating model: ID is required.');
       return { error: 'ID is required.' };
     }
 
@@ -27,6 +28,8 @@ export async function updateLlm(changes: Partial<Llm>): Promise<ChangeObjectResp
     if (!llm) {
       return { error: 'Model not found' };
     }
+
+    console.info('LLM record updated.', llm.name);
 
     return { object: llm };
   } catch (error) {
