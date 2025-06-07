@@ -16,7 +16,7 @@ export const actions = {
     console.log('POST importModels called.')
     try {
       await operations.bedrock.loadModels();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error importing models:', error);
       return fail(500, { message: error instanceof Error ? error.message : String(error) });
     }
