@@ -43,6 +43,7 @@ import { findDefaultChatConfig } from '$lib/server/chatConfig/findDefaultChatCon
 import { deleteUser } from '$lib/server/user/deleteUser'
 import { findChatConfigByName } from '$lib/server/chatConfig/findChatConfigByName'
 import { updateUserMetadata } from '$lib/server/user/updateUserMetadata'
+import { findLlmByArn } from '$lib/server/llm/findLlmByArn'
 
 const operations = {
   startServer,
@@ -77,6 +78,7 @@ const operations = {
     delete: deleteLlm,
     find: findLlms,
     findOne: findLlm,
+    findByArn: findLlmByArn,
     saveMultiple: saveMultipleLlms,
     update: updateLlm,
     upsert: upsertLlm,
