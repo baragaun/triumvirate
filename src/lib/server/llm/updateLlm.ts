@@ -29,7 +29,7 @@ export async function updateLlm(changes: Partial<Llm>): Promise<ChangeObjectResp
       return { error: 'Model not found' };
     }
 
-    console.error('LLM record updated.', llm.name);
+    console.info('LLM record updated.', llm.name);
 
     return { object: llm };
   } catch (error) {
