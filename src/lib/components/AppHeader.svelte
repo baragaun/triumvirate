@@ -6,7 +6,7 @@
   <div class="header-content">
     <a href="/" class="logo">
       <img src="/logo-512.png" alt="Micromentor Logo" class="logo-image" />
-      <span class="logo-text">Micromentor Assistant Test</span>
+      <span class="logo-text">Micromentor Juno (Alpha)</span>
     </a>
   </div>
 </header>
