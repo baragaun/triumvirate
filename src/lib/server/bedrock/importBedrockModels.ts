@@ -58,6 +58,7 @@ const enabledModels = [
   // 'cohere.embed-multilingual-v3',
   // 'meta.llama3-70b-instruct-v1:0',
   // 'meta.llama3-8b-instruct-v1:0',
+  'anthropic.claude-sonnet-4-20250514-v1:0',
   'mistral.mistral-7b-instruct-v0:2',
   'mistral.mistral-large-2402-v1:0',
   'mistral.mistral-small-2402-v1:0',

@@ -13,6 +13,7 @@ export async function saveMultipleLlms(llms: Llm[]): Promise<void> {
       await db.insert(table.llm).values({
         id: llm.id || generateId(),
         name: llm.name || '',
+        arn: llm.arn || '',
         provider: llm.provider || '',
         description: llm.description || null,
         isActive: llm.isActive,

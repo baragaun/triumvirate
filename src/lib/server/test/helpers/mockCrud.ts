@@ -245,6 +245,7 @@ export const llmMocks = {
     const llm = {
       id: llmData.id || `llm-id-${mockData.llms.length + 1}`,
       name: llmData.name || 'Test LLM',
+      arn: llmData.arn || 'test-arn',
       provider: llmData.provider || 'Test Provider',
       description: llmData.description || 'Test Description',
       isOnDemand: llmData.isOnDemand !== undefined ? llmData.isOnDemand : true,

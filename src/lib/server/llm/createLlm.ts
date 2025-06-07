@@ -12,6 +12,7 @@ export async function createLlm(params: Partial<Llm>): Promise<Llm | null> {
     await db.insert(table.llm).values({
       id,
       name: params.name || '',
+      arn: params.arn || '',
       provider: params.provider || '',
       description: params.description || null,
       isOnDemand: params.isOnDemand === undefined || params.isOnDemand === null ? true : params.isOnDemand,
