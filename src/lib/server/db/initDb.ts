@@ -53,7 +53,7 @@ export const initDb = async (recreate = false) => {
         CREATE TABLE IF NOT EXISTS llms (
           id varchar(255) PRIMARY KEY NOT NULL,
           name varchar(255) NOT NULL,
-          arn varchar(255) NOT NULL,
+          arn varchar(2048) NOT NULL,
           provider varchar(255) NOT NULL,
           description text,
           token_cost real NOT NULL DEFAULT 0,

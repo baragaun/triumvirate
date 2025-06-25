@@ -234,6 +234,7 @@ describe('Llm CRUD Operations', () => {
       // Verify the LLMs were saved in the mock database
       expect(mockData.llms.length).toBe(2);
       expect(mockData.llms[0].id).toBe('llm-1');
+      expect(mockData.llms[1].id).toBe('llm-2');
       expect(mockData.llms[1].arn).toBe('llm-arn-2');
     });
   });
