@@ -54,6 +54,7 @@ export async function createChatConfig(props: ChatConfig): Promise<ChangeObjectR
       feedbackButtonLlmText2: props.feedbackButtonLlmText2 || 'The user thought your response is wrong.',
       feedbackButtonLlmText3: props.feedbackButtonLlmText3 || null,
       feedbackButtonLlmText4: props.feedbackButtonLlmText4 || null,
+      ratingQuestion: props.ratingQuestion || null,
       feedbackQuestion0: props.feedbackQuestion0 || null,
       feedbackQuestion1: props.feedbackQuestion1 || null,
       feedbackQuestion2: props.feedbackQuestion2 || null,
