@@ -39,7 +39,6 @@ export const chat = pgTable('chats', {
 	cost: real('cost').notNull().default(0),
 	metadata: json('metadata'),
 	stage: text('stage'),
-	feedback: text('feedback'), // User feedback on the chat
 	feedbackButtonValue0: text('feedback_button_value_0'),
 	feedbackButtonValue1: text('feedback_button_value_1'),
 	feedbackButtonValue2: text('feedback_button_value_2'),
@@ -65,6 +64,9 @@ export const chat = pgTable('chats', {
 	feedbackButtonLlmText2: text('feedback_button_llm_text_2'),
 	feedbackButtonLlmText3: text('feedback_button_llm_text_3'),
 	feedbackButtonLlmText4: text('feedback_button_llm_text_4'),
+	ratingQuestion: text('rating_question'),
+	rating: integer('rating'), // Numerical rating of the chat
+	feedback: text('feedback'), // User feedback on the chat
 	feedbackQuestion0: text('feedback_question_0'),
 	feedbackQuestion1: text('feedback_question_1'),
 	feedbackQuestion2: text('feedback_question_2'),
@@ -85,7 +87,6 @@ export const chat = pgTable('chats', {
 	feedbackAnswer7: text('feedback_answer_7'),
 	feedbackAnswer8: text('feedback_answer_8'),
 	feedbackAnswer9: text('feedback_answer_9'),
-	rating: integer('rating'), // Numerical rating of the chat
 	endedAt: timestamp('ended_at'), // When the chat ended
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -149,6 +150,7 @@ export const chatConfig = pgTable('chat_configs', {
 	feedbackButtonLlmText2: text('feedback_button_llm_text_2'),
 	feedbackButtonLlmText3: text('feedback_button_llm_text_3'),
 	feedbackButtonLlmText4: text('feedback_button_llm_text_4'),
+	ratingQuestion: text('rating_question'),
 	feedbackQuestion0: text('feedback_question_0'),
 	feedbackQuestion1: text('feedback_question_1'),
 	feedbackQuestion2: text('feedback_question_2'),

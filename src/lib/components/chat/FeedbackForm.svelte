@@ -80,7 +80,7 @@
           <div class="feedback-questions">
             <div class="questions-grid">
               <div class="question-row">
-                <div class="question-text">How was your overall experience?</div>
+                <div class="question-text">{chat.ratingQuestion || 'How was your overall experience?'}</div>
                 <div class="question-rating-wrapper" role="radiogroup"
                      aria-label="Rating from 1 to 5">
                   {#each [1, 2, 3, 4, 5] as value}
