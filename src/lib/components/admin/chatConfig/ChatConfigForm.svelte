@@ -60,6 +60,7 @@
     feedbackButtonLlmText2: chatConfig.feedbackButtonLlmText2 || '',
     feedbackButtonLlmText3: chatConfig.feedbackButtonLlmText3 || '',
     feedbackButtonLlmText4: chatConfig.feedbackButtonLlmText4 || '',
+    ratingQuestion: chatConfig.ratingQuestion || 'How was your overall experience?',
     feedbackQuestion0: chatConfig.feedbackQuestion0 || '',
     feedbackQuestion1: chatConfig.feedbackQuestion1 || '',
     feedbackQuestion2: chatConfig.feedbackQuestion2 || '',
@@ -232,6 +233,7 @@
         feedbackButtonLlmText2: formData.feedbackButtonLlmText2,
         feedbackButtonLlmText3: formData.feedbackButtonLlmText3,
         feedbackButtonLlmText4: formData.feedbackButtonLlmText4,
+        ratingQuestion: formData.ratingQuestion,
         feedbackQuestion0: formData.feedbackQuestion0,
         feedbackQuestion1: formData.feedbackQuestion1,
         feedbackQuestion2: formData.feedbackQuestion2,
@@ -362,6 +364,17 @@
           These questions are shown to the user on the feedback form after ending the chat.
         </div>
 
+        <div class="form-group">
+          <label for="ratingQuestion">Overall rating question</label>
+          <input
+            type="text"
+            id="ratingQuestion"
+            bind:value={formData.ratingQuestion}
+            placeholder="How was your overall experience?"
+          />
+          <small>This question is shown to the user on the feedback form</small>
+        </div>
+
         {#each questions as question, i}
           <div class="form-group">
             <label for={question.id}>{question.label}</label>
@@ -383,7 +396,7 @@
         <select id="llmId" bind:value={formData.llmId} required>
           <option value="">Select a model</option>
           {#each llms as llm}
-            <option value={llm.id}>{llm.name} ({llm.provider})</option>
+            <option value={llm.id}>{llm.name} - {llm.arn} ({llm.provider})</option>
           {/each}
         </select>
         <small>The language model to use for this configuration</small>

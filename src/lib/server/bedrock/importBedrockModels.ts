@@ -84,6 +84,7 @@ export const importBedrockModels = async () => {
       id: model.modelId || '',
       provider: model.providerName || '',
       name: model.modelName || '',
+      arn: model.modelArn || '',
       description: JSON.stringify(model),
       tokenCost: 0,
       inputTokenCost: 0,

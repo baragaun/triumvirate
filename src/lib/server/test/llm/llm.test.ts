@@ -16,6 +16,7 @@ describe('Llm CRUD Operations', () => {
       // Create a new LLM
       const result = await createLlm({
         name: 'Test LLM',
+        arn: 'llm-arn',
         provider: 'Test Provider',
         description: 'Test Description'
       });
@@ -23,6 +24,7 @@ describe('Llm CRUD Operations', () => {
       // Verify the LLM was created
       expect(result).not.toBeNull();
       expect(result?.name).toBe('Test LLM');
+      expect(result?.arn).toBe('llm-arn');
 
       // Verify the LLM was added to the mock database
       expect(mockData.llms.length).toBe(1);
@@ -36,6 +38,7 @@ describe('Llm CRUD Operations', () => {
       mockData.llms.push({
         id: 'llm-id-123',
         name: 'Test LLM',
+        arn: 'llm-arn-123',
         provider: 'Test Provider',
         description: 'Test Description',
         isOnDemand: true,
@@ -67,6 +70,7 @@ describe('Llm CRUD Operations', () => {
         {
           id: 'llm-1',
           name: 'LLM 1',
+          arn: 'llm-arn-1',
           provider: 'Provider 1',
           isOnDemand: true,
           isActive: true,
@@ -76,6 +80,7 @@ describe('Llm CRUD Operations', () => {
         {
           id: 'llm-2',
           name: 'LLM 2',
+          arn: 'llm-arn-2',
           provider: 'Provider 2',
           isOnDemand: true,
           isActive: true,
@@ -100,6 +105,7 @@ describe('Llm CRUD Operations', () => {
       mockData.llms.push({
         id: 'llm-id-123',
         name: 'Test LLM',
+        arn: 'llm-arn-123',
         provider: 'Test Provider',
         isOnDemand: true,
         isActive: true,
@@ -128,6 +134,7 @@ describe('Llm CRUD Operations', () => {
       mockData.llms.push({
         id: 'llm-id-123',
         name: 'Test LLM',
+        arn: 'llm-arn-123',
         provider: 'Test Provider',
         isOnDemand: true,
         isActive: true,
@@ -149,6 +156,7 @@ describe('Llm CRUD Operations', () => {
       mockData.llms.push({
         id: 'llm-id-123',
         name: 'Test LLM',
+        arn: 'llm-arn-123',
         provider: 'Test Provider',
         isOnDemand: true,
         isActive: true,
@@ -170,6 +178,7 @@ describe('Llm CRUD Operations', () => {
       await upsertLlm({
         id: 'new-llm-123',
         name: 'New LLM',
+        arn: 'new-arn-123',
         provider: 'New Provider'
       });
 
@@ -177,6 +186,7 @@ describe('Llm CRUD Operations', () => {
       expect(mockData.llms.length).toBe(1);
       expect(mockData.llms[0].id).toBe('new-llm-123');
       expect(mockData.llms[0].name).toBe('New LLM');
+      expect(mockData.llms[0].arn).toBe('new-arn-123');
     });
 
     it('should throw an error if ID is not provided', async () => {
@@ -190,6 +200,7 @@ describe('Llm CRUD Operations', () => {
         {
           id: 'llm-1',
           name: 'LLM 1',
+          arn: 'llm-arn-1',
           provider: 'Provider 1',
           description: 'Description 1',
           tokenCost: 0,
@@ -204,6 +215,7 @@ describe('Llm CRUD Operations', () => {
         {
           id: 'llm-2',
           name: 'LLM 2',
+          arn: 'llm-arn-2',
           provider: 'Provider 2',
           description: 'Description 2',
           tokenCost: 0,
@@ -223,6 +235,7 @@ describe('Llm CRUD Operations', () => {
       expect(mockData.llms.length).toBe(2);
       expect(mockData.llms[0].id).toBe('llm-1');
       expect(mockData.llms[1].id).toBe('llm-2');
+      expect(mockData.llms[1].arn).toBe('llm-arn-2');
     });
   });
 });

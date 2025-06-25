@@ -87,6 +87,7 @@ export async function createChat(props: Partial<Chat>, userInfo?: Partial<User>)
       feedbackButtonLlmText2: props.feedbackButtonLlmText2 || chatConfig.feedbackButtonLlmText2 || null,
       feedbackButtonLlmText3: props.feedbackButtonLlmText3 || chatConfig.feedbackButtonLlmText3 || null,
       feedbackButtonLlmText4: props.feedbackButtonLlmText4 || chatConfig.feedbackButtonLlmText4 || null,
+      ratingQuestion: props.ratingQuestion || chatConfig.ratingQuestion || null,
       feedbackQuestion0: props.feedbackQuestion0 || chatConfig.feedbackQuestion0 || null,
       feedbackQuestion1: props.feedbackQuestion1 || chatConfig.feedbackQuestion1 || null,
       feedbackQuestion2: props.feedbackQuestion2 || chatConfig.feedbackQuestion2 || null,

@@ -76,50 +76,48 @@
         1 = Bad, 5 = Great
       </div>
       <div class="scroll-container">
-        {#if questions.length > 0}
-          <div class="feedback-questions">
-            <div class="questions-grid">
-              <div class="question-row">
-                <div class="question-text">How was your overall experience?</div>
-                <div class="question-rating-wrapper" role="radiogroup"
-                     aria-label="Rating from 1 to 5">
-                  {#each [1, 2, 3, 4, 5] as value}
-                    <button
-                      class="rating-button {rating === value ? 'selected' : ''}"
-                      onclick={() => rating = value}
-                      role="radio"
-                      aria-checked={rating === value}
-                      aria-label="Rating {value}"
-                    >
-                      {value}
-                    </button>
-                  {/each}
-                </div>
+        <div class="feedback-questions">
+          <div class="questions-grid">
+            <div class="question-row">
+              <div class="question-text">{chatConfig.ratingQuestion || chat.ratingQuestion || 'How was your overall experience?'}</div>
+              <div class="question-rating-wrapper" role="radiogroup"
+                   aria-label="Rating from 1 to 5">
+                {#each [1, 2, 3, 4, 5] as value}
+                  <button
+                    class="rating-button {rating === value ? 'selected' : ''}"
+                    onclick={() => rating = value}
+                    role="radio"
+                    aria-checked={rating === value}
+                    aria-label="Rating {value}"
+                  >
+                    {value}
+                  </button>
+                {/each}
               </div>
-              {#each questions as question, index}
-                {#if question}
-                  <div class="question-row">
-                    <div class="question-text">{question}</div>
-                    <div class="question-rating-wrapper" role="radiogroup"
-                         aria-label="Rating from 1 to 5">
-                      {#each [1, 2, 3, 4, 5] as value}
-                        <button
-                          class="rating-button {feedbackAnswers[index] === value ? 'selected' : ''}"
-                          onclick={() => setAnswer(index, value)}
-                          role="radio"
-                          aria-checked={feedbackAnswers[index] === value}
-                          aria-label="Rating {value}"
-                        >
-                          {value}
-                        </button>
-                      {/each}
-                    </div>
-                  </div>
-                {/if}
-              {/each}
             </div>
+            {#each questions as question, index}
+              {#if question}
+                <div class="question-row">
+                  <div class="question-text">{question}</div>
+                  <div class="question-rating-wrapper" role="radiogroup"
+                       aria-label="Rating from 1 to 5">
+                    {#each [1, 2, 3, 4, 5] as value}
+                      <button
+                        class="rating-button {feedbackAnswers[index] === value ? 'selected' : ''}"
+                        onclick={() => setAnswer(index, value)}
+                        role="radio"
+                        aria-checked={feedbackAnswers[index] === value}
+                        aria-label="Rating {value}"
+                      >
+                        {value}
+                      </button>
+                    {/each}
+                  </div>
+                </div>
+              {/if}
+            {/each}
           </div>
-        {/if}
+        </div>
 
         <div class="feedback-form">
           <label for="feedback-text">Additional comments:</label>

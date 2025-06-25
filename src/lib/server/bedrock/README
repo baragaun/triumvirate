@@ -1,0 +1,45 @@
+# AWS Bedrock
+
+## Inference Profile
+
+```shell
+aws bedrock create-inference-profile \
+  --profile mm \
+  --region us-east-1 \
+  --inference-profile-name MyClaudeSonnet4Profile \
+  --model-source copyFrom=arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-4-20250514-v1:0
+```
+
+```shell
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "bedrock:InvokeModel",
+                "bedrock:ListFoundationModels"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "bedrock:InvokeModel",
+                "bedrock:InvokeModelWithResponseStream",
+                "bedrock:ListFoundationModels",
+                "bedrock:GetFoundationModel",
+                "bedrock:ListCustomModels",
+                "bedrock:GetCustomModel"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
