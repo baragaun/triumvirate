@@ -173,6 +173,7 @@ export const chatConfig = pgTable('chat_configs', {
 export const llm = pgTable('llms', {
 	id: text('id').primaryKey(), // The model ID (e.g., amazon.nova-lite-v1:0)
 	name: text('name').notNull(), // The model name
+	arn: text('arn').notNull(), // The AWS ARN
 	provider: text('provider').notNull(), // The provider (e.g., Amazon, Anthropic)
 	description: text('description'), // Description of the model
 	tokenCost: real('token_cost').notNull().default(0),

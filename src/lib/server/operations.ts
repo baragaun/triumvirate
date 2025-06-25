@@ -42,6 +42,7 @@ import dataStore from '$lib/server/dataStore';
 import { findDefaultChatConfig } from '$lib/server/chatConfig/findDefaultChatConfig'
 import { deleteUser } from '$lib/server/user/deleteUser'
 import { findChatConfigByName } from '$lib/server/chatConfig/findChatConfigByName'
+import { findLlmByArn } from '$lib/server/llm/findLlmByArn'
 import { updateUserMetadata } from '$lib/server/user/updateUserMetadata'
 
 const operations = {
@@ -77,6 +78,7 @@ const operations = {
     delete: deleteLlm,
     find: findLlms,
     findOne: findLlm,
+    findByArn: findLlmByArn,
     saveMultiple: saveMultipleLlms,
     update: updateLlm,
     upsert: upsertLlm,

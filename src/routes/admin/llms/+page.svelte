@@ -237,9 +237,9 @@
         <tr>
           <th>Name</th>
           <th>Provider</th>
+          <th>ARN</th>
           <th>Input Token Cost</th>
           <th>Output Token Cost</th>
-          <th>Token Cost</th>
           <th>Available</th>
           <th class="import-button-th">
             <form method="POST" action="?/importModels" use:enhance={() => {
@@ -261,9 +261,9 @@
           <tr>
             <td>{llm.name}</td>
             <td>{llm.provider}</td>
+            <td>${llm.arn}</td>
             <td>${llm.inputTokenCost?.toFixed(6) || '0.000000'}</td>
             <td>${llm.outputTokenCost?.toFixed(6) || '0.000000'}</td>
-            <td>${llm.tokenCost?.toFixed(6) || '0.000000'}</td>
             <td>{llm.isAvailable ? '✓' : ''}</td>
             <td class="action-buttons">
               <button

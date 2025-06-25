@@ -396,7 +396,7 @@
         <select id="llmId" bind:value={formData.llmId} required>
           <option value="">Select a model</option>
           {#each llms as llm}
-            <option value={llm.id}>{llm.name} ({llm.provider})</option>
+            <option value={llm.id}>{llm.name} - {llm.arn} ({llm.provider})</option>
           {/each}
         </select>
         <small>The language model to use for this configuration</small>
